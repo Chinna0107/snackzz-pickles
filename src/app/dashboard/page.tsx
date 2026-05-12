@@ -27,23 +27,23 @@ export default function DashboardHome() {
 
   return (
     <div>
-      <h1 className="font-serif text-3xl font-bold text-brown mb-8">My Dashboard</h1>
+      <h1 className="font-serif text-2xl sm:text-3xl font-bold text-brown mb-6">My Dashboard</h1>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-3 gap-3 sm:gap-4 mb-6">
         {stats.map((s, i) => (
           <motion.div key={s.label} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.1 }}
-            className="bg-white rounded-2xl border border-terracotta/10 p-5 flex items-center gap-4">
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${s.color}`}>{s.icon}</div>
-            <div>
-              <p className="text-2xl font-serif font-bold text-brown">{s.value}</p>
-              <p className="text-brown-light/50 text-xs font-sans">{s.label}</p>
+            className="bg-white rounded-2xl border border-terracotta/10 p-3 sm:p-5 flex flex-col sm:flex-row items-center sm:items-start gap-2 sm:gap-4">
+            <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center flex-shrink-0 ${s.color}`}>{s.icon}</div>
+            <div className="text-center sm:text-left">
+              <p className="text-xl sm:text-2xl font-serif font-bold text-brown">{s.value}</p>
+              <p className="text-brown-light/50 text-[10px] sm:text-xs font-sans leading-tight">{s.label}</p>
             </div>
           </motion.div>
         ))}
       </div>
 
       {/* Recent Orders */}
-      <div className="bg-white rounded-2xl border border-terracotta/10 p-6">
+      <div className="bg-white rounded-2xl border border-terracotta/10 p-4 sm:p-6">
         <div className="flex items-center justify-between mb-4">
           <h2 className="font-serif text-lg font-bold text-brown">Recent Orders</h2>
           <Link href="/dashboard/orders" className="text-terracotta text-sm font-sans font-semibold flex items-center gap-1 hover:text-terracotta-dark">
@@ -62,7 +62,7 @@ export default function DashboardHome() {
               <div key={order.id} className="flex items-center justify-between py-3 border-b border-terracotta/5 last:border-0">
                 <div>
                   <p className="font-sans font-semibold text-brown text-sm">Order #{order.id}</p>
-                  <p className="text-brown-light/40 text-xs font-sans">{new Date(order.created_at).toLocaleDateString()}</p>
+                  <p className="text-brown-light/40 text-xs font-sans">{new Date(order.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
                 </div>
                 <div className="text-right">
                   <p className="font-serif font-bold text-gold">₹{order.total}</p>

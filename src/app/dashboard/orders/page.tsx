@@ -67,10 +67,10 @@ export default function MyOrdersPage() {
 
   return (
     <div>
-      <h1 className="font-serif text-3xl font-bold text-brown mb-8">My Orders</h1>
+      <h1 className="font-serif text-2xl sm:text-3xl font-bold text-brown mb-6">My Orders</h1>
 
       {orders.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-terracotta/10 p-12 text-center">
+        <div className="bg-white rounded-2xl border border-terracotta/10 p-10 text-center">
           <Package className="w-12 h-12 text-brown-light/20 mx-auto mb-4" />
           <p className="font-serif text-xl font-bold text-brown mb-2">No orders yet</p>
           <p className="text-brown-light/50 font-sans text-sm">Your orders will appear here after checkout.</p>
@@ -79,68 +79,82 @@ export default function MyOrdersPage() {
         <div className="space-y-4">
           {orders.map((order, i) => (
             <motion.div key={order.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.05 }}
-              className="bg-white rounded-2xl border border-terracotta/10 p-6">
-              <div className="flex items-start justify-between mb-4">
+              className="bg-white rounded-2xl border border-terracotta/10 p-4 sm:p-6">
+
+              {/* Header */}
+              <div className="flex items-start justify-between mb-3">
                 <div>
-                  <p className="font-serif font-bold text-brown text-lg">Order #{order.id}</p>
-                  <p className="text-brown-light/40 text-xs font-sans">{new Date(order.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "long", year: "numeric" })}</p>
+                  <p className="font-serif font-bold text-brown text-base sm:text-lg">Order #{order.id}</p>
+                  <p className="text-brown-light/40 text-xs font-sans">
+                    {new Date(order.created_at).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}
+                  </p>
                 </div>
-                <span className={`text-xs font-sans px-3 py-1 rounded-full font-semibold ${STATUS_COLORS[order.status] || "bg-cream text-brown-light"}`}>
+                <span className={`text-[10px] sm:text-xs font-sans px-2.5 py-1 rounded-full font-semibold flex-shrink-0 ${STATUS_COLORS[order.status] || "bg-cream text-brown-light"}`}>
                   {order.status}
                 </span>
               </div>
 
-              {/* Items */}
-              <div className="space-y-1 mb-4">
+              {/* Items — scrollable on mobile */}
+              <div className="space-y-1 mb-3 max-h-28 overflow-y-auto">
                 {(order.items || []).map((item, j) => (
-                  <div key={j} className="flex justify-between text-sm font-sans text-brown-light/70">
-                    <span>{item.name} × {item.qty}</span>
-                    <span>₹{item.price * item.qty}</span>
+                  <div key={j} className="flex justify-between text-xs sm:text-sm font-sans text-brown-light/70">
+                    <span className="truncate pr-2">{item.name} × {item.qty}</span>
+                    <span className="flex-shrink-0">₹{item.price * item.qty}</span>
                   </div>
                 ))}
               </div>
 
-              <div className="flex items-center justify-between pt-3 border-t border-terracotta/5">
-                <div>
-                  {order.address && (
-                    <p className="text-xs font-sans text-brown-light/50">
-                      📍 {order.address.line1}, {order.address.city}, {order.address.state}
-                    </p>
-                  )}
-                  {order.tracking_id && (
-                    <div className="flex items-center gap-2 mt-1">
-                      <span className="text-xs font-sans text-brown-light/50">AWB: <span className="font-semibold text-brown">{order.tracking_id}</span></span>
+              {/* Footer */}
+              <div className="pt-3 border-t border-terracotta/5 space-y-2">
+                {order.address && (
+                  <p className="text-xs font-sans text-brown-light/50 flex items-start gap-1">
+                    <MapPin className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                    <span>{order.address.line1}, {order.address.city}, {order.address.state}</span>
+                  </p>
+                )}
+
+                {order.tracking_id && (
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs font-sans text-brown-light/50">
+                      AWB: <span className="font-semibold text-brown">{order.tracking_id}</span>
+                    </span>
+                    {order.tracking_link && (
                       <a href={order.tracking_link} target="_blank" rel="noopener noreferrer"
                         className="text-terracotta hover:text-terracotta-dark transition-colors">
                         <ExternalLink className="w-3.5 h-3.5" />
                       </a>
-                    </div>
-                  )}
-                </div>
-                <div className="flex items-center gap-3">
-                  {order.tracking_id && (
-                    <button onClick={() => handleTrack(order.id)}
-                      disabled={trackingLoading[order.id]}
-                      className="flex items-center gap-1.5 text-xs font-sans font-semibold text-terracotta border border-terracotta/30 px-3 py-1.5 rounded-lg hover:bg-terracotta/5 transition-colors disabled:opacity-50">
-                      <MapPin className="w-3.5 h-3.5" />
-                      {trackingLoading[order.id] ? "Tracking..." : "Track"}
-                    </button>
-                  )}
-                  <p className="font-serif font-bold text-gold text-xl">₹{order.total}</p>
+                    )}
+                  </div>
+                )}
+
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    {order.tracking_id && (
+                      <button onClick={() => handleTrack(order.id)}
+                        disabled={trackingLoading[order.id]}
+                        className="flex items-center gap-1.5 text-xs font-sans font-semibold text-terracotta border border-terracotta/30 px-3 py-1.5 rounded-lg hover:bg-terracotta/5 transition-colors disabled:opacity-50">
+                        <MapPin className="w-3 h-3" />
+                        {trackingLoading[order.id] ? "..." : "Track"}
+                      </button>
+                    )}
+                  </div>
+                  <p className="font-serif font-bold text-gold text-lg sm:text-xl">₹{order.total}</p>
                 </div>
               </div>
 
               {/* Live tracking info */}
               {trackingData[order.id] && (
-                <div className="mt-4 p-4 bg-cream rounded-xl border border-terracotta/10">
+                <div className="mt-3 p-3 sm:p-4 bg-cream rounded-xl border border-terracotta/10">
                   {trackingData[order.id].error ? (
                     <p className="text-xs text-red-500 font-sans">{trackingData[order.id].error}</p>
                   ) : (
                     <div>
                       <p className="text-xs font-sans font-semibold text-brown mb-2">Live Tracking — {order.tracking_id}</p>
-                      {trackingData[order.id]?.tracking?.ShipmentData?.[0]?.Shipment?.Scans?.slice(0, 5).map((scan: any, k: number) => (
-                        <div key={k} className="flex gap-3 text-xs font-sans text-brown-light/70 mb-1">
-                          <span className="text-brown-light/40 w-32 flex-shrink-0">{new Date(scan.ScanDetail?.ScanDateTime).toLocaleString("en-IN")}</span>
+                      {trackingData[order.id]?.tracking?.ShipmentData?.[0]?.Shipment?.Scans?.slice(0, 5).map((scan: { ScanDetail?: { ScanDateTime: string; Instructions: string; ScannedLocation: string } }, k: number) => (
+                        <div key={k} className="flex flex-col sm:flex-row gap-1 sm:gap-3 text-xs font-sans text-brown-light/70 mb-1.5">
+                          <span className="text-brown-light/40 sm:w-32 flex-shrink-0 text-[10px]">
+                            {new Date(scan.ScanDetail?.ScanDateTime ?? "").toLocaleString("en-IN")}
+                          </span>
                           <span>{scan.ScanDetail?.Instructions} — {scan.ScanDetail?.ScannedLocation}</span>
                         </div>
                       ))}
