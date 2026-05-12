@@ -205,11 +205,11 @@ function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: numbe
                   priority
                 />
               </div>
-              <div className="hidden sm:block">
+              <div className="block">
                 <h1 className="font-serif text-2xl font-bold bg-gradient-to-r from-terracotta to-terracotta-dark bg-clip-text text-transparent leading-tight">
                   Snakzee
                 </h1>
-                <p className="text-[10px] text-terracotta/70 tracking-wider uppercase -mt-1 font-medium">
+                <p className="hidden sm:block text-[10px] text-terracotta/70 tracking-wider uppercase -mt-1 font-medium">
                   Art of Authentic Snacking
                 </p>
               </div>
