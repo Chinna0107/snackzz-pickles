@@ -37,7 +37,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
   const handleLogout = () => {
     localStorage.removeItem("snackzee_token");
     localStorage.removeItem("snackzee_user");
-    router.push("/login");
+    router.push("/");
   };
 
   if (!user) return (
