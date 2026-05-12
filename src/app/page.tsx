@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -3823,7 +3823,7 @@ function MobileBottomCTA() {
 }
 
 // ─── Main Page ───────────────────────────────────────────────
-export default function Home() {
+function HomeContent() {
   const [products, setProducts] = useState<Product[]>([]);
   const [productsLoading, setProductsLoading] = useState(true);
   const [compareIds, setCompareIds] = useState<string[]>([]);
@@ -4027,5 +4027,13 @@ export default function Home() {
         onUpdateQty={updateQuickOrderQty}
       />
     </div>
+  );
+}
+
+export default function Home() {
+  return (
+    <Suspense>
+      <HomeContent />
+    </Suspense>
   );
 }
