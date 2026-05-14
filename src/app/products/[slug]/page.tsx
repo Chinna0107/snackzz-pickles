@@ -51,14 +51,17 @@ export default function ProductDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (params.id) {
-      fetchProduct();
-    }
-  }, [params.id]);
+    if (params.slug) fetchProduct();
+  }, [params.slug]);
 
   const fetchProduct = async () => {
     try {
-      const res = await fetch(`${BACKEND_URL}/products/${params.id}`);
+      // Try slug first, fallback to ID
+      const isNumeric = /^\d+$/.test(String(params.slug));
+      const url = isNumeric
+        ? `${BACKEND_URL}/products/${params.slug}`
+        : `${BACKEND_URL}/products/slug/${params.slug}`;
+      const res = await fetch(url);
       const data = await res.json();
       if (data.product) {
         setProduct(data.product);

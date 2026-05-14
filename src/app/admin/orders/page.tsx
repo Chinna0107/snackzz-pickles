@@ -12,7 +12,7 @@ const FROM_ADDRESS = {
   city: "Jagtial",
   state: "Telangana",
   pincode: "505327",
-  phone: "+91 88975 86142",
+  phone: "+91 8464919366",
 };
 
 const STATUSES = ["paid", "processing", "shipped", "delivered", "cancelled"];
@@ -86,7 +86,14 @@ export default function AdminOrdersPage() {
         headers: { Authorization: `Bearer ${token}` },
       });
       const data = await res.json();
-      if (!res.ok) throw new Error(data.error || "Failed");
+      if (!res.ok) {
+        let errorMsg = data.error || "Failed";
+        if (data.details) {
+          const detailStr = typeof data.details === 'string' ? data.details : JSON.stringify(data.details);
+          errorMsg += ` - ${detailStr}`;
+        }
+        throw new Error(errorMsg);
+      }
       setOrders((prev) => prev.map((o) => o.id === orderId ? { ...o, tracking_id: data.awb, tracking_link: data.tracking_link, status: "shipped" } : o));
       setTracking((p) => ({ ...p, [orderId]: { id: data.awb, link: data.tracking_link } }));
       toast({ title: "Shipment created! 🚚", description: `AWB: ${data.awb}` });
@@ -105,32 +112,14 @@ export default function AdminOrdersPage() {
     window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
   };
 
-  const [labelLoading, setLabelLoading] = useState<Record<number, boolean>>({});
 
   const printLabel = async (orderId: number, trackingId?: string) => {
     if (!trackingId || trackingId.trim() === "") {
       toast({ title: "No AWB", description: "Create a Delhivery shipment first.", variant: "destructive" });
       return;
     }
-    const token = localStorage.getItem("snackzee_token");
-    setLabelLoading((p) => ({ ...p, [orderId]: true }));
-    try {
-      const res = await fetch(`${BACKEND_URL}/orders/${orderId}/label`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
-      if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to fetch label");
-      }
-      const blob = await res.blob();
-      const url = URL.createObjectURL(blob);
-      const win = window.open(url, "_blank");
-      win?.focus();
-    } catch (err: any) {
-      toast({ title: "Label Error", description: err.message, variant: "destructive" });
-    } finally {
-      setLabelLoading((p) => ({ ...p, [orderId]: false }));
-    }
+    // Open Delhivery tracking/label page directly
+    window.open(`https://www.delhivery.com/track/package/${trackingId}`, "_blank");
   };
 
   if (loading) return (
@@ -249,9 +238,8 @@ export default function AdminOrdersPage() {
                   {/* Action Buttons */}
                   <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2 border-t border-terracotta/5">
                     <button onClick={() => printLabel(order.id, order.tracking_id)}
-                      disabled={labelLoading[order.id]}
-                      className="flex items-center justify-center gap-2 bg-brown text-cream px-4 py-2.5 rounded-xl text-sm font-semibold font-sans hover:bg-brown-light transition-colors disabled:opacity-50">
-                      <Printer className="w-4 h-4" /> {labelLoading[order.id] ? "Fetching..." : "Print Shipping Label"}
+                      className="flex items-center justify-center gap-2 bg-brown text-cream px-4 py-2.5 rounded-xl text-sm font-semibold font-sans hover:bg-brown-light transition-colors">
+                      <Printer className="w-4 h-4" /> Print Shipping Label
                     </button>
                     <button onClick={() => notifyWhatsApp(order)}
                       className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold font-sans transition-colors">

@@ -99,7 +99,7 @@ export default function CheckoutPage() {
     }
 
     const options: RazorpayOptions = {
-      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_live_V4ZgQqRTu6ToQh",
+      key: process.env.NEXT_PUBLIC_RAZORPAY_KEY_ID || "rzp_test_XXXXXXXXXXXXXXXX",
       amount: grandTotal * 100,
       currency: "INR",
       name: "Snakzee",

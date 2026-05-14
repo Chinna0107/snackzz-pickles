@@ -74,6 +74,7 @@ import {
   AccordionContent,
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
+import { useProducts } from "@/hooks/useProducts";
 import {
   products as staticProducts,
   categories,
@@ -166,12 +167,24 @@ function AnnouncementBar() {
 function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: number; onCategorySelect: (id: string) => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [productsOpen, setProductsOpen] = useState(false);
   const { count: cartCount, total } = useCart();
+  const dropdownRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setProductsOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
   const scrollTo = (id: string) => {
@@ -188,62 +201,95 @@ function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: numbe
     >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
-          {/* Logo - moved slightly left */}
+
+          {/* Logo */}
           <Link href="/">
-            <motion.div 
-              className="flex items-center gap-2 cursor-pointer -ml-2"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
+            <motion.div className="flex items-center gap-2 cursor-pointer -ml-2" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
               <div className="w-10 h-10 sm:w-12 sm:h-12 relative">
-                <Image
-                  src="/snakzee-logo.png"
-                  alt="Snakzee Logo"
-                  width={48}
-                  height={48}
-                  className="object-contain"
-                  priority
-                />
+                <Image src="/snakzee-logo.png" alt="Snakzee Logo" width={48} height={48} className="object-contain" priority />
               </div>
               <div className="block">
-                <h1 className="font-serif text-2xl font-bold bg-gradient-to-r from-terracotta to-terracotta-dark bg-clip-text text-transparent leading-tight">
-                  Snakzee
-                </h1>
-                <p className="hidden sm:block text-[10px] text-terracotta/70 tracking-wider uppercase -mt-1 font-medium">
-                  Art of Authentic Snacking
-                </p>
+                <h1 className="font-serif text-2xl font-bold bg-gradient-to-r from-terracotta to-terracotta-dark bg-clip-text text-transparent leading-tight">Snakzee</h1>
+                <p className="hidden sm:block text-[10px] text-terracotta/70 tracking-wider uppercase -mt-1 font-medium">Art of Authentic Snacking</p>
               </div>
             </motion.div>
           </Link>
 
           {/* Desktop Nav */}
-          <div className="hidden md:flex items-center gap-6 lg:gap-8">
+          <div className="hidden md:flex items-center gap-1 lg:gap-2">
             <Link href="/">
-              <motion.button
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative group text-brown hover:text-terracotta transition-colors font-medium text-sm tracking-wide uppercase flex items-center gap-1.5"
-              >
-                <HomeIcon className="w-4 h-4" />
-                Home
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-terracotta transition-all group-hover:w-full" />
-              </motion.button>
+              <motion.span whileHover={{ scale: 1.05 }} className="relative group flex items-center gap-1.5 px-3 py-2 text-brown hover:text-terracotta transition-colors font-medium text-sm tracking-wide uppercase cursor-pointer">
+                <HomeIcon className="w-4 h-4" />Home
+                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-terracotta scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+              </motion.span>
             </Link>
-            {categories.map((cat) => (
+
+            {/* Products Dropdown */}
+            <div className="relative" ref={dropdownRef}>
               <motion.button
-                key={cat.id}
                 whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => { onCategorySelect(cat.id); scrollTo("products"); }}
-                className="relative group text-brown hover:text-terracotta transition-colors font-medium text-sm tracking-wide uppercase"
+                onClick={() => setProductsOpen(!productsOpen)}
+                className="relative group flex items-center gap-1.5 px-3 py-2 text-brown hover:text-terracotta transition-colors font-medium text-sm tracking-wide uppercase"
               >
-                {cat.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-terracotta transition-all group-hover:w-full" />
+                Products
+                <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${productsOpen ? "rotate-180" : ""}`} />
+                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-terracotta scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
               </motion.button>
-            ))}
+              <AnimatePresence>
+                {productsOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 8, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.97 }}
+                    transition={{ duration: 0.15 }}
+                    className="absolute top-full left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-terracotta/10 overflow-hidden z-50"
+                  >
+                    <div className="p-2">
+                      <Link href="/products" onClick={() => setProductsOpen(false)}>
+                        <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-terracotta/5 transition-colors cursor-pointer group">
+                          <span className="text-xl">🛍️</span>
+                          <div>
+                            <p className="font-sans font-semibold text-brown text-sm group-hover:text-terracotta transition-colors">All Products</p>
+                            <p className="text-brown-light/40 text-[10px] font-sans">Browse everything</p>
+                          </div>
+                        </div>
+                      </Link>
+                      <div className="h-px bg-terracotta/10 my-1" />
+                      {categories.map((cat) => (
+                        <button
+                          key={cat.id}
+                          onClick={() => { setProductsOpen(false); onCategorySelect(cat.id); scrollTo("products"); }}
+                          className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-terracotta/5 transition-colors group text-left"
+                        >
+                          <span className="text-xl">{cat.icon}</span>
+                          <div>
+                            <p className="font-sans font-semibold text-brown text-sm group-hover:text-terracotta transition-colors">{cat.name}</p>
+                            <p className="text-brown-light/40 text-[10px] font-sans">{cat.nameTelugu}</p>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            <Link href="/about">
+              <motion.span whileHover={{ scale: 1.05 }} className="relative group flex items-center gap-1.5 px-3 py-2 text-brown hover:text-terracotta transition-colors font-medium text-sm tracking-wide uppercase cursor-pointer">
+                About
+                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-terracotta scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+              </motion.span>
+            </Link>
+
+            <Link href="/contact">
+              <motion.span whileHover={{ scale: 1.05 }} className="relative group flex items-center gap-1.5 px-3 py-2 text-brown hover:text-terracotta transition-colors font-medium text-sm tracking-wide uppercase cursor-pointer">
+                Contact
+                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-terracotta scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+              </motion.span>
+            </Link>
           </div>
 
-          {/* Right side: Favorites + Cart + Login + Menu */}
+          {/* Right side */}
           <div className="flex items-center gap-2 sm:gap-3">
             {favoritesCount > 0 && (
               <motion.button
@@ -254,53 +300,27 @@ function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: numbe
                 aria-label={`${favoritesCount} favorites`}
               >
                 <Heart className="w-5 h-5 fill-current" />
-                <motion.span 
-                  initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
-                  className="absolute -top-1 -right-1 w-5 h-5 bg-gold text-brown text-[9px] font-bold rounded-full flex items-center justify-center shadow-md"
-                >
+                <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-1 -right-1 w-5 h-5 bg-gold text-brown text-[9px] font-bold rounded-full flex items-center justify-center shadow-md">
                   {favoritesCount}
                 </motion.span>
               </motion.button>
             )}
-            
             <Link href="/cart">
-              <motion.div
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-                className="relative flex items-center justify-center gap-2 px-4 py-2.5 bg-terracotta hover:bg-terracotta-dark text-white rounded-full transition-all shadow-lg hover:shadow-xl"
-              >
+              <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="relative flex items-center justify-center gap-2 px-4 py-2.5 bg-terracotta hover:bg-terracotta-dark text-white rounded-full transition-all shadow-lg hover:shadow-xl">
                 <ShoppingCart className="w-5 h-5" />
                 <span className="hidden sm:inline font-semibold text-sm">₹{total}</span>
                 {cartCount > 0 && (
-                  <motion.span 
-                    initial={{ scale: 0 }}
-                    animate={{ scale: 1 }}
-                    className="absolute -top-1 -right-1 w-5 h-5 bg-gold text-brown text-[10px] font-bold rounded-full flex items-center justify-center shadow-md"
-                  >
+                  <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-1 -right-1 w-5 h-5 bg-gold text-brown text-[10px] font-bold rounded-full flex items-center justify-center shadow-md">
                     {cartCount}
                   </motion.span>
                 )}
               </motion.div>
             </Link>
-            
-            <Link
-              href="/login"
-              className="hidden lg:flex items-center gap-1.5 border-2 border-terracotta/30 text-terracotta hover:bg-terracotta hover:text-white px-4 py-2.5 rounded-full font-semibold text-sm transition-all font-sans"
-            >
+            <Link href="/login" className="hidden lg:flex items-center gap-1.5 border-2 border-terracotta/30 text-terracotta hover:bg-terracotta hover:text-white px-4 py-2.5 rounded-full font-semibold text-sm transition-all font-sans">
               Sign In
             </Link>
-            
-            <button
-              className="md:hidden p-2 text-brown hover:bg-terracotta/10 rounded-full transition-colors"
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              aria-label="Toggle menu"
-            >
-              {mobileMenuOpen ? (
-                <X className="w-6 h-6" />
-              ) : (
-                <Menu className="w-6 h-6" />
-              )}
+            <button className="md:hidden p-2 text-brown hover:bg-terracotta/10 rounded-full transition-colors" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle menu">
+              {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
           </div>
         </div>
@@ -315,32 +335,39 @@ function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: numbe
             exit={{ opacity: 0, height: 0 }}
             className="md:hidden bg-cream/98 backdrop-blur-lg border-b border-terracotta/10 overflow-hidden"
           >
-            <div className="px-4 py-4 space-y-2">
+            <div className="px-4 py-4 space-y-1">
               <Link href="/">
-                <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center gap-2 w-full text-left px-4 py-3 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-lg transition-colors font-medium"
-                >
-                  <HomeIcon className="w-4 h-4" />
-                  Home
-                </button>
+                <div onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium cursor-pointer">
+                  <HomeIcon className="w-4 h-4" /> Home
+                </div>
               </Link>
-              {categories.map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => { onCategorySelect(cat.id); scrollTo("products"); }}
-                  className="block w-full text-left px-4 py-3 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-lg transition-colors font-medium"
-                >
-                  {cat.icon} {cat.name} ({cat.nameTelugu})
-                </button>
-              ))}
+              <div className="px-4 pt-2 pb-1">
+                <p className="text-brown-light/40 text-[10px] font-sans uppercase tracking-widest mb-1">Products</p>
+                <Link href="/products" onClick={() => setMobileMenuOpen(false)}>
+                  <div className="flex items-center gap-2 px-3 py-2.5 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium text-sm cursor-pointer">
+                    🛍️ All Products
+                  </div>
+                </Link>
+                {categories.map((cat) => (
+                  <button key={cat.id} onClick={() => { onCategorySelect(cat.id); scrollTo("products"); }} className="w-full flex items-center gap-2 px-3 py-2.5 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium text-sm text-left">
+                    {cat.icon} {cat.name} <span className="text-brown-light/40 text-[11px] font-sans">({cat.nameTelugu})</span>
+                  </button>
+                ))}
+              </div>
+              <Link href="/about">
+                <div onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium cursor-pointer">
+                  About Us
+                </div>
+              </Link>
+              <Link href="/contact">
+                <div onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium cursor-pointer">
+                  Contact Us
+                </div>
+              </Link>
               <Link href="/login">
-                <button
-                  onClick={() => setMobileMenuOpen(false)}
-                  className="flex items-center justify-center gap-2 w-full bg-terracotta hover:bg-terracotta-dark text-white px-4 py-3 rounded-full font-semibold text-sm transition-all mt-3"
-                >
+                <div onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full bg-terracotta hover:bg-terracotta-dark text-white px-4 py-3 rounded-full font-semibold text-sm transition-all mt-2 cursor-pointer">
                   Sign In
-                </button>
+                </div>
               </Link>
             </div>
           </motion.div>
@@ -961,7 +988,7 @@ function ProductCard({
       viewport={{ once: true }}
       whileHover={{ y: -6 }}
       transition={{ duration: 0.3 }}
-      onClick={() => router.push(`/products/${product.id}`)}
+      onClick={() => router.push(`/products/${(product as any).slug || product.id}`)}
       className="group bg-white rounded-2xl border border-terracotta/10 overflow-hidden product-card-hover relative cursor-pointer"
     >
       {/* Image */}
@@ -2386,12 +2413,14 @@ function QuickOrderList({
   items,
   onRemoveItem,
   onUpdateQty,
+  products,
 }: {
   open: boolean;
   onClose: () => void;
   items: Map<string, number>;
   onRemoveItem: (id: string) => void;
   onUpdateQty: (id: string, qty: number) => void;
+  products: Product[];
 }) {
   if (!open) return null;
 
@@ -3824,8 +3853,7 @@ function MobileBottomCTA() {
 
 // ─── Main Page ───────────────────────────────────────────────
 function HomeContent() {
-  const [products, setProducts] = useState<Product[]>([]);
-  const [productsLoading, setProductsLoading] = useState(true);
+  const { products, loading: productsLoading } = useProducts();
   const [compareIds, setCompareIds] = useState<string[]>([]);
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const searchParams = useSearchParams();
@@ -3843,49 +3871,7 @@ function HomeContent() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [mounted, setMounted] = useState(false);
 
-  // Fetch products from backend
-  useEffect(() => {
-    const fetchProducts = async () => {
-      try {
-        const res = await fetch(`${BACKEND_URL}/products`);
-        const data = await res.json();
-        if (data.products && Array.isArray(data.products)) {
-          // Map backend products to frontend format
-          const mappedProducts = data.products.map((p: any) => ({
-            id: String(p.id),
-            name: p.name,
-            nameEnglish: p.name_english,
-            category: p.category ? p.category.replace(/_/g, "-") : "hot-items",
-            description: p.description || "",
-            price: p.price,
-            priceUnit: p.price_unit || "per pack",
-            image: p.image || "/placeholder.jpg",
-            badge: p.badge,
-            popular: p.popular || false,
-            spiceLevel: p.spice_level || "none",
-            shelfLife: p.shelf_life || "N/A",
-            serves: p.serves || "N/A",
-            ingredients: Array.isArray(p.ingredients) ? p.ingredients : [],
-            nutrition: p.nutrition || { calories: "0", protein: "0g", carbs: "0g", fat: "0g", fiber: "0g" },
-            tags: Array.isArray(p.tags) ? p.tags : [],
-          }));
-          setProducts(mappedProducts);
-        } else {
-          // Fallback to static products if API fails
-          setProducts(staticProducts);
-        }
-      } catch (error) {
-        console.error("Failed to fetch products:", error);
-        // Fallback to static products
-        setProducts(staticProducts);
-      } finally {
-        setProductsLoading(false);
-      }
-    };
-
-    fetchProducts();
-  }, []);
-
+  // Fetch products from backend — handled by useProducts hook
   useEffect(() => {
     setMounted(true);
     try {
@@ -4025,6 +4011,7 @@ function HomeContent() {
         items={quickOrderItems}
         onRemoveItem={removeFromQuickOrder}
         onUpdateQty={updateQuickOrderQty}
+        products={products}
       />
     </div>
   );
