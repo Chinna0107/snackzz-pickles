@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
@@ -123,7 +123,7 @@ function ProductCard({ product, isFavorite, onToggleFavorite }: {
   );
 }
 
-export default function ShopPage() {
+function ShopContent() {
   const searchParams = useSearchParams();
   const { products, loading } = useProducts();
   const [activeCategory, setActiveCategory] = useState<string>(searchParams.get("category") || "all");
@@ -241,5 +241,17 @@ export default function ShopPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function ShopPage() {
+  return (
+    <Suspense fallback={
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-terracotta/20 border-t-terracotta rounded-full animate-spin" />
+      </div>
+    }>
+      <ShopContent />
+    </Suspense>
   );
 }
