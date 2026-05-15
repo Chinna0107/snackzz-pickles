@@ -5,7 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, Menu, X, ChevronDown, Home as HomeIcon, Info, Phone, Store } from "lucide-react";
+import { ShoppingCart, Menu, X, ChevronDown, Home as HomeIcon, Info, Phone } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { prefetchProducts } from "@/hooks/useProducts";
 import { categories } from "@/lib/products";

@@ -2,12 +2,12 @@
 
 import Footer from "@/components/Footer";
 
-import { useState, useEffect, useCallback, Suspense } from "react";
+import { useState, useEffect, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, Heart, Check, Search, XCircle, Crown } from "lucide-react";
+import { ShoppingCart, Check, Search, XCircle, Crown } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { useProducts } from "@/hooks/useProducts";
@@ -23,10 +23,8 @@ function SpiceBadge({ level }: { level: SpiceLevel }) {
   );
 }
 
-function ProductCard({ product, isFavorite, onToggleFavorite }: {
+function ProductCard({ product }: {
   product: Product & { slug?: string };
-  isFavorite: boolean;
-  onToggleFavorite: (id: string) => void;
 }) {
   const { addItem, items } = useCart();
   const { toast } = useToast();
@@ -66,10 +64,6 @@ function ProductCard({ product, isFavorite, onToggleFavorite }: {
             <Crown className="w-3.5 h-3.5 fill-current" />
           </div>
         )}
-        <button onClick={(e) => { e.stopPropagation(); onToggleFavorite(product.id); }}
-          className={`absolute bottom-2 right-2 w-7 h-7 rounded-full flex items-center justify-center transition-all ${isFavorite ? "bg-terracotta text-white" : "bg-white/80 text-brown-light/50 hover:text-terracotta"}`}>
-          <Heart className={`w-3.5 h-3.5 ${isFavorite ? "fill-current" : ""}`} />
-        </button>
       </div>
 
       {/* Content — right side */}
@@ -130,28 +124,11 @@ function ShopContent() {
   const { products, loading } = useProducts();
   const [activeCategory, setActiveCategory] = useState<string>(searchParams.get("category") || "all");
   const [searchQuery, setSearchQuery] = useState("");
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     const cat = searchParams.get("category");
     if (cat) setActiveCategory(cat);
   }, [searchParams]);
-
-  useEffect(() => {
-    try {
-      const stored = localStorage.getItem("snakzee-favorites");
-      if (stored) setFavorites(new Set(JSON.parse(stored)));
-    } catch {}
-  }, []);
-
-  const toggleFavorite = useCallback((id: string) => {
-    setFavorites((prev) => {
-      const next = new Set(prev);
-      next.has(id) ? next.delete(id) : next.add(id);
-      localStorage.setItem("snakzee-favorites", JSON.stringify([...next]));
-      return next;
-    });
-  }, []);
 
   const filteredProducts = products.filter((p) => {
     const matchesCategory = activeCategory === "all" || p.category === activeCategory;
@@ -201,6 +178,7 @@ function ShopContent() {
                 {cat.icon} {cat.name}
               </button>
             ))}
+
           </div>
 
           {/* Count */}
@@ -233,9 +211,7 @@ function ShopContent() {
             <div className="space-y-4">
               <AnimatePresence>
                 {filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product}
-                    isFavorite={favorites.has(product.id)}
-                    onToggleFavorite={toggleFavorite} />
+                  <ProductCard key={product.id} product={product} />
                 ))}
               </AnimatePresence>
             </div>

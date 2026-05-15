@@ -164,12 +164,11 @@ function AnnouncementBar() {
 }
 
 // ─── Sticky Navigation ───────────────────────────────────────
-function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: number; onCategorySelect: (id: string) => void }) {
+function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCategorySelect: (id: string) => void; searchQuery: string; onSearchChange: (q: string) => void }) {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const { count: cartCount, total } = useCart();
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -322,7 +321,7 @@ function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: numbe
                     <input
                       ref={searchRef}
                       value={searchQuery}
-                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onChange={(e) => onSearchChange(e.target.value)}
                       onBlur={() => { if (!searchQuery) setSearchOpen(false); }}
                       onKeyDown={(e) => e.key === "Escape" && setSearchOpen(false)}
                       placeholder="Search products..."
@@ -340,20 +339,7 @@ function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: numbe
                 <Search className="w-5 h-5" />
               </motion.button>
             </div>
-            {favoritesCount > 0 && (
-              <motion.button
-                whileHover={{ scale: 1.1 }}
-                whileTap={{ scale: 0.95 }}
-                onClick={() => scrollTo("products")}
-                className="relative flex items-center justify-center w-10 h-10 bg-cream hover:bg-terracotta/10 text-terracotta rounded-full transition-all"
-                aria-label={`${favoritesCount} favorites`}
-              >
-                <Heart className="w-5 h-5 fill-current" />
-                <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }} className="absolute -top-1 -right-1 w-5 h-5 bg-gold text-brown text-[9px] font-bold rounded-full flex items-center justify-center shadow-md">
-                  {favoritesCount}
-                </motion.span>
-              </motion.button>
-            )}
+
             <Link href="/cart">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="relative flex items-center justify-center gap-2 px-4 py-2.5 bg-terracotta hover:bg-terracotta-dark text-white rounded-full transition-all shadow-lg hover:shadow-xl">
                 <ShoppingCart className="w-5 h-5" />
@@ -1057,15 +1043,11 @@ function SpiceLevelBadge({ level }: { level: SpiceLevel }) {
 // ─── Product Card (Enhanced) ─────────────────────────────────
 function ProductCard({
   product,
-  isFavorite,
-  onToggleFavorite,
   isCompareSelected,
   onToggleCompare,
   onAddToQuickOrder,
 }: {
   product: Product;
-  isFavorite: boolean;
-  onToggleFavorite: (id: string) => void;
   isCompareSelected: boolean;
   onToggleCompare: (id: string) => void;
   onAddToQuickOrder: (id: string) => void;
@@ -1118,20 +1100,7 @@ function ProductCard({
             <span className="text-[10px] font-bold">🐟</span>
           </div>
         )}
-        {/* Favorite heart */}
-        <button
-          onClick={(e) => {
-            e.stopPropagation();
-            onToggleFavorite(product.id);
-          }}
-          className={`absolute top-3 ${product.badge ? 'right-3' : 'left-3'} z-20 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 ${isFavorite
-            ? "bg-terracotta text-white heart-pop"
-            : "bg-white/80 text-brown-light/50 hover:text-terracotta hover:bg-white"
-            }`}
-          aria-label={isFavorite ? "Remove from favorites" : "Add to favorites"}
-        >
-          <Heart className={`w-4 h-4 ${isFavorite ? "fill-current" : ""}`} />
-        </button>
+
         {/* Compare checkbox */}
         <button
           onClick={(e) => {
@@ -1223,25 +1192,23 @@ function ProductCard({
 }
 function FeaturedProducts({
   products,
-  favorites,
-  onToggleFavorite,
   compareIds,
   onToggleCompare,
   onAddToQuickOrder,
   activeCategory,
   onCategoryChange,
+  searchQuery,
+  onSearchChange,
 }: {
   products: Product[];
-  favorites: Set<string>;
-  onToggleFavorite: (id: string) => void;
   compareIds: Set<string>;
   onToggleCompare: (id: string) => void;
   onAddToQuickOrder: (id: string) => void;
   activeCategory: string;
   onCategoryChange: (cat: string) => void;
+  searchQuery: string;
+  onSearchChange: (q: string) => void;
 }) {
-  const [searchQuery, setSearchQuery] = useState("");
-  const [showFavoritesOnly, setShowFavoritesOnly] = useState(false);
   const [activeTags, setActiveTags] = useState<string[]>([]);
 
   // Get all unique tags from products
@@ -1254,9 +1221,8 @@ function FeaturedProducts({
       p.nameEnglish.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.description.toLowerCase().includes(searchQuery.toLowerCase());
-    const matchesFavorites = !showFavoritesOnly || favorites.has(p.id);
     const matchesTags = activeTags.length === 0 || activeTags.every(tag => p.tags.includes(tag));
-    return matchesCategory && matchesSearch && matchesFavorites && matchesTags;
+    return matchesCategory && matchesSearch && matchesTags;
   });
 
   return (
@@ -1285,12 +1251,12 @@ function FeaturedProducts({
               type="text"
               placeholder="Search by name, Telugu name, or category..."
               value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
+              onChange={(e) => onSearchChange(e.target.value)}
               className="search-input w-full pl-10 pr-10 py-3 rounded-xl bg-white text-brown text-sm font-sans placeholder:text-brown-light/40"
             />
             {searchQuery && (
               <button
-                onClick={() => setSearchQuery("")}
+                onClick={() => onSearchChange("")}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-brown-light/40 hover:text-brown-light transition-colors"
               >
                 <XCircle className="w-4 h-4" />
@@ -1302,8 +1268,8 @@ function FeaturedProducts({
         {/* Category Filter + Favorites Toggle */}
         <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8 sm:mb-12">
           <button
-            onClick={() => { onCategoryChange("all"); setShowFavoritesOnly(false); }}
-            className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all font-sans ${activeCategory === "all" && !showFavoritesOnly
+            onClick={() => onCategoryChange("all")}
+            className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all font-sans ${activeCategory === "all"
               ? "bg-terracotta text-white shadow-lg shadow-terracotta/20"
               : "bg-white text-brown-light border border-terracotta/10 hover:border-terracotta/30"
               }`}
@@ -1313,8 +1279,8 @@ function FeaturedProducts({
           {categories.map((cat) => (
             <button
               key={cat.id}
-              onClick={() => { onCategoryChange(cat.id); setShowFavoritesOnly(false); }}
-              className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all font-sans ${activeCategory === cat.id && !showFavoritesOnly
+              onClick={() => onCategoryChange(cat.id)}
+              className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all font-sans ${activeCategory === cat.id
                 ? "bg-terracotta text-white shadow-lg shadow-terracotta/20"
                 : "bg-white text-brown-light border border-terracotta/10 hover:border-terracotta/30"
                 }`}
@@ -1322,18 +1288,7 @@ function FeaturedProducts({
               {cat.icon} {cat.name}
             </button>
           ))}
-          {favorites.size > 0 && (
-            <button
-              onClick={() => setShowFavoritesOnly(!showFavoritesOnly)}
-              className={`px-4 sm:px-6 py-2 sm:py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all font-sans flex items-center gap-1.5 ${showFavoritesOnly
-                ? "bg-terracotta text-white shadow-lg shadow-terracotta/20"
-                : "bg-white text-brown-light border border-terracotta/10 hover:border-terracotta/30"
-                }`}
-            >
-              <Heart className={`w-3.5 h-3.5 ${showFavoritesOnly ? "fill-current" : ""}`} />
-              Favorites ({favorites.size})
-            </button>
-          )}
+
         </div>
 
         {/* Tag Filters */}
@@ -1374,15 +1329,13 @@ function FeaturedProducts({
             </div>
             <h3 className="font-serif text-xl font-bold text-brown mb-2">No products found</h3>
             <p className="text-brown-light/60 text-sm font-sans">
-              {showFavoritesOnly
-                ? "You haven't added any favorites yet. Click the heart icon on products you love!"
-                : activeCategory !== "all"
+              {activeCategory !== "all"
                 ? `No products available in "${categories.find(c => c.id === activeCategory)?.name || activeCategory}" yet.`
                 : "Try a different search term or category."}
             </p>
-            {(searchQuery || activeCategory !== "all" || showFavoritesOnly || activeTags.length > 0) && (
+            {(searchQuery || activeCategory !== "all" || activeTags.length > 0) && (
               <button
-                onClick={() => { setSearchQuery(""); onCategoryChange("all"); setShowFavoritesOnly(false); setActiveTags([]); }}
+                onClick={() => { onSearchChange(""); onCategoryChange("all"); setActiveTags([]); }}
                 className="mt-4 text-terracotta hover:text-terracotta-dark font-semibold text-sm font-sans transition-colors"
               >
                 Clear all filters
@@ -1397,8 +1350,6 @@ function FeaturedProducts({
                   key={product.id}
                   product={product}
 
-                  isFavorite={favorites.has(product.id)}
-                  onToggleFavorite={onToggleFavorite}
                   isCompareSelected={compareIds.has(product.id)}
                   onToggleCompare={onToggleCompare}
                   onAddToQuickOrder={onAddToQuickOrder}
@@ -2115,14 +2066,10 @@ function ProductQuickView({
   product,
   open,
   onClose,
-  isFavorite,
-  onToggleFavorite,
 }: {
   product: Product | null;
   open: boolean;
   onClose: () => void;
-  isFavorite: boolean;
-  onToggleFavorite: (id: string) => void;
 }) {
   const [quantity, setQuantity] = useState(1);
   const [counterKey, setCounterKey] = useState(0);
@@ -3922,6 +3869,7 @@ function MobileBottomCTA() {
 function HomeContent() {
   const { products, loading: productsLoading } = useProducts();
   const [compareIds, setCompareIds] = useState<string[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const searchParams = useSearchParams();
 
@@ -3935,36 +3883,14 @@ function HomeContent() {
   const [compareOpen, setCompareOpen] = useState(false);
   const [quickOrderOpen, setQuickOrderOpen] = useState(false);
   const [quickOrderItems, setQuickOrderItems] = useState<Map<string, number>>(new Map());
-  const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [mounted, setMounted] = useState(false);
 
   // Fetch products from backend — handled by useProducts hook
   useEffect(() => {
     setMounted(true);
-    try {
-      const stored = localStorage.getItem("snakzee-favorites");
-      if (stored) setFavorites(new Set(JSON.parse(stored)));
-    } catch { /* ignore */ }
   }, []);
 
-  // Save favorites to localStorage whenever it changes
-  useEffect(() => {
-    if (!mounted) return;
-    try {
-      localStorage.setItem("snakzee-favorites", JSON.stringify([...favorites]));
-    } catch { /* ignore */ }
-  }, [favorites]);
 
-
-
-  const toggleFavorite = useCallback((id: string) => {
-    setFavorites((prev) => {
-      const next = new Set(prev);
-      if (next.has(id)) next.delete(id);
-      else next.add(id);
-      return next;
-    });
-  }, []);
 
   const toggleCompare = useCallback((id: string) => {
     setCompareIds((prev) => {
@@ -4003,7 +3929,7 @@ function HomeContent() {
       <Preloader />
       <ScrollProgressBar />
 
-      <StickyNav favoritesCount={favorites.size} onCategorySelect={setActiveCategory} />
+      <StickyNav onCategorySelect={setActiveCategory} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       <main className="flex-1">
         <HeroSection />
         <MarqueeStrip />
@@ -4016,13 +3942,13 @@ function HomeContent() {
         <SectionReveal><IngredientsGlossarySection /></SectionReveal>
         <FeaturedProducts
           products={products}
-          favorites={favorites}
-          onToggleFavorite={toggleFavorite}
           compareIds={new Set(compareIds)}
           onToggleCompare={toggleCompare}
           onAddToQuickOrder={addToQuickOrder}
           activeCategory={activeCategory}
           onCategoryChange={setActiveCategory}
+          searchQuery={searchQuery}
+          onSearchChange={setSearchQuery}
         />
         <SectionReveal><WhatsAppOrderSection /></SectionReveal>
         <SectionReveal><OrderTrackingSection /></SectionReveal>
