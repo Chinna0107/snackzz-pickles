@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Upload, ImageIcon, Trash2, CheckCircle2 } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 const BANNER_KEY = "snackzee_hero_banners";
@@ -65,28 +66,19 @@ export default function AdminBannerPage() {
     if (!file) return;
     setUploading(true);
     try {
-      const token = localStorage.getItem("snackzee_token");
-      const formData = new FormData();
-      formData.append("image", file);
-      const res = await fetch(`${BACKEND_URL}/upload/single?folder=banners`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-      if (!res.ok) throw new Error("Upload failed");
-      const data = await res.json();
+      const { url, public_id } = await uploadToCloudinary(file, "snackzee/banners");
       const newBanner: Banner = {
         id: Date.now().toString(),
-        url: data.url,
-        public_id: data.public_id,
+        url,
+        public_id,
         label: label || file.name.replace(/\.[^.]+$/, ""),
         active: true,
       };
       await saveBanners([...banners, newBanner]);
       setLabel("");
       toast({ title: "Banner uploaded!", description: "Banner is now live on the homepage." });
-    } catch (err) {
-      toast({ title: "Upload failed", description: "Could not upload to Cloudinary. Check your connection.", variant: "destructive" });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";

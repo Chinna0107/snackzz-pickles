@@ -5,6 +5,7 @@ import Image from "next/image";
 import { motion } from "framer-motion";
 import { Search, Edit2, X, Save, Plus, Trash2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
@@ -178,26 +179,13 @@ export default function AdminProductsPage() {
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-
     setUploading(true);
-    const token = localStorage.getItem("snackzee_token");
-    const formData = new FormData();
-    formData.append("image", file);
-
     try {
-      const res = await fetch(`${BACKEND_URL}/upload/single`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
-
-      if (!res.ok) throw new Error("Upload failed");
-
-      const data = await res.json();
-      handleChange("image", data.url);
-      toast({ title: "Success", description: "Image uploaded successfully" });
-    } catch (err) {
-      toast({ title: "Error", description: "Failed to upload image", variant: "destructive" });
+      const { url } = await uploadToCloudinary(file, "snackzee/products");
+      handleChange("image", url);
+      toast({ title: "Image uploaded ✅" });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
     } finally {
       setUploading(false);
     }
@@ -206,30 +194,14 @@ export default function AdminProductsPage() {
   const handleMultipleImagesUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
-
     setUploading(true);
-    const token = localStorage.getItem("snackzee_token");
-    const formDataObj = new FormData();
-    
-    Array.from(files).forEach((file) => {
-      formDataObj.append("images", file);
-    });
-
     try {
-      const res = await fetch(`${BACKEND_URL}/upload/multiple`, {
-        method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formDataObj,
-      });
-
-      if (!res.ok) throw new Error("Upload failed");
-
-      const data = await res.json();
-      const urls = data.images.map((img: any) => img.url);
+      const uploads = await Promise.all(Array.from(files).map((f) => uploadToCloudinary(f, "snackzee/products")));
+      const urls = uploads.map((u) => u.url);
       handleChange("images", [...formData.images, ...urls]);
-      toast({ title: "Success", description: `${urls.length} images uploaded successfully` });
-    } catch (err) {
-      toast({ title: "Error", description: "Failed to upload images", variant: "destructive" });
+      toast({ title: `${urls.length} images uploaded ✅` });
+    } catch (err: any) {
+      toast({ title: "Upload failed", description: err.message, variant: "destructive" });
     } finally {
       setUploading(false);
     }
