@@ -16,7 +16,14 @@ function mapProduct(p: any): MappedProduct {
     id: String(p.id),
     name: p.name,
     nameEnglish: p.name_english,
-    category: p.category ? p.category.replace(/_/g, "-") : "hot-items",
+    category: (() => {
+      const cat = (p.category || 'hot-items').replace(/_/g, '-');
+      if (cat === 'snacks') return 'hot-items';
+      if (cat === 'sweets') return 'sweet-items';
+      if (cat === 'powders') return 'podis-powders';
+      if (cat === 'pickles' || cat === 'papads') return 'vadiyalu-papads';
+      return cat;
+    })(),
     description: p.description || "",
     price: p.price,
     priceUnit: p.price_unit || "per pack",
