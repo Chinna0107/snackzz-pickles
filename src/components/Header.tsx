@@ -82,7 +82,7 @@ export default function Header() {
             </Link>
 
             {/* Products Dropdown */}
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative" ref={dropdownRef} onMouseEnter={() => setProductsOpen(true)} onMouseLeave={() => setProductsOpen(false)}>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 onClick={() => setProductsOpen(!productsOpen)}

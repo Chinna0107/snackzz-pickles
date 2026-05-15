@@ -168,8 +168,23 @@ function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: numbe
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const { count: cartCount, total } = useCart();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const searchRef = useRef<HTMLInputElement>(null);
+
+  const handleSearch = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!searchQuery.trim()) return;
+    document.getElementById("products")?.scrollIntoView({ behavior: "smooth" });
+    setSearchOpen(false);
+  };
+
+  const openSearch = () => {
+    setSearchOpen(true);
+    setTimeout(() => searchRef.current?.focus(), 50);
+  };
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 20);
@@ -225,10 +240,10 @@ function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: numbe
             </Link>
 
             {/* Products Dropdown */}
-            <div className="relative" ref={dropdownRef}>
+            <div className="relative" ref={dropdownRef} onMouseEnter={() => setProductsOpen(true)} onMouseLeave={() => setProductsOpen(false)}>
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                onClick={() => setProductsOpen(!productsOpen)}
+                onMouseEnter={() => setProductsOpen(true)} onMouseLeave={() => setProductsOpen(false)} onClick={() => setProductsOpen(!productsOpen)}
                 className="relative group flex items-center gap-1.5 px-3 py-2 text-brown hover:text-terracotta transition-colors font-medium text-sm tracking-wide uppercase"
               >
                 Products
@@ -291,6 +306,39 @@ function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: numbe
 
           {/* Right side */}
           <div className="flex items-center gap-2 sm:gap-3">
+            {/* Search */}
+            <div className="flex items-center">
+              <AnimatePresence>
+                {searchOpen && (
+                  <motion.form
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: "180px", opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    onSubmit={handleSearch}
+                    className="overflow-hidden"
+                  >
+                    <input
+                      ref={searchRef}
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      onBlur={() => { if (!searchQuery) setSearchOpen(false); }}
+                      onKeyDown={(e) => e.key === "Escape" && setSearchOpen(false)}
+                      placeholder="Search products..."
+                      className="w-full px-3 py-2 rounded-xl bg-cream border border-terracotta/20 text-brown text-sm font-sans placeholder:text-brown-light/40 focus:outline-none focus:border-terracotta/40"
+                    />
+                  </motion.form>
+                )}
+              </AnimatePresence>
+              <motion.button
+                whileHover={{ scale: 1.1 }} whileTap={{ scale: 0.95 }}
+                onClick={searchOpen ? handleSearch : openSearch}
+                className="w-10 h-10 flex items-center justify-center text-brown hover:text-terracotta rounded-full hover:bg-terracotta/10 transition-colors"
+                aria-label="Search"
+              >
+                <Search className="w-5 h-5" />
+              </motion.button>
+            </div>
             {favoritesCount > 0 && (
               <motion.button
                 whileHover={{ scale: 1.1 }}
@@ -379,6 +427,40 @@ function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: numbe
 
 // ─── Hero Section ────────────────────────────────────────────
 function HeroSection() {
+  const [banners, setBanners] = useState<{ id: string; url: string; public_id: string; label: string; active: boolean }[]>([]);
+  const [currentBanner, setCurrentBanner] = useState(0);
+
+  useEffect(() => {
+    const backendUrl = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+    fetch(`${backendUrl}/banners`)
+      .then((r) => r.json())
+      .then((d) => {
+        const all = (d.banners || []).filter((b: { active: boolean }) => b.active);
+        if (all.length > 0) { setBanners(all); return; }
+        try {
+          const stored = localStorage.getItem("snackzee_hero_banners");
+          if (stored) {
+            const local = JSON.parse(stored).filter((b: { active: boolean }) => b.active);
+            if (local.length > 0) setBanners(local);
+          }
+        } catch {}
+      })
+      .catch(() => {
+        try {
+          const stored = localStorage.getItem("snackzee_hero_banners");
+          if (stored) {
+            const local = JSON.parse(stored).filter((b: { active: boolean }) => b.active);
+            if (local.length > 0) setBanners(local);
+          }
+        } catch {}
+      });
+  }, []);
+
+  useEffect(() => {
+    if (banners.length <= 1) return;
+    const timer = setInterval(() => setCurrentBanner((p) => (p + 1) % banners.length), 4000);
+    return () => clearInterval(timer);
+  }, [banners.length]);
   return (
     <section className="hero-gradient relative overflow-hidden pt-20 sm:pt-24 lg:pt-20">
       {/* Decorative pattern overlay */}
@@ -402,139 +484,158 @@ function HeroSection() {
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 lg:py-28 relative z-10">
         <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-          {/* Text Content */}
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.7 }}
-          >
-            <Badge className="bg-terracotta/20 text-terracotta-light border-terracotta/30 mb-4 sm:mb-6 font-sans text-xs sm:text-sm">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Homemade with Love in Telangana
-            </Badge>
-            <h2 className="font-serif text-4xl sm:text-5xl lg:text-7xl text-cream font-bold leading-tight mb-4 sm:mb-6">
-              Authentic Taste
-              <br />
-              <span className="text-shimmer">of Telangana</span>
-            </h2>
-            <p className="text-cream-dark/80 text-base sm:text-lg lg:text-xl max-w-lg mb-6 sm:mb-8 font-sans leading-relaxed">
-              Handcrafted snacks, sweets, podis & vadiyalu — made fresh at home
-              with traditional recipes. No preservatives. Just pure, honest
-              flavors delivered to your doorstep.
-            </p>
-            <div className="flex flex-wrap gap-3 sm:gap-4 mb-8 sm:mb-10">
-              <a
-                href={getWhatsAppLink()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-whatsapp hover:bg-whatsapp-dark text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg transition-all hover:scale-105 shadow-xl shadow-whatsapp/30 wa-ripple"
-              >
-                <MessageCircle className="w-5 h-5" />
-                Order on WhatsApp
-              </a>
-              <button
-                onClick={() =>
-                  document
-                    .getElementById("products")
-                    ?.scrollIntoView({ behavior: "smooth" })
-                }
-                className="inline-flex items-center gap-2 border border-cream/30 text-cream bg-transparent hover:bg-cream/10 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all"
-              >
-                Explore Menu
-                <ArrowRight className="w-5 h-5" />
-              </button>
-            </div>
+        {/* Text Content */}
+        <motion.div
+          initial={{ opacity: 0, y: 30 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7 }}
+        >
+          <Badge className="bg-terracotta/20 text-terracotta-light border-terracotta/30 mb-4 sm:mb-6 font-sans text-xs sm:text-sm">
+            <Sparkles className="w-3 h-3 mr-1" />
+            Homemade with Love in Telangana
+          </Badge>
+          <h2 className="font-serif text-4xl sm:text-5xl lg:text-7xl text-cream font-bold leading-tight mb-4 sm:mb-6">
+            Authentic Taste
+            <br />
+            <span className="text-shimmer">of Telangana</span>
+          </h2>
+          <p className="text-cream-dark/80 text-base sm:text-lg lg:text-xl max-w-lg mb-6 sm:mb-8 font-sans leading-relaxed">
+            Handcrafted snacks, sweets, podis & vadiyalu — made fresh at home
+            with traditional recipes. No preservatives. Just pure, honest
+            flavors delivered to your doorstep.
+          </p>
+          <div className="flex flex-wrap gap-3 sm:gap-4 mb-8 sm:mb-10">
+            <a
+              href={getWhatsAppLink()}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-2 bg-whatsapp hover:bg-whatsapp-dark text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg transition-all hover:scale-105 shadow-xl shadow-whatsapp/30 wa-ripple"
+            >
+              <MessageCircle className="w-5 h-5" />
+              Order on WhatsApp
+            </a>
+            <button
+              onClick={() =>
+                document
+                  .getElementById("products")
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="inline-flex items-center gap-2 border border-cream/30 text-cream bg-transparent hover:bg-cream/10 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all"
+            >
+              Explore Menu
+              <ArrowRight className="w-5 h-5" />
+            </button>
+          </div>
 
-            {/* Live Stats */}
-            <div className="flex gap-6 sm:gap-10">
-              <div>
-                <p className="text-3xl sm:text-4xl font-serif font-bold text-gold">
-                  500+
-                </p>
-                <p className="text-cream-dark/60 text-xs sm:text-sm mt-1">
-                  Happy Customers
-                </p>
-              </div>
-              <div>
-                <p className="text-3xl sm:text-4xl font-serif font-bold text-gold">
-                  44+
-                </p>
-                <p className="text-cream-dark/60 text-xs sm:text-sm mt-1">
-                  Authentic Items
-                </p>
-              </div>
-              <div>
-                <p className="text-3xl sm:text-4xl font-serif font-bold text-gold">
-                  100%
-                </p>
-                <p className="text-cream-dark/60 text-xs sm:text-sm mt-1">
-                  Homemade
-                </p>
-              </div>
+          {/* Live Stats */}
+          <div className="flex gap-6 sm:gap-10">
+            <div>
+              <p className="text-3xl sm:text-4xl font-serif font-bold text-gold">500+</p>
+              <p className="text-cream-dark/60 text-xs sm:text-sm mt-1">Happy Customers</p>
             </div>
-          </motion.div>
+            <div>
+              <p className="text-3xl sm:text-4xl font-serif font-bold text-gold">44+</p>
+              <p className="text-cream-dark/60 text-xs sm:text-sm mt-1">Authentic Items</p>
+            </div>
+            <div>
+              <p className="text-3xl sm:text-4xl font-serif font-bold text-gold">100%</p>
+              <p className="text-cream-dark/60 text-xs sm:text-sm mt-1">Homemade</p>
+            </div>
+          </div>
+        </motion.div>
 
-          {/* Hero Images */}
+          {/* Right column — Banner carousel on mobile/tab above content, right side on desktop */}
           <motion.div
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.7, delay: 0.2 }}
-            className="relative hidden lg:block"
+            className="order-first lg:order-last relative"
           >
-            <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-4">
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/20 float-slow" style={{ animationDelay: "0s" }}>
-                  <Image
-                    src="/products/Hot_Items/Crispy_Murukulu.jpg"
-                    alt="Crispy Murukulu"
-                    width={400}
-                    height={400}
-                    className="object-cover w-full h-48 xl:h-56"
-                    loading="eager"
-                    priority
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brown/70 to-transparent p-3"><p className="text-cream text-xs font-sans font-semibold uppercase tracking-wider">MURUKULU / Crispy</p></div>
+            {banners.length > 0 ? (
+              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/20">
+                <div className="relative w-full h-[220px] sm:h-[320px] lg:h-[460px]">
+                  <AnimatePresence mode="wait">
+                    <motion.div
+                      key={currentBanner}
+                      initial={{ opacity: 0, x: 40 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      exit={{ opacity: 0, x: -40 }}
+                      transition={{ duration: 0.5 }}
+                      className="absolute inset-0"
+                    >
+                      <Image
+                        src={banners[currentBanner].url}
+                        alt={banners[currentBanner].label || "Hero Banner"}
+                        fill
+                        className="object-cover"
+                        priority
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                      />
+                      {banners[currentBanner].label && (
+                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brown/70 to-transparent p-4">
+                          <p className="text-cream text-sm font-sans font-semibold uppercase tracking-wider">
+                            {banners[currentBanner].label}
+                          </p>
+                        </div>
+                      )}
+                    </motion.div>
+                  </AnimatePresence>
                 </div>
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/20 float-slow" style={{ animationDelay: "1s" }}>
-                  <Image
-                    src="/products/Sweet_Items/Kaju_Katli.jpg"
-                    alt="Kaju Katli"
-                    width={400}
-                    height={400}
-                    className="object-cover w-full h-48 xl:h-56"
-                    loading="eager"
-                    priority
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brown/70 to-transparent p-3"><p className="text-cream text-xs font-sans font-semibold uppercase tracking-wider">KAJU KATLI / Sweet</p></div>
+                {banners.length > 1 && (
+                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
+                    {banners.map((_, i) => (
+                      <button
+                        key={i}
+                        onClick={() => setCurrentBanner(i)}
+                        className={`rounded-full transition-all ${
+                          i === currentBanner ? "w-6 h-2 bg-gold" : "w-2 h-2 bg-cream/50 hover:bg-cream/80"
+                        }`}
+                        aria-label={`Go to banner ${i + 1}`}
+                      />
+                    ))}
+                  </div>
+                )}
+                {banners.length > 1 && (
+                  <>
+                    <button
+                      onClick={() => setCurrentBanner((p) => (p - 1 + banners.length) % banners.length)}
+                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center transition-colors z-10"
+                    >
+                      <ChevronDown className="w-4 h-4 rotate-90" />
+                    </button>
+                    <button
+                      onClick={() => setCurrentBanner((p) => (p + 1) % banners.length)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center transition-colors z-10"
+                    >
+                      <ChevronDown className="w-4 h-4 -rotate-90" />
+                    </button>
+                  </>
+                )}
+              </div>
+            ) : (
+              <div className="hidden lg:grid grid-cols-2 gap-4">
+                <div className="space-y-4">
+                  <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/20 float-slow">
+                    <Image src="/products/Hot_Items/Crispy_Murukulu.jpg" alt="Crispy Murukulu" width={400} height={400} className="object-cover w-full h-48 xl:h-56" priority />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brown/70 to-transparent p-3"><p className="text-cream text-xs font-sans font-semibold uppercase tracking-wider">MURUKULU / Crispy</p></div>
+                  </div>
+                  <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/20 float-slow" style={{ animationDelay: "1s" }}>
+                    <Image src="/products/Sweet_Items/Kaju_Katli.jpg" alt="Kaju Katli" width={400} height={400} className="object-cover w-full h-48 xl:h-56" priority />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brown/70 to-transparent p-3"><p className="text-cream text-xs font-sans font-semibold uppercase tracking-wider">KAJU KATLI / Sweet</p></div>
+                  </div>
+                </div>
+                <div className="space-y-4 mt-8">
+                  <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/20 float-slow" style={{ animationDelay: "0.5s" }}>
+                    <Image src="/products/Podis_Powders/Peanut_Spice_Powder.jpg" alt="Palli Karam Podi" width={400} height={400} className="object-cover w-full h-48 xl:h-56" />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brown/70 to-transparent p-3"><p className="text-cream text-xs font-sans font-semibold uppercase tracking-wider">PALLI PODI / Aromatic</p></div>
+                  </div>
+                  <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/20 float-slow" style={{ animationDelay: "1.5s" }}>
+                    <Image src="/products/Vadiyalu_Papads/Flower_Vadiyalu.jpg" alt="Flower Vadiyalu" width={400} height={400} className="object-cover w-full h-48 xl:h-56" />
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brown/70 to-transparent p-3"><p className="text-cream text-xs font-sans font-semibold uppercase tracking-wider">VADIYALU / Sun-Dried</p></div>
+                  </div>
                 </div>
               </div>
-              <div className="space-y-4 mt-8">
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/20 float-slow" style={{ animationDelay: "0.5s" }}>
-                  <Image
-                    src="/products/Podis_Powders/Peanut_Spice_Powder.jpg"
-                    alt="Palli Karam Podi"
-                    width={400}
-                    height={400}
-                    className="object-cover w-full h-48 xl:h-56"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brown/70 to-transparent p-3"><p className="text-cream text-xs font-sans font-semibold uppercase tracking-wider">PALLI PODI / Aromatic</p></div>
-                </div>
-                <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/20 float-slow" style={{ animationDelay: "1.5s" }}>
-                  <Image
-                    src="/products/Vadiyalu_Papads/Flower_Vadiyalu.jpg"
-                    alt="Flower Vadiyalu"
-                    width={400}
-                    height={400}
-                    className="object-cover w-full h-48 xl:h-56"
-                  />
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brown/70 to-transparent p-3"><p className="text-cream text-xs font-sans font-semibold uppercase tracking-wider">VADIYALU / Sun-Dried</p></div>
-                </div>
-              </div>
-            </div>
-            {/* Decorative badge */}
-            <div className="absolute -bottom-4 -left-4 bg-gold text-brown px-5 py-3 rounded-full font-serif font-bold text-sm shadow-xl">
-              🏠 Made at Home
-            </div>
+            )}
           </motion.div>
         </div>
       </div>
@@ -2962,7 +3063,7 @@ function Footer() {
   return (
     <footer className="bg-brown text-cream pt-12 sm:pt-16 pb-6 sm:pb-8 footer-gradient-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-8 sm:gap-12 mb-8 sm:mb-12">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-12 mb-8 sm:mb-12">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-1">
             <div className="flex items-center gap-3 mb-4">
@@ -3034,78 +3135,22 @@ function Footer() {
           <div>
             <h4 className="font-serif text-lg font-bold mb-4">Quick Links</h4>
             <ul className="space-y-2 font-sans">
-              <li>
-                <button
-                  onClick={() =>
-                    document
-                      .getElementById("products")
-                      ?.scrollIntoView({ behavior: "smooth" })
-                  }
-                  className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm"
-                >
-                  All Products
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() =>
-                    document
-                      .getElementById("order")
-                      ?.scrollIntoView({ behavior: "smooth" })
-                  }
-                  className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm"
-                >
-                  How to Order
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() =>
-                    document
-                      .getElementById("reviews")
-                      ?.scrollIntoView({ behavior: "smooth" })
-                  }
-                  className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm"
-                >
-                  Customer Reviews
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() =>
-                    document
-                      .getElementById("bulk-order")
-                      ?.scrollIntoView({ behavior: "smooth" })
-                  }
-                  className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm"
-                >
-                  Bulk Orders
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() =>
-                    document
-                      .getElementById("gift-cards")
-                      ?.scrollIntoView({ behavior: "smooth" })
-                  }
-                  className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm"
-                >
-                  Gift Cards
-                </button>
-              </li>
-              <li>
-                <button
-                  onClick={() =>
-                    document
-                      .getElementById("our-story")
-                      ?.scrollIntoView({ behavior: "smooth" })
-                  }
-                  className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm"
-                >
-                  Our Story
-                </button>
-              </li>
+              <li><button onClick={() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">All Products</button></li>
+              <li><button onClick={() => document.getElementById("order")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">How to Order</button></li>
+              <li><button onClick={() => document.getElementById("reviews")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Customer Reviews</button></li>
+              <li><button onClick={() => document.getElementById("bulk-order")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Bulk Orders</button></li>
+              <li><button onClick={() => document.getElementById("our-story")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Our Story</button></li>
+            </ul>
+          </div>
+
+          {/* Policies */}
+          <div>
+            <h4 className="font-serif text-lg font-bold mb-4">Policies</h4>
+            <ul className="space-y-2 font-sans">
+              <li><Link href="/privacy-policy" className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Privacy Policy</Link></li>
+              <li><Link href="/terms" className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Terms & Conditions</Link></li>
+              <li><Link href="/refund-policy" className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Return & Refund Policy</Link></li>
+              <li><Link href="/shipping-policy" className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Shipping & Delivery</Link></li>
             </ul>
           </div>
 
@@ -3151,14 +3196,23 @@ function Footer() {
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-cream/10 pt-6 flex flex-col sm:flex-row items-center justify-between gap-3">
-          <p className="text-cream/40 text-xs sm:text-sm font-sans">
-            © {new Date().getFullYear()} Snakzee. All rights reserved. Made with
-            ❤️ in Telangana
-          </p>
-          <p className="text-cream/30 text-xs font-sans">
-            Homemade • No Preservatives • Fresh Every Order
-          </p>
+        <div className="border-t border-cream/10 pt-6">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-3">
+            <p className="text-cream/40 text-xs sm:text-sm font-sans">
+              © {new Date().getFullYear()} Snakzee. All rights reserved. Made with ❤️ in Telangana
+            </p>
+            <p className="text-cream/30 text-xs font-sans">Homemade • No Preservatives • Fresh Every Order</p>
+          </div>
+          <div className="flex flex-wrap justify-center sm:justify-start gap-x-4 gap-y-1">
+            {[
+              { href: "/privacy-policy", label: "Privacy Policy" },
+              { href: "/terms", label: "Terms & Conditions" },
+              { href: "/refund-policy", label: "Refund Policy" },
+              { href: "/shipping-policy", label: "Shipping Policy" },
+            ].map((p) => (
+              <Link key={p.href} href={p.href} className="text-cream/30 hover:text-cream/60 text-[11px] font-sans transition-colors">{p.label}</Link>
+            ))}
+          </div>
         </div>
       </div>
     </footer>
@@ -3187,13 +3241,25 @@ const TIME_LABELS = ["just now", "1 minute ago", "2 minutes ago", "3 minutes ago
 function SocialProofNotification({ products }: { products: Product[] }) {
   const [notification, setNotification] = useState<{ city: string; product: string; time: string } | null>(null);
   const [isVisible, setIsVisible] = useState(false);
+  const [dismissed, setDismissed] = useState(false);
   const [shown, setShown] = useState(0);
 
+  const handleDismiss = () => {
+    setIsVisible(false);
+    setDismissed(true);
+    if (typeof window !== "undefined") sessionStorage.setItem("snackzee-notif-dismissed", "true");
+  };
+
   useEffect(() => {
-    if (shown >= 4 || products.length === 0) return;
+    if (typeof window !== "undefined" && sessionStorage.getItem("snackzee-notif-dismissed") === "true") {
+      setDismissed(true);
+      return;
+    }
+    if (dismissed || shown >= 4 || products.length === 0) return;
     const schedule = () => {
       const delay = 8000 + Math.random() * 7000;
       return setTimeout(() => {
+        if (sessionStorage.getItem("snackzee-notif-dismissed") === "true") return;
         const city = TELANGANA_CITIES[Math.floor(Math.random() * TELANGANA_CITIES.length)];
         const product = products[Math.floor(Math.random() * products.length)];
         const time = TIME_LABELS[Math.floor(Math.random() * TIME_LABELS.length)];
@@ -3207,7 +3273,7 @@ function SocialProofNotification({ products }: { products: Product[] }) {
     };
     const timer = schedule();
     return () => clearTimeout(timer);
-  }, [shown, products]);
+  }, [shown, products, dismissed]);
 
   return (
     <AnimatePresence>
@@ -3231,7 +3297,7 @@ function SocialProofNotification({ products }: { products: Product[] }) {
             <p className="text-[10px] text-brown-light/50 mt-0.5 font-sans">{notification.time}</p>
           </div>
           <button
-            onClick={() => setIsVisible(false)}
+            onClick={handleDismiss}
             className="flex-shrink-0 text-brown-light/30 hover:text-brown-light transition-colors"
             aria-label="Dismiss"
           >

@@ -2,8 +2,9 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Printer, MessageCircle, ExternalLink, ChevronDown } from "lucide-react";
+import { Printer, MessageCircle, ExternalLink, ChevronDown, Plus, Instagram } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import Link from "next/link";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 const FROM_ADDRESS = {
@@ -21,6 +22,8 @@ interface Order {
   id: number;
   total: number;
   status: string;
+  source?: string;
+  notes?: string;
   created_at: string;
   payment_id?: string;
   coupon?: string;
@@ -131,8 +134,14 @@ export default function AdminOrdersPage() {
   return (
     <div>
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
-        <h1 className="font-serif text-2xl sm:text-3xl font-bold text-brown">Orders</h1>
-        <span className="text-brown-light/50 font-sans text-sm">{orders.length} total</span>
+        <div>
+          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-brown">Orders</h1>
+          <p className="text-brown-light/40 text-xs font-sans mt-0.5">{orders.length} total</p>
+        </div>
+        <Link href="/admin/orders/new"
+          className="flex items-center gap-2 bg-terracotta hover:bg-terracotta-dark text-white px-5 py-2.5 rounded-xl font-bold font-sans text-sm transition-colors shadow-md shadow-terracotta/20">
+          <Plus className="w-4 h-4" /> Record External Order
+        </Link>
       </div>
 
       {orders.length === 0 ? (
@@ -152,6 +161,14 @@ export default function AdminOrdersPage() {
                     <span className="font-serif font-bold text-brown text-sm sm:text-base">#{order.id}</span>
                     <span className="text-brown-light/50 text-[10px] sm:text-xs font-sans">{new Date(order.created_at).toLocaleDateString("en-IN")}</span>
                     <span className={`text-[9px] sm:text-[10px] font-bold font-sans px-2 py-0.5 rounded-full ${STATUS_COLORS[order.status] || "bg-cream text-brown-light"}`}>{order.status}</span>
+                    {order.source && order.source !== "website" && (
+                      <span className={`text-[9px] font-bold font-sans px-2 py-0.5 rounded-full flex items-center gap-1 ${
+                        order.source === "whatsapp" ? "bg-green-100 text-green-700" : "bg-purple-100 text-purple-700"
+                      }`}>
+                        {order.source === "whatsapp" ? <MessageCircle className="w-2.5 h-2.5" /> : <Instagram className="w-2.5 h-2.5" />}
+                        {order.source}
+                      </span>
+                    )}
                   </div>
                   <p className="text-brown-light/60 text-[10px] sm:text-xs font-sans mt-0.5 truncate">{order.address?.name} · {order.address?.city}</p>
                 </div>
@@ -246,6 +263,13 @@ export default function AdminOrdersPage() {
                       <MessageCircle className="w-4 h-4" /> Notify on WhatsApp
                     </button>
                   </div>
+                  {/* Notes */}
+                  {order.notes && (
+                    <div className="bg-gold/5 border border-gold/20 rounded-xl p-3">
+                      <p className="text-[10px] font-sans text-brown-light/40 uppercase tracking-wider mb-1">Notes</p>
+                      <p className="text-sm font-sans text-brown-light/70">{order.notes}</p>
+                    </div>
+                  )}
                 </div>
               )}
             </motion.div>

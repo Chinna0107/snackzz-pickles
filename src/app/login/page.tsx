@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff, LogIn } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, LogIn, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -17,7 +17,7 @@ export default function LoginPage() {
   const [mode, setMode] = useState<"login" | "register">("login");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", password: "" });
+  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
@@ -30,7 +30,7 @@ export default function LoginPage() {
     const body =
       mode === "login"
         ? { email: form.email, password: form.password }
-        : { name: form.name, email: form.email, password: form.password };
+        : { name: form.name, email: form.email, phone: form.phone, password: form.password };
 
     try {
       const res = await fetch(`${BACKEND_URL}${endpoint}`, {
@@ -102,9 +102,7 @@ export default function LoginPage() {
         <form onSubmit={handleSubmit} className="px-8 py-7 space-y-4">
           {mode === "register" && (
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-brown-light/40">
-                <LogIn className="w-4 h-4" />
-              </span>
+              <LogIn className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brown-light/40" />
               <input
                 name="name"
                 type="text"
@@ -129,6 +127,23 @@ export default function LoginPage() {
               className="w-full pl-10 pr-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown text-sm font-sans placeholder:text-brown-light/40 focus:outline-none focus:border-terracotta/40"
             />
           </div>
+
+          {mode === "register" && (
+            <div className="relative">
+              <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brown-light/40" />
+              <input
+                name="phone"
+                type="tel"
+                required
+                placeholder="Phone number (e.g. 9876543210)"
+                value={form.phone}
+                onChange={handleChange}
+                pattern="[0-9]{10}"
+                title="Enter a valid 10-digit phone number"
+                className="w-full pl-10 pr-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown text-sm font-sans placeholder:text-brown-light/40 focus:outline-none focus:border-terracotta/40"
+              />
+            </div>
+          )}
 
           <div className="relative">
             <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brown-light/40" />
