@@ -21,23 +21,26 @@ const dmSans = DM_Sans({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://snackzz-pickles.vercel.app"),
+  metadataBase: new URL("https://snakzee.com"),
   title: {
-    default: "Snackzee Foods — Authentic Homemade Telangana Snacks, Sweets & Podis",
-    template: "%s | Snackzee Foods",
+    default: "Snakzee Foods — Authentic Homemade Telangana Snacks, Sweets & Podis",
+    template: "%s | Snakzee Foods",
   },
-  description: "Snackzee Foods brings you 100% homemade Telangana snacks, sweets, podis, vadiyalu & papads. No preservatives. Made fresh after every order. Free delivery above ₹1000 across Telangana.",
+  description: "Snakzee Foods brings you 100% homemade Telangana snacks, sweets, podis, vadiyalu & papads. No preservatives. Made fresh after every order. Free delivery above ₹1000 across Telangana.",
   keywords: [
-    "Snackzee Foods", "Snackzee", "Telangana snacks", "homemade snacks",
-    "authentic Telangana food", "murukulu", "chakli", "kaju katli",
+    "Snakzee", "Snakzee Foods", "Snackzee", "Snackzee Foods",
+    "snakzee.com", "snackzee foods online", "buy snackzee",
+    "Telangana snacks", "homemade snacks online", "authentic Telangana food",
+    "murukulu online", "chakodilu", "kaju katli homemade",
     "palli podi", "flower vadiyalu", "rice papads", "avakaya pickle",
-    "homemade sweets", "podis powders", "sun-dried vadiyalu",
+    "homemade sweets Hyderabad", "podis powders online", "sun-dried vadiyalu",
     "Hyderabad snacks online", "WhatsApp order snacks", "no preservatives snacks",
     "traditional Telangana recipes", "order snacks online India",
+    "Telangana food delivery", "homemade food Jagtial", "Telangana pickles online",
   ],
-  authors: [{ name: "Snackzee Foods", url: "https://snackzz-pickles.vercel.app" }],
-  creator: "Snackzee Foods",
-  publisher: "Snackzee Foods",
+  authors: [{ name: "Snakzee Foods", url: "https://snakzee.com" }],
+  creator: "Snakzee Foods",
+  publisher: "Snakzee Foods",
   category: "Food & Beverage",
   icons: {
     icon: "/snakzee-logo.png",
@@ -46,25 +49,25 @@ export const metadata: Metadata = {
   },
   manifest: "/manifest.json",
   openGraph: {
-    title: "Snackzee Foods — Art of Authentic Snacking",
+    title: "Snakzee Foods — Art of Authentic Snacking",
     description: "100% homemade Telangana snacks, sweets, podis & vadiyalu. No preservatives. Order via WhatsApp!",
-    siteName: "Snackzee Foods",
-    url: "https://snackzz-pickles.vercel.app",
+    siteName: "Snakzee Foods",
+    url: "https://snakzee.com",
     type: "website",
     locale: "en_IN",
     images: [{
-      url: "/snakzee-logo.png",
+      url: "https://snakzee.com/snakzee-logo.png",
       width: 1200,
       height: 630,
-      alt: "Snackzee Foods — Authentic Homemade Telangana Snacks",
+      alt: "Snakzee Foods — Authentic Homemade Telangana Snacks",
     }],
   },
   twitter: {
     card: "summary_large_image",
-    title: "Snackzee Foods — Art of Authentic Snacking",
+    title: "Snakzee Foods — Art of Authentic Snacking",
     description: "100% homemade Telangana snacks, sweets, podis & vadiyalu. No preservatives. Order via WhatsApp!",
-    images: ["/snakzee-logo.png"],
-    creator: "@snackzeefoods",
+    images: ["https://snakzee.com/snakzee-logo.png"],
+    creator: "@snakzeefoods",
   },
   robots: {
     index: true,
@@ -77,7 +80,7 @@ export const metadata: Metadata = {
     },
   },
   alternates: {
-    canonical: "https://snackzz-pickles.vercel.app",
+    canonical: "https://snakzee.com",
   },
   verification: {
     google: "",
@@ -99,40 +102,37 @@ export default function RootLayout({
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "FoodEstablishment",
-    "name": "Snackzee Foods",
-    "url": "https://snackzz-pickles.vercel.app",
-    "logo": "https://snackzz-pickles.vercel.app/snakzee-logo.png",
-    "image": "https://snackzz-pickles.vercel.app/snakzee-logo.png",
-    "description": "Snackzee Foods — 100% homemade Telangana snacks, sweets, podis, vadiyalu & papads. No preservatives. Made fresh after every order.",
+    "name": "Snakzee Foods",
+    "alternateName": ["Snackzee", "Snackzee Foods", "Snakzee"],
+    "url": "https://snakzee.com",
+    "logo": "https://snakzee.com/snakzee-logo.png",
+    "image": "https://snakzee.com/snakzee-logo.png",
+    "description": "Snakzee Foods — 100% homemade Telangana snacks, sweets, podis, vadiyalu & papads. No preservatives. Made fresh after every order.",
     "servesCuisine": "Telangana",
     "priceRange": "₹₹",
     "address": {
       "@type": "PostalAddress",
-      "streetAddress": "57/14-A, Sri Raghavendra Swamy Temple",
-      "addressLocality": "Kurnool",
-      "postalCode": "518001",
-      "addressRegion": "Andhra Pradesh",
+      "streetAddress": "House No 1/2/32, Taka Street, Near Main Road",
+      "addressLocality": "Jagtial",
+      "postalCode": "505327",
+      "addressRegion": "Telangana",
       "addressCountry": "IN"
     },
     "contactPoint": [
       {
         "@type": "ContactPoint",
-        "telephone": "+91-95055-50051",
+        "telephone": "+91-88975-86142",
         "contactType": "customer service",
         "availableLanguage": ["English", "Telugu"]
-      },
-      {
-        "@type": "ContactPoint",
-        "telephone": "+91-88975-86142",
-        "contactType": "sales"
       }
     ],
     "sameAs": [
-      "https://www.instagram.com/snak_zee"
+      "https://www.instagram.com/snak_zee",
+      "https://snakzee.com"
     ],
     "hasOfferCatalog": {
       "@type": "OfferCatalog",
-      "name": "Snackzee Foods Menu",
+      "name": "Snakzee Foods Menu",
       "itemListElement": [
         { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Hot Items & Snacks" } },
         { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Sweet Items" } },

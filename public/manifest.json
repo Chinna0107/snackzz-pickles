@@ -1,24 +1,13 @@
 {
-  "name": "Snakzee — Art of Authentic Snacking",
+  "name": "Snakzee Foods",
   "short_name": "Snakzee",
-  "description": "Authentic homemade Telangana snacks, pickles, masalas & sweets. Order via WhatsApp!",
+  "description": "Authentic Homemade Telangana Snacks, Sweets & Podis",
   "start_url": "/",
   "display": "standalone",
   "background_color": "#FDF6EC",
   "theme_color": "#C8401A",
-  "orientation": "portrait-primary",
   "icons": [
-    {
-      "src": "/snakzee-logo.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "/snakzee-logo.png",
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ],
-  "categories": ["food", "shopping"],
-  "lang": "en"
+    { "src": "/snakzee-logo.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/snakzee-logo.png", "sizes": "512x512", "type": "image/png" }
+  ]
 }

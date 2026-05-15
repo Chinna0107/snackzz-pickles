@@ -1,17 +1,15 @@
 import { MetadataRoute } from "next";
 
-const BASE_URL = "https://snackzz-pickles.vercel.app";
-
 export default function robots(): MetadataRoute.Robots {
   return {
     rules: [
       {
         userAgent: "*",
         allow: "/",
-        disallow: ["/admin", "/admin/", "/dashboard", "/dashboard/", "/api/", "/cart", "/checkout"],
+        disallow: ["/admin", "/dashboard", "/api", "/checkout"],
       },
     ],
-    sitemap: `${BASE_URL}/sitemap.xml`,
-    host: BASE_URL,
+    sitemap: "https://snakzee.com/sitemap.xml",
+    host: "https://snakzee.com",
   };
 }
