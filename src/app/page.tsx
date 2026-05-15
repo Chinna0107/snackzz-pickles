@@ -171,6 +171,7 @@ function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: numbe
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const { count: cartCount, total } = useCart();
+  const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
 
@@ -243,7 +244,7 @@ function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: numbe
             <div className="relative" ref={dropdownRef} onMouseEnter={() => setProductsOpen(true)} onMouseLeave={() => setProductsOpen(false)}>
               <motion.button
                 whileHover={{ scale: 1.05 }}
-                onMouseEnter={() => setProductsOpen(true)} onMouseLeave={() => setProductsOpen(false)} onClick={() => setProductsOpen(!productsOpen)}
+                onMouseEnter={() => setProductsOpen(true)} onMouseLeave={() => setProductsOpen(false)} onClick={() => router.push('/products')}
                 className="relative group flex items-center gap-1.5 px-3 py-2 text-brown hover:text-terracotta transition-colors font-medium text-sm tracking-wide uppercase"
               >
                 Products
@@ -273,7 +274,7 @@ function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: numbe
                       {categories.map((cat) => (
                         <button
                           key={cat.id}
-                          onClick={() => { setProductsOpen(false); onCategorySelect(cat.id); scrollTo("products"); }}
+                          onClick={() => { setProductsOpen(false); router.push(`/products?category=${cat.id}`); }}
                           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-terracotta/5 transition-colors group text-left"
                         >
                           <span className="text-xl">{cat.icon}</span>
@@ -397,7 +398,7 @@ function StickyNav({ favoritesCount, onCategorySelect }: { favoritesCount: numbe
                   </div>
                 </Link>
                 {categories.map((cat) => (
-                  <button key={cat.id} onClick={() => { onCategorySelect(cat.id); scrollTo("products"); }} className="w-full flex items-center gap-2 px-3 py-2.5 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium text-sm text-left">
+                  <button key={cat.id} onClick={() => { setMobileMenuOpen(false); router.push(`/products?category=${cat.id}`); }} className="w-full flex items-center gap-2 px-3 py-2.5 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium text-sm text-left">
                     {cat.icon} {cat.name} <span className="text-brown-light/40 text-[11px] font-sans">({cat.nameTelugu})</span>
                   </button>
                 ))}
