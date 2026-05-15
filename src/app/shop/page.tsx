@@ -1,5 +1,7 @@
 "use client";
 
+import Footer from "@/components/Footer";
+
 import { useState, useEffect, useCallback, Suspense } from "react";
 import { useSearchParams } from "next/navigation";
 import Image from "next/image";
@@ -240,17 +242,14 @@ function ShopContent() {
           )}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
 
 export default function ShopPage() {
   return (
-    <Suspense fallback={
-      <div className="min-h-screen bg-cream flex items-center justify-center">
-        <div className="w-10 h-10 border-4 border-terracotta/20 border-t-terracotta rounded-full animate-spin" />
-      </div>
-    }>
+    <Suspense>
       <ShopContent />
     </Suspense>
   );

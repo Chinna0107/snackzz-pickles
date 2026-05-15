@@ -6,6 +6,7 @@ import { motion } from "framer-motion";
 import { Leaf, Home as HomeIcon, Users, Heart, Award, ChefHat, MessageCircle } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import { getWhatsAppLink, PROCESS_STEPS } from "@/lib/products";
 
 const VALUES = [
@@ -185,6 +186,7 @@ export default function AboutPage() {
         </section>
 
       </div>
+      <Footer />
     </div>
   );
 }

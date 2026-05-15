@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Footer from "@/components/Footer";
 import { Truck, ArrowLeft, Clock, Package, MapPin, AlertCircle } from "lucide-react";
 
 export const metadata = { title: "Shipping & Delivery Policy — Snakzee", description: "Snakzee's shipping timelines, charges, and delivery information." };
@@ -152,6 +153,7 @@ export default function ShippingPolicyPage() {
           ))}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import Footer from "@/components/Footer";
+
 import { useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
@@ -160,6 +162,7 @@ export default function CartPage() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

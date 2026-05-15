@@ -1,5 +1,7 @@
 "use client";
 
+import Footer from "@/components/Footer";
+
 import { useState, useEffect } from "react";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
@@ -325,6 +327,7 @@ export default function CheckoutPage() {
           )}
         </AnimatePresence>
       </div>
+      <Footer />
     </div>
   );
 }

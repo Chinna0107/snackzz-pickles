@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Footer from "@/components/Footer";
 import { RefreshCw, ArrowLeft, AlertCircle, CheckCircle2, XCircle, Clock } from "lucide-react";
 
 export const metadata = { title: "Return & Refund Policy — Snakzee", description: "Snakzee's return, refund, and cancellation policy for food orders." };
@@ -139,6 +140,7 @@ export default function RefundPolicyPage() {
           ))}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Footer from "@/components/Footer";
 import { Shield, Mail, Phone, Globe, MapPin, ArrowLeft } from "lucide-react";
 
 export const metadata = { title: "Privacy Policy — Snakzee", description: "How Snakzee collects, uses, and protects your personal information." };
@@ -140,6 +141,7 @@ export default function PrivacyPolicyPage() {
           ))}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

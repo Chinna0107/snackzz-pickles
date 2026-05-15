@@ -13,6 +13,7 @@ import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 import {
   products as staticProducts,
   categories,
@@ -331,6 +332,7 @@ function ProductsContent() {
           </div>
         </div>
       </div>
+      <Footer />
     </div>
   );
 }

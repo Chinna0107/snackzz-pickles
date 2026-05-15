@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Footer from "@/components/Footer";
 import { FileText, ArrowLeft } from "lucide-react";
 
 export const metadata = { title: "Terms & Conditions — Snakzee", description: "Terms and conditions governing your use of Snakzee website and services." };
@@ -107,6 +108,7 @@ export default function TermsPage() {
           ))}
         </div>
       </div>
+      <Footer />
     </div>
   );
 }
