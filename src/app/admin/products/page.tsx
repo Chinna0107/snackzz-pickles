@@ -10,11 +10,11 @@ import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
 const CATEGORIES = [
-  { id: "hot-items", name: "Hot Items" },
-  { id: "snacks", name: "Snacks" },
-  { id: "sweets", name: "Sweets" },
+  { id: "hot-items", name: "Hot Items / Snacks" },
+  { id: "sweet-items", name: "Sweet Items" },
+  { id: "podis-powders", name: "Podis & Powders" },
+  { id: "vadiyalu-papads", name: "Vadiyalu & Papads" },
   { id: "pickles", name: "Pickles" },
-  { id: "powders", name: "Powders" },
 ];
 
 interface Product {
@@ -42,7 +42,7 @@ interface Product {
 const emptyProduct: Omit<Product, "id"> = {
   name: "",
   name_english: "",
-  category: "snacks",
+  category: "hot-items",
   description: "",
   price: 0,
   price_unit: "per pack",
