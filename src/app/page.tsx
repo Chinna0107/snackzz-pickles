@@ -26,7 +26,6 @@ import {
   Package,
   CheckCircle2,
   Sparkles,
-  ArrowUp,
   ChevronDown,
   Gift,
   Tag,
@@ -57,6 +56,9 @@ import {
   Bot,
   SendHorizonal,
   ShoppingCart,
+  ShoppingBag,
+  LogOut,
+  ChevronLeft,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -169,10 +171,28 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [productsOpen, setProductsOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [loggedInUser, setLoggedInUser] = useState<{ name: string; email: string } | null>(null);
   const { count: cartCount, total } = useCart();
   const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("snackzee_user");
+    if (stored) {
+      try { setLoggedInUser(JSON.parse(stored)); } catch {}
+    }
+  }, []);
+
+  const handleLogout = () => {
+    localStorage.removeItem("snackzee_token");
+    localStorage.removeItem("snackzee_user");
+    setLoggedInUser(null);
+    setUserMenuOpen(false);
+    router.push("/");
+  };
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
@@ -219,13 +239,9 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
 
           {/* Logo */}
           <Link href="/">
-            <motion.div className="flex items-center gap-2 cursor-pointer -ml-2" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-              <div className="w-10 h-10 sm:w-12 sm:h-12 relative">
-                <Image src="/snakzee-logo.png" alt="Snakzee Logo" width={48} height={48} className="object-contain" priority />
-              </div>
-              <div className="block">
-                <h1 className="font-serif text-2xl font-bold bg-gradient-to-r from-terracotta to-terracotta-dark bg-clip-text text-transparent leading-tight">Snakzee</h1>
-                <p className="hidden sm:block text-[10px] text-terracotta/70 tracking-wider uppercase -mt-1 font-medium">Art of Authentic Snacking</p>
+            <motion.div className="cursor-pointer" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
+              <div className="relative h-10 sm:h-12 w-[140px] sm:w-[190px]">
+                <Image src="/logo-removebg-preview.png" alt="Snakzee" fill className="object-contain object-left" priority sizes="160px" />
               </div>
             </motion.div>
           </Link>
@@ -351,9 +367,42 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
                 )}
               </motion.div>
             </Link>
-            <Link href="/login" className="hidden lg:flex items-center gap-1.5 border-2 border-terracotta/30 text-terracotta hover:bg-terracotta hover:text-white px-4 py-2.5 rounded-full font-semibold text-sm transition-all font-sans">
-              Sign In
-            </Link>
+            {loggedInUser ? (
+              <div className="relative hidden lg:block" ref={userMenuRef}>
+                <button onClick={() => setUserMenuOpen(!userMenuOpen)}
+                  className="flex items-center gap-2 px-3 py-2 rounded-full border border-terracotta/20 hover:bg-terracotta/5 transition-colors">
+                  <div className="w-7 h-7 bg-terracotta text-white rounded-full flex items-center justify-center text-xs font-bold font-sans">
+                    {loggedInUser.name.charAt(0).toUpperCase()}
+                  </div>
+                  <span className="text-brown font-sans font-semibold text-sm max-w-[80px] truncate">{loggedInUser.name.split(" ")[0]}</span>
+                  <ChevronDown className={`w-3.5 h-3.5 text-brown-light/50 transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
+                </button>
+                <AnimatePresence>
+                  {userMenuOpen && (
+                    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }}
+                      className="absolute right-0 top-full mt-2 w-48 bg-white rounded-2xl shadow-xl border border-terracotta/10 overflow-hidden z-50">
+                      <div className="px-4 py-3 border-b border-terracotta/10">
+                        <p className="font-sans font-semibold text-brown text-sm truncate">{loggedInUser.name}</p>
+                        <p className="text-brown-light/40 text-[10px] font-sans truncate">{loggedInUser.email}</p>
+                      </div>
+                      <Link href="/orders" onClick={() => setUserMenuOpen(false)}>
+                        <div className="flex items-center gap-2 px-4 py-3 hover:bg-terracotta/5 text-brown font-sans text-sm cursor-pointer transition-colors">
+                          <ShoppingBag className="w-4 h-4 text-terracotta" /> My Orders
+                        </div>
+                      </Link>
+                      <button onClick={handleLogout}
+                        className="flex items-center gap-2 px-4 py-3 hover:bg-red-50 text-red-400 font-sans text-sm w-full transition-colors">
+                        <LogOut className="w-4 h-4" /> Logout
+                      </button>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
+            ) : (
+              <Link href="/login" className="hidden lg:flex items-center gap-1.5 border-2 border-terracotta/30 text-terracotta hover:bg-terracotta hover:text-white px-4 py-2.5 rounded-full font-semibold text-sm transition-all font-sans">
+                Sign In
+              </Link>
+            )}
             <button className="md:hidden p-2 text-brown hover:bg-terracotta/10 rounded-full transition-colors" onClick={() => setMobileMenuOpen(!mobileMenuOpen)} aria-label="Toggle menu">
               {mobileMenuOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
             </button>
@@ -399,11 +448,28 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
                   Contact Us
                 </div>
               </Link>
-              <Link href="/login">
-                <div onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full bg-terracotta hover:bg-terracotta-dark text-white px-4 py-3 rounded-full font-semibold text-sm transition-all mt-2 cursor-pointer">
-                  Sign In
-                </div>
-              </Link>
+              {loggedInUser ? (
+                <>
+                  <div className="px-4 py-2 border-t border-terracotta/10">
+                    <p className="text-brown font-sans font-semibold text-sm">{loggedInUser.name}</p>
+                    <p className="text-brown-light/40 text-xs font-sans">{loggedInUser.email}</p>
+                  </div>
+                  <Link href="/orders" onClick={() => setMobileMenuOpen(false)}>
+                    <div className="flex items-center gap-2 px-4 py-3 text-brown hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium cursor-pointer">
+                      <ShoppingBag className="w-4 h-4" /> My Orders
+                    </div>
+                  </Link>
+                  <button onClick={handleLogout} className="flex items-center gap-2 px-4 py-3 text-red-400 hover:bg-red-50 rounded-xl transition-colors font-medium w-full">
+                    <LogOut className="w-4 h-4" /> Logout
+                  </button>
+                </>
+              ) : (
+                <Link href="/login">
+                  <div onClick={() => setMobileMenuOpen(false)} className="flex items-center justify-center gap-2 w-full bg-terracotta hover:bg-terracotta-dark text-white px-4 py-3 rounded-full font-semibold text-sm transition-all mt-2 cursor-pointer">
+                    Sign In
+                  </div>
+                </Link>
+              )}
             </div>
           </motion.div>
         )}
@@ -448,199 +514,53 @@ function HeroSection() {
     const timer = setInterval(() => setCurrentBanner((p) => (p + 1) % banners.length), 4000);
     return () => clearInterval(timer);
   }, [banners.length]);
+
+  const fallbackImages = [
+    { url: "/products/Hot_Items/Crispy_Murukulu.jpg", label: "" },
+    { url: "/products/Sweet_Items/Kaju_Katli.jpg", label: "" },
+    { url: "/products/Podis_Powders/Peanut_Spice_Powder.jpg", label: "" },
+    { url: "/products/Vadiyalu_Papads/Flower_Vadiyalu.jpg", label: "" },
+  ];
+
+  const slides = banners.length > 0 ? banners : fallbackImages;
+
   return (
-    <section className="hero-gradient relative overflow-hidden pt-20 sm:pt-24 lg:pt-20">
-      {/* Decorative pattern overlay */}
-      <div className="absolute inset-0 opacity-5">
-        <div
+    <section className="relative w-full h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-screen overflow-hidden">
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={currentBanner}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.6 }}
           className="absolute inset-0"
-          style={{
-            backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23C8401A' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`,
-          }}
-        />
-      </div>
-
-      {/* Floating decorative elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none z-[2]">
-        <div className="float-gentle absolute top-[15%] left-[8%] w-2 h-2 bg-gold/20 rounded-full" />
-        <div className="float-slow absolute top-[30%] right-[12%] w-3 h-3 bg-terracotta-light/10 rounded-full" />
-        <div className="float-gentle absolute bottom-[25%] left-[20%] w-1.5 h-1.5 bg-gold/15 rounded-full" style={{ animationDelay: "1s" }} />
-        <div className="float-slow absolute top-[45%] right-[30%] w-2 h-2 bg-cream/10 rounded-full" style={{ animationDelay: "2s" }} />
-        <div className="float-gentle absolute bottom-[40%] right-[8%] w-2.5 h-2.5 bg-gold/10 rounded-full" style={{ animationDelay: "3s" }} />
-      </div>
-
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-20 lg:py-28 relative z-10">
-        <div className="grid lg:grid-cols-2 gap-8 lg:gap-12 items-center">
-        {/* Text Content */}
-        <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7 }}
         >
-          <Badge className="bg-terracotta/20 text-terracotta-light border-terracotta/30 mb-4 sm:mb-6 font-sans text-xs sm:text-sm">
-            <Sparkles className="w-3 h-3 mr-1" />
-            Homemade with Love in Telangana
-          </Badge>
-          <h2 className="font-serif text-4xl sm:text-5xl lg:text-7xl text-cream font-bold leading-tight mb-4 sm:mb-6">
-            Authentic Taste
-            <br />
-            <span className="text-shimmer">of Telangana</span>
-          </h2>
-          <p className="text-cream-dark/80 text-base sm:text-lg lg:text-xl max-w-lg mb-6 sm:mb-8 font-sans leading-relaxed">
-            Handcrafted snacks, sweets, podis & vadiyalu — made fresh at home
-            with traditional recipes. No preservatives. Just pure, honest
-            flavors delivered to your doorstep.
-          </p>
-          <div className="flex flex-wrap gap-3 sm:gap-4 mb-8 sm:mb-10">
-            <a
-              href={getWhatsAppLink()}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 bg-whatsapp hover:bg-whatsapp-dark text-white px-6 sm:px-8 py-3 sm:py-4 rounded-full font-bold text-base sm:text-lg transition-all hover:scale-105 shadow-xl shadow-whatsapp/30 wa-ripple"
-            >
-              <MessageCircle className="w-5 h-5" />
-              Order on WhatsApp
-            </a>
+          <Image
+            src={slides[currentBanner].url}
+            alt={slides[currentBanner].label || "Snakzee Banner"}
+            fill
+            className="object-cover"
+            priority
+            sizes="100vw"
+          />
+        </motion.div>
+      </AnimatePresence>
+
+      {/* Dot indicators */}
+      {slides.length > 1 && (
+        <div className="absolute bottom-4 sm:bottom-6 left-1/2 -translate-x-1/2 flex gap-1.5 sm:gap-2 z-10">
+          {slides.map((_, i) => (
             <button
-              onClick={() =>
-                document
-                  .getElementById("products")
-                  ?.scrollIntoView({ behavior: "smooth" })
-              }
-              className="inline-flex items-center gap-2 border border-cream/30 text-cream bg-transparent hover:bg-cream/10 px-6 sm:px-8 py-3 sm:py-4 rounded-full font-semibold text-base sm:text-lg transition-all"
-            >
-              Explore Menu
-              <ArrowRight className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Live Stats */}
-          <div className="flex gap-6 sm:gap-10">
-            <div>
-              <p className="text-3xl sm:text-4xl font-serif font-bold text-gold">500+</p>
-              <p className="text-cream-dark/60 text-xs sm:text-sm mt-1">Happy Customers</p>
-            </div>
-            <div>
-              <p className="text-3xl sm:text-4xl font-serif font-bold text-gold">44+</p>
-              <p className="text-cream-dark/60 text-xs sm:text-sm mt-1">Authentic Items</p>
-            </div>
-            <div>
-              <p className="text-3xl sm:text-4xl font-serif font-bold text-gold">100%</p>
-              <p className="text-cream-dark/60 text-xs sm:text-sm mt-1">Homemade</p>
-            </div>
-          </div>
-        </motion.div>
-
-          {/* Right column — Banner carousel on mobile/tab above content, right side on desktop */}
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.7, delay: 0.2 }}
-            className="order-first lg:order-last relative"
-          >
-            {banners.length > 0 ? (
-              <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/20">
-                <div className="relative w-full h-[220px] sm:h-[320px] lg:h-[460px]">
-                  <AnimatePresence mode="wait">
-                    <motion.div
-                      key={currentBanner}
-                      initial={{ opacity: 0, x: 40 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      exit={{ opacity: 0, x: -40 }}
-                      transition={{ duration: 0.5 }}
-                      className="absolute inset-0"
-                    >
-                      <Image
-                        src={banners[currentBanner].url}
-                        alt={banners[currentBanner].label || "Hero Banner"}
-                        fill
-                        className="object-cover"
-                        priority
-                        sizes="(max-width: 1024px) 100vw, 50vw"
-                      />
-                      {banners[currentBanner].label && (
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brown/70 to-transparent p-4">
-                          <p className="text-cream text-sm font-sans font-semibold uppercase tracking-wider">
-                            {banners[currentBanner].label}
-                          </p>
-                        </div>
-                      )}
-                    </motion.div>
-                  </AnimatePresence>
-                </div>
-                {banners.length > 1 && (
-                  <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-2 z-10">
-                    {banners.map((_, i) => (
-                      <button
-                        key={i}
-                        onClick={() => setCurrentBanner(i)}
-                        className={`rounded-full transition-all ${
-                          i === currentBanner ? "w-6 h-2 bg-gold" : "w-2 h-2 bg-cream/50 hover:bg-cream/80"
-                        }`}
-                        aria-label={`Go to banner ${i + 1}`}
-                      />
-                    ))}
-                  </div>
-                )}
-                {banners.length > 1 && (
-                  <>
-                    <button
-                      onClick={() => setCurrentBanner((p) => (p - 1 + banners.length) % banners.length)}
-                      className="absolute left-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center transition-colors z-10"
-                    >
-                      <ChevronDown className="w-4 h-4 rotate-90" />
-                    </button>
-                    <button
-                      onClick={() => setCurrentBanner((p) => (p + 1) % banners.length)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 w-9 h-9 bg-black/30 hover:bg-black/50 text-white rounded-full flex items-center justify-center transition-colors z-10"
-                    >
-                      <ChevronDown className="w-4 h-4 -rotate-90" />
-                    </button>
-                  </>
-                )}
-              </div>
-            ) : (
-              <div className="hidden lg:grid grid-cols-2 gap-4">
-                <div className="space-y-4">
-                  <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/20 float-slow">
-                    <Image src="/products/Hot_Items/Crispy_Murukulu.jpg" alt="Crispy Murukulu" width={400} height={400} className="object-cover w-full h-48 xl:h-56" priority />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brown/70 to-transparent p-3"><p className="text-cream text-xs font-sans font-semibold uppercase tracking-wider">MURUKULU / Crispy</p></div>
-                  </div>
-                  <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/20 float-slow" style={{ animationDelay: "1s" }}>
-                    <Image src="/products/Sweet_Items/Kaju_Katli.jpg" alt="Kaju Katli" width={400} height={400} className="object-cover w-full h-48 xl:h-56" priority />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brown/70 to-transparent p-3"><p className="text-cream text-xs font-sans font-semibold uppercase tracking-wider">KAJU KATLI / Sweet</p></div>
-                  </div>
-                </div>
-                <div className="space-y-4 mt-8">
-                  <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/20 float-slow" style={{ animationDelay: "0.5s" }}>
-                    <Image src="/products/Podis_Powders/Peanut_Spice_Powder.jpg" alt="Palli Karam Podi" width={400} height={400} className="object-cover w-full h-48 xl:h-56" />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brown/70 to-transparent p-3"><p className="text-cream text-xs font-sans font-semibold uppercase tracking-wider">PALLI PODI / Aromatic</p></div>
-                  </div>
-                  <div className="relative rounded-2xl overflow-hidden shadow-2xl border-2 border-gold/20 float-slow" style={{ animationDelay: "1.5s" }}>
-                    <Image src="/products/Vadiyalu_Papads/Flower_Vadiyalu.jpg" alt="Flower Vadiyalu" width={400} height={400} className="object-cover w-full h-48 xl:h-56" />
-                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-brown/70 to-transparent p-3"><p className="text-cream text-xs font-sans font-semibold uppercase tracking-wider">VADIYALU / Sun-Dried</p></div>
-                  </div>
-                </div>
-              </div>
-            )}
-          </motion.div>
+              key={i}
+              onClick={() => setCurrentBanner(i)}
+              className={`rounded-full transition-all ${
+                i === currentBanner ? "w-5 sm:w-6 h-1.5 sm:h-2 bg-white" : "w-1.5 sm:w-2 h-1.5 sm:h-2 bg-white/50 hover:bg-white/80"
+              }`}
+              aria-label={`Go to banner ${i + 1}`}
+            />
+          ))}
         </div>
-      </div>
-
-      {/* Flat terracotta divider */}
-      <div className="h-1 bg-terracotta" />
-
-      {/* Scroll indicator */}
-      <div className="absolute bottom-24 left-1/2 -translate-x-1/2 z-10 lg:hidden">
-        <motion.div
-          animate={{ y: [0, 8, 0] }}
-          transition={{ duration: 1.5, repeat: Infinity }}
-          className="flex flex-col items-center gap-1"
-        >
-          <span className="text-cream/40 text-xs font-sans tracking-widest uppercase">Scroll</span>
-          <ChevronDown className="w-5 h-5 text-cream/40" />
-        </motion.div>
-      </div>
+      )}
     </section>
   );
 }
@@ -649,15 +569,15 @@ function HeroSection() {
 function MarqueeStrip() {
   const items = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
   return (
-    <div className="bg-terracotta py-3 sm:py-4 marquee-wrapper overflow-hidden">
+    <div className="bg-terracotta py-2.5 sm:py-3 md:py-4 marquee-wrapper overflow-hidden">
       <div className="animate-marquee whitespace-nowrap flex items-center">
         {items.map((item, i) => (
           <span
             key={i}
-            className="inline-flex items-center text-cream font-serif text-lg sm:text-xl font-semibold mx-4 sm:mx-8"
+            className="inline-flex items-center text-cream font-serif text-base sm:text-lg md:text-xl font-semibold mx-3 sm:mx-4 md:mx-8"
           >
             {item}
-            <span className="ml-4 sm:ml-8 text-gold">✦</span>
+            <span className="ml-3 sm:ml-4 md:ml-8 text-gold">✦</span>
           </span>
         ))}
       </div>
@@ -666,30 +586,116 @@ function MarqueeStrip() {
 }
 
 // ─── Category Grid ───────────────────────────────────────────
-function CategoryGrid({ products }: { products: Product[] }) {
-  const scrollTo = (id: string) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: "smooth" });
+// ─── Best Sellers Horizontal Scroll ──────────────────────────────────
+function BestSellers({ products, onCategorySelect }: { products: Product[]; onCategorySelect: (id: string) => void }) {
+  const { addItem } = useCart();
+  const { toast } = useToast();
+  const router = useRouter();
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const [addedId, setAddedId] = useState<string | null>(null);
+
+  const catIds = ["hot-items", "sweet-items", "podis-powders", "vadiyalu-papads"];
+  const bestsellers = catIds.flatMap(catId =>
+    products.filter(p => p.category === catId).slice(0, 2)
+  );
+  if (bestsellers.length === 0) return null;
+
+  const handleAdd = (e: React.MouseEvent, product: Product) => {
+    e.stopPropagation();
+    addItem(product);
+    setAddedId(product.id);
+    toast({ title: "Added to cart! 🛒", description: product.nameEnglish });
+    setTimeout(() => setAddedId(null), 2000);
+  };
+
+  const scroll = (dir: "left" | "right") => {
+    if (scrollRef.current) scrollRef.current.scrollBy({ left: dir === "left" ? -300 : 300, behavior: "smooth" });
   };
 
   return (
-    <section className="py-12 sm:py-20 bg-cream">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <section className="py-8 sm:py-10 md:py-14 bg-white border-y border-terracotta/10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div>
+            <div className="flex items-center gap-1.5 sm:gap-2 mb-0.5 sm:mb-1">
+              <Crown className="w-4 h-4 sm:w-5 sm:h-5 text-gold fill-current" />
+              <h2 className="font-serif text-xl sm:text-2xl md:text-3xl font-bold text-brown">Bestsellers</h2>
+            </div>
+            <p className="text-brown-light/50 text-xs sm:text-sm font-sans">Most loved by our customers</p>
+          </div>
+          <div className="hidden sm:flex items-center gap-2">
+            <button onClick={() => scroll("left")}
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-terracotta/20 flex items-center justify-center hover:bg-terracotta/10 transition-colors">
+              <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brown" />
+            </button>
+            <button onClick={() => scroll("right")}
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-terracotta/20 flex items-center justify-center hover:bg-terracotta/10 transition-colors">
+              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brown" />
+            </button>
+          </div>
+        </div>
+
+        <div ref={scrollRef} className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 sm:pb-3 scrollbar-hide snap-x snap-mandatory touch-scroll">
+          {bestsellers.map((product) => (
+            <div key={product.id}
+              onClick={() => router.push(`/products/${(product as any).slug || product.id}`)}
+              className="flex-shrink-0 w-40 sm:w-48 md:w-56 bg-cream rounded-xl sm:rounded-2xl border border-terracotta/10 overflow-hidden cursor-pointer hover:shadow-lg hover:border-terracotta/20 transition-all snap-start group active:scale-95">
+              <div className="relative h-36 sm:h-44 md:h-52 overflow-hidden bg-cream-dark">
+                <Image src={product.image} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 160px, 224px" />
+                <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-gold text-brown text-[8px] sm:text-[9px] font-bold font-sans px-1.5 py-0.5 sm:px-2 rounded-full flex items-center gap-0.5 sm:gap-1">
+                  <Crown className="w-2 h-2 sm:w-2.5 sm:h-2.5 fill-current" /> Bestseller
+                </div>
+              </div>
+              <div className="p-2.5 sm:p-3">
+                <p className="font-serif font-bold text-brown text-xs sm:text-sm leading-tight mb-0.5 line-clamp-1">{product.name}</p>
+                <p className="text-brown-light/50 text-[10px] sm:text-[11px] font-sans mb-1.5 sm:mb-2 line-clamp-1">{product.nameEnglish}</p>
+                <div className="flex items-center justify-between">
+                  <span className="font-serif font-bold text-gold text-base sm:text-lg">₹{product.price}</span>
+                  <button onClick={(e) => handleAdd(e, product)}
+                    className={`flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold font-sans transition-all ${
+                      addedId === product.id
+                        ? "bg-green-500 text-white"
+                        : "bg-terracotta hover:bg-terracotta-dark text-white active:scale-95"
+                    }`}>
+                    {addedId === product.id ? <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : <ShoppingCart className="w-2.5 h-2.5 sm:w-3 sm:h-3" />}
+                    {addedId === product.id ? "Added" : "Add"}
+                  </button>
+                </div>
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+}
+
+// ─── Browse by Category ──────────────────────────────────
+function CategoryGrid({ products, onCategorySelect }: { products: Product[]; onCategorySelect: (id: string) => void }) {
+  const scrollToProducts = (catId: string) => {
+    onCategorySelect(catId);
+    setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }), 100);
+  };
+
+  return (
+    <section className="py-8 sm:py-12 md:py-20 bg-cream">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-center mb-8 sm:mb-12"
+          className="text-center mb-6 sm:mb-8 md:mb-12"
         >
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-brown mb-3 sm:mb-4">
+          <h2 className="font-serif text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-bold text-brown mb-2 sm:mb-3 md:mb-4">
             Browse by Category
           </h2>
-          <p className="text-brown-light/70 text-base sm:text-lg max-w-2xl mx-auto">
+          <p className="text-brown-light/70 text-sm sm:text-base md:text-lg max-w-2xl mx-auto px-4">
             From crispy snacks to wholesome sweets, aromatic podis to sun-dried
             vadiyalu — explore our heritage collection
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4">
           {categories.map((cat, index) => (
             <motion.button
               key={cat.id}
@@ -697,30 +703,17 @@ function CategoryGrid({ products }: { products: Product[] }) {
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
               transition={{ delay: index * 0.1 }}
-              onClick={() => scrollTo(cat.id)}
-              className="category-card-compact group relative bg-white rounded-xl p-4 sm:p-6 border border-terracotta/10 hover:border-terracotta/30 text-center overflow-hidden"
+              onClick={() => scrollToProducts(cat.id)}
+              className="category-card-compact group relative bg-white rounded-lg sm:rounded-xl p-3 sm:p-4 md:p-6 border border-terracotta/10 hover:border-terracotta/30 text-center overflow-hidden active:scale-95 transition-all"
             >
-              {/* Subtle hover background pattern */}
               <div className="absolute inset-0 opacity-0 group-hover:opacity-5 transition-opacity duration-500">
-                <div
-                  className="absolute inset-0"
-                  style={{
-                    backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23C8401A' fill-opacity='0.5'%3E%3Ccircle cx='10' cy='10' r='1.5'/%3E%3C/g%3E%3C/svg%3E")`,
-                  }}
-                />
+                <div className="absolute inset-0" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23C8401A' fill-opacity='0.5'%3E%3Ccircle cx='10' cy='10' r='1.5'/%3E%3C/g%3E%3C/svg%3E")` }} />
               </div>
               <div className="relative z-10">
-                <div className="text-3xl sm:text-4xl mb-2 sm:mb-3 group-hover:scale-110 transition-transform duration-300">{cat.icon}</div>
-                <h3 className="category-underline font-serif text-lg sm:text-xl font-bold text-brown mb-0.5 group-hover:text-terracotta transition-colors">
-                  {cat.name}
-                </h3>
-                <p className="text-brown-light/50 text-[13px] mb-1.5 font-sans">
-                  {cat.nameTelugu}
-                </p>
-                <Badge
-                  variant="secondary"
-                  className="bg-terracotta/10 text-terracotta font-sans text-[10px]"
-                >
+                <div className="text-2xl sm:text-3xl md:text-4xl mb-1.5 sm:mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-300">{cat.icon}</div>
+                <h3 className="category-underline font-serif text-base sm:text-lg md:text-xl font-bold text-brown mb-0.5 group-hover:text-terracotta transition-colors">{cat.name}</h3>
+                <p className="text-brown-light/50 text-[11px] sm:text-[13px] mb-1 sm:mb-1.5 font-sans">{cat.nameTelugu}</p>
+                <Badge variant="secondary" className="bg-terracotta/10 text-terracotta font-sans text-[9px] sm:text-[10px]">
                   {products.filter(p => p.category === cat.id).length} varieties
                 </Badge>
               </div>
@@ -758,10 +751,10 @@ function TrustStrip() {
   ];
 
   return (
-    <section className="py-10 sm:py-16 bg-white border-y border-terracotta/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <p className="text-center text-terracotta text-[11px] font-sans tracking-[2.5px] uppercase font-medium mb-8">WHY SNAKZEE</p>
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 sm:gap-8 relative">
+    <section className="py-8 sm:py-10 md:py-16 bg-white border-y border-terracotta/10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
+        <p className="text-center text-terracotta text-[10px] sm:text-[11px] font-sans tracking-[2px] sm:tracking-[2.5px] uppercase font-medium mb-6 sm:mb-8">WHY SNAKZEE</p>
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 md:gap-8 relative">
 
           {items.map((item, i) => (
             <motion.div
@@ -772,13 +765,13 @@ function TrustStrip() {
               transition={{ delay: i * 0.1 }}
               className="text-center relative z-10"
             >
-              <div className="trust-icon-glow inline-flex items-center justify-center w-14 h-14 sm:w-16 sm:h-16 bg-[#FEE8DF] border border-[#F5C4A8] text-terracotta rounded-2xl mb-3 sm:mb-4 trust-icon-float" style={{ animationDelay: `${i * 0.5}s` }}>
+              <div className="trust-icon-glow inline-flex items-center justify-center w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-[#FEE8DF] border border-[#F5C4A8] text-terracotta rounded-xl sm:rounded-2xl mb-2 sm:mb-3 md:mb-4 trust-icon-float" style={{ animationDelay: `${i * 0.5}s` }}>
                 {item.icon}
               </div>
-              <h3 className="font-serif text-lg sm:text-xl font-bold text-brown mb-1">
+              <h3 className="font-serif text-base sm:text-lg md:text-xl font-bold text-brown mb-0.5 sm:mb-1">
                 {item.title}
               </h3>
-              <p className="text-brown-light/60 text-xs sm:text-sm font-sans">
+              <p className="text-brown-light/60 text-[11px] sm:text-xs md:text-sm font-sans">
                 {item.subtitle}
               </p>
             </motion.div>
@@ -1489,7 +1482,7 @@ function WhatsAppOrderSection() {
               <div className="bg-[#075E54] px-4 py-3 flex items-center gap-3">
                 <div className="w-10 h-10 bg-terracotta rounded-full flex items-center justify-center overflow-hidden">
                   <Image
-                    src="/snakzee-logo.png"
+                    src="/logo-removebg-preview.png"
                     alt="Snakzee"
                     width={32}
                     height={32}
@@ -2643,66 +2636,6 @@ function ExitIntentPopup() {
   );
 }
 
-// ─── Scroll to Top Button with Progress Ring ────────────────
-function ScrollToTop() {
-  const [visible, setVisible] = useState(false);
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      setVisible(scrollTop > 400);
-      setProgress(scrollPercent);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  const radius = 20;
-  const circumference = 2 * Math.PI * radius;
-  const strokeDashoffset = circumference - (progress / 100) * circumference;
-
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.button
-          initial={{ opacity: 0, scale: 0.8 }}
-          animate={{ opacity: 1, scale: 1 }}
-          exit={{ opacity: 0, scale: 0.8 }}
-          onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
-          className="fixed bottom-24 right-5 z-40 w-12 h-12 bg-terracotta hover:bg-terracotta-dark text-cream rounded-full flex items-center justify-center shadow-xl transition-all hover:scale-110"
-          aria-label="Scroll to top"
-        >
-          <svg className="absolute inset-0 w-full h-full -rotate-90" viewBox="0 0 48 48">
-            <circle
-              cx="24"
-              cy="24"
-              r={radius}
-              fill="none"
-              stroke="rgba(253, 246, 236, 0.2)"
-              strokeWidth="2.5"
-            />
-            <circle
-              cx="24"
-              cy="24"
-              r={radius}
-              fill="none"
-              stroke="#FDF6EC"
-              strokeWidth="2.5"
-              strokeLinecap="round"
-              strokeDasharray={circumference}
-              strokeDashoffset={strokeDashoffset}
-              className="progress-ring-circle"
-            />
-          </svg>
-          <ArrowUp className="w-5 h-5 relative z-10" />
-        </motion.button>
-      )}
-    </AnimatePresence>
-  );
-}
 
 // ─── Order Tracking Section ──────────────────────────────────
 function OrderTrackingSection() {
@@ -3011,26 +2944,20 @@ function Footer() {
   return (
     <footer className="bg-brown text-cream pt-12 sm:pt-16 pb-6 sm:pb-8 footer-gradient-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-12 mb-8 sm:mb-12">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-8 sm:gap-12 mb-8 sm:mb-12">
           {/* Brand */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <div className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 relative">
+          <div className="sm:col-span-2 lg:col-span-2">
+            <Link href="/" className="inline-block mb-5">
+              <div className="relative h-20 w-[240px]">
                 <Image
-                  src="/snakzee-logo.png"
+                  src="/logo-removebg-preview.png"
                   alt="Snakzee"
-                  width={40}
-                  height={40}
+                  fill
                   className="object-contain"
+                  sizes="240px"
                 />
               </div>
-              <div>
-                <h3 className="font-serif text-2xl font-bold">Snakzee</h3>
-                <p className="text-cream/50 text-xs tracking-wider uppercase">
-                  Art of Authentic Snacking
-                </p>
-              </div>
-            </div>
+            </Link>
             <p className="text-cream/60 text-sm leading-relaxed mb-4 font-sans">
               Bringing the authentic taste of Telangana to your doorstep.
               Homemade snacks, sweets, podis & vadiyalu — crafted with love
@@ -3174,10 +3101,10 @@ function FloatingWhatsApp() {
       href={getWhatsAppLink()}
       target="_blank"
       rel="noopener noreferrer"
-      className="whatsapp-tooltip fixed bottom-5 right-5 z-50 w-14 h-14 sm:w-16 sm:h-16 bg-whatsapp hover:bg-whatsapp-dark text-white rounded-full flex items-center justify-center shadow-2xl shadow-whatsapp/30 transition-all hover:scale-110 animate-pulse-whatsapp wa-ripple"
+      className="whatsapp-tooltip fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-50 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-whatsapp hover:bg-whatsapp-dark text-white rounded-full flex items-center justify-center shadow-2xl shadow-whatsapp/30 transition-all hover:scale-110 animate-pulse-whatsapp wa-ripple"
       aria-label="Order on WhatsApp"
     >
-      <MessageCircle className="w-6 h-6 sm:w-7 sm:h-7" />
+      <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
     </a>
   );
 }
@@ -3409,26 +3336,6 @@ function ProductComparisonModal({
   );
 }
 
-// ─── Scroll Progress Bar ─────────────────────────────────────
-function ScrollProgressBar() {
-  const [progress, setProgress] = useState(0);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      const scrollTop = window.scrollY;
-      const docHeight = document.documentElement.scrollHeight - window.innerHeight;
-      const scrollPercent = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
-      setProgress(scrollPercent);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  return (
-    <div className="scroll-progress-bar" style={{ width: `${progress}%` }} />
-  );
-}
-
 // ─── Gift Card Section ────────────────────────────────────────
 function GiftCardSection() {
   return (
@@ -3640,7 +3547,7 @@ function ChatbotWidget() {
             <div className="chatbot-header">
               <div className="w-9 h-9 bg-terracotta rounded-full flex items-center justify-center overflow-hidden">
                 <Image
-                  src="/snakzee-logo.png"
+                  src="/logo-removebg-preview.png"
                   alt="Snakzee"
                   width={24}
                   height={24}
@@ -3927,19 +3834,13 @@ function HomeContent() {
   return (
     <div className="min-h-screen flex flex-col bg-cream" suppressHydrationWarning>
       <Preloader />
-      <ScrollProgressBar />
 
       <StickyNav onCategorySelect={setActiveCategory} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       <main className="flex-1">
         <HeroSection />
+        <BestSellers products={products} onCategorySelect={setActiveCategory} />
         <MarqueeStrip />
-
-        <TestimonialHighlightStrip />
-        <SectionReveal><CategoryGrid products={products} /></SectionReveal>
-        <TrustStrip />
-        <SectionReveal><HowItsMadeSection /></SectionReveal>
-        <SectionReveal><OurStorySection /></SectionReveal>
-        <SectionReveal><IngredientsGlossarySection /></SectionReveal>
+        <SectionReveal><CategoryGrid products={products} onCategorySelect={setActiveCategory} /></SectionReveal>
         <FeaturedProducts
           products={products}
           compareIds={new Set(compareIds)}
@@ -3950,24 +3851,28 @@ function HomeContent() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
         />
+        {/* Sections moved to /about page
+        <TestimonialHighlightStrip />
+        <TrustStrip />
+        <SectionReveal><HowItsMadeSection /></SectionReveal>
+        <SectionReveal><OurStorySection /></SectionReveal>
+        <SectionReveal><IngredientsGlossarySection /></SectionReveal>
         <SectionReveal><WhatsAppOrderSection /></SectionReveal>
         <SectionReveal><OrderTrackingSection /></SectionReveal>
         <SectionReveal><InstagramSection /></SectionReveal>
         <SectionReveal><RecipeSection /></SectionReveal>
         <SectionReveal><CustomerReviews /></SectionReveal>
-
         <SectionReveal><LoyaltyRewardsSection /></SectionReveal>
         <SectionReveal><BulkOrderSection products={products} /></SectionReveal>
         <SectionReveal><FestiveCalendarSection products={products} /></SectionReveal>
-
         <FAQSection />
         <NewsletterSection />
         <FreeDeliveryBanner />
+        */}
       </main>
       <Footer />
       <FloatingWhatsApp />
       <ChatbotWidget />
-      <ScrollToTop />
       <SocialProofNotification products={products} />
       <MobileBottomCTA />
       {compareIds.length >= 2 && (

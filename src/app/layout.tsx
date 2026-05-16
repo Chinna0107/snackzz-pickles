@@ -43,9 +43,9 @@ export const metadata: Metadata = {
   publisher: "Snakzee Foods",
   category: "Food & Beverage",
   icons: {
-    icon: "/snakzee-logo.png",
-    apple: "/snakzee-logo.png",
-    shortcut: "/snakzee-logo.png",
+    icon: "/logo-removebg-preview.png",
+    apple: "/logo-removebg-preview.png",
+    shortcut: "/logo-removebg-preview.png",
   },
   manifest: "/manifest.json",
   openGraph: {
@@ -56,7 +56,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "en_IN",
     images: [{
-      url: "https://snakzee.com/snakzee-logo.png",
+      url: "https://snakzee.com/logo-removebg-preview.png",
       width: 1200,
       height: 630,
       alt: "Snakzee Foods — Authentic Homemade Telangana Snacks",
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
     card: "summary_large_image",
     title: "Snakzee Foods — Art of Authentic Snacking",
     description: "100% homemade Telangana snacks, sweets, podis & vadiyalu. No preservatives. Order via WhatsApp!",
-    images: ["https://snakzee.com/snakzee-logo.png"],
+    images: ["https://snakzee.com/logo-removebg-preview.png"],
     creator: "@snakzeefoods",
   },
   robots: {
@@ -105,8 +105,8 @@ export default function RootLayout({
     "name": "Snakzee Foods",
     "alternateName": ["Snackzee", "Snackzee Foods", "Snakzee"],
     "url": "https://snakzee.com",
-    "logo": "https://snakzee.com/snakzee-logo.png",
-    "image": "https://snakzee.com/snakzee-logo.png",
+    "logo": "https://snakzee.com/logo-removebg-preview.png",
+    "image": "https://snakzee.com/logo-removebg-preview.png",
     "description": "Snakzee Foods — 100% homemade Telangana snacks, sweets, podis, vadiyalu & papads. No preservatives. Made fresh after every order.",
     "servesCuisine": "Telangana",
     "priceRange": "₹₹",

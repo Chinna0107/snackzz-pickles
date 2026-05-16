@@ -31,17 +31,19 @@ export default function Footer() {
   return (
     <footer className="bg-brown text-cream pt-12 sm:pt-16 pb-6 sm:pb-8 footer-gradient-border">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-5 gap-8 sm:gap-12 mb-8 sm:mb-12">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-8 sm:gap-12 mb-8 sm:mb-12">
 
           {/* Brand */}
-          <div className="sm:col-span-2 lg:col-span-1">
-            <Link href="/" className="flex items-center gap-3 mb-4">
-              <div className="w-10 h-10 relative flex-shrink-0">
-                <Image src="/snakzee-logo.png" alt="Snackzee Foods" width={40} height={40} className="object-contain" />
-              </div>
-              <div>
-                <h3 className="font-serif text-2xl font-bold">Snackzee Foods</h3>
-                <p className="text-cream/50 text-xs tracking-wider uppercase">Art of Authentic Snacking</p>
+          <div className="sm:col-span-2 lg:col-span-2">
+            <Link href="/" className="inline-block mb-5 group">
+              <div className="relative h-20 w-[260px]">
+                <Image
+                  src="/logo-removebg-preview.png"
+                  alt="Snakzee"
+                  fill
+                  className="object-contain object-left"
+                  sizes="220px"
+                />
               </div>
             </Link>
             <p className="text-cream/60 text-sm leading-relaxed mb-4 font-sans">
@@ -65,7 +67,7 @@ export default function Footer() {
             <ul className="space-y-2 font-sans">
               {categories.map((cat) => (
                 <li key={cat.id}>
-                  <Link href={`/products?category=${cat.id}`}
+                  <Link href={`/shop?category=${cat.id}`}
                     className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">
                     {cat.icon} {cat.name}
                   </Link>
@@ -78,7 +80,7 @@ export default function Footer() {
           <div>
             <h4 className="font-serif text-lg font-bold mb-4">Quick Links</h4>
             <ul className="space-y-2 font-sans">
-              <li><Link href="/products" className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">All Products</Link></li>
+              <li><Link href="/shop" className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">All Products</Link></li>
               <li><Link href="/about" className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">About Us</Link></li>
               <li><Link href="/contact" className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Contact Us</Link></li>
               <li>{scrollOrLink("order", "How to Order")}</li>
@@ -120,7 +122,7 @@ export default function Footer() {
               </li>
               <li className="flex items-start gap-2 text-cream/60 text-sm">
                 <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                <span>57/14-A, Sri Raghavendra Swamy Temple, Kurnool, 518001, A.P, India</span>
+                <span>House No 1/2/32, Taka Street, Near Main Road, Jagtial, Telangana — 505327</span>
               </li>
             </ul>
           </div>
@@ -130,7 +132,7 @@ export default function Footer() {
         <div className="border-t border-cream/10 pt-6">
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-3">
             <p className="text-cream/40 text-xs sm:text-sm font-sans">
-              © {new Date().getFullYear()} Snackzee Foods. All rights reserved. Made with ❤️ in Telangana
+              © {new Date().getFullYear()} Snakzee. All rights reserved. Made with ❤️ in Telangana
             </p>
             <p className="text-cream/30 text-xs font-sans">Homemade • No Preservatives • Fresh Every Order</p>
           </div>

@@ -38,6 +38,7 @@ interface Product {
   ingredients: string[];
   nutrition: { calories: string; protein: string; carbs: string; fat: string; fiber: string };
   tags: string[];
+  reviews: { name: string; rating: number; comment: string; date: string }[];
 }
 
 const emptyProduct: Omit<Product, "id"> = {
@@ -59,6 +60,7 @@ const emptyProduct: Omit<Product, "id"> = {
   ingredients: [],
   nutrition: { calories: "", protein: "", carbs: "", fat: "", fiber: "" },
   tags: [],
+  reviews: [],
 };
 
 export default function AdminProductsPage() {
@@ -121,6 +123,15 @@ export default function AdminProductsPage() {
       });
 
       if (!res.ok) throw new Error("Failed to save");
+      const saved = await res.json();
+      const productId = saved.product?.id || (editProduct as Product).id;
+
+      // Save reviews separately
+      await fetch(`${BACKEND_URL}/products/${productId}/reviews`, {
+        method: "PATCH",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({ reviews: formData.reviews || [] }),
+      });
 
       toast({ title: "Success", description: `Product ${isNew ? "added" : "updated"} successfully` });
       setEditProduct(null);
@@ -506,6 +517,41 @@ export default function AdminProductsPage() {
                       className="w-full px-3 py-2 rounded-lg bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none" />
                   </div>
                 </div>
+              </div>
+            </div>
+
+            {/* Reviews */}
+            <div className="px-6 pb-4">
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-sans font-semibold text-brown text-sm">Customer Reviews</h3>
+                <button onClick={() => handleChange("reviews", [...(formData.reviews || []), { name: "", rating: 5, comment: "", date: new Date().toISOString().split("T")[0] }])}
+                  className="flex items-center gap-1 text-xs text-terracotta font-sans font-semibold hover:underline">
+                  <Plus className="w-3 h-3" /> Add Review
+                </button>
+              </div>
+              <div className="space-y-3">
+                {(formData.reviews || []).map((review, i) => (
+                  <div key={i} className="bg-cream rounded-xl p-3 space-y-2">
+                    <div className="flex gap-2">
+                      <input value={review.name} onChange={(e) => { const r = [...formData.reviews]; r[i] = { ...r[i], name: e.target.value }; handleChange("reviews", r); }}
+                        placeholder="Customer name" className="flex-1 px-3 py-1.5 rounded-lg bg-white border border-terracotta/10 text-brown font-sans text-xs focus:outline-none" />
+                      <select value={review.rating} onChange={(e) => { const r = [...formData.reviews]; r[i] = { ...r[i], rating: Number(e.target.value) }; handleChange("reviews", r); }}
+                        className="px-2 py-1.5 rounded-lg bg-white border border-terracotta/10 text-brown font-sans text-xs focus:outline-none">
+                        {[5,4,3,2,1].map(n => <option key={n} value={n}>{n} ⭐</option>)}
+                      </select>
+                      <input type="date" value={review.date} onChange={(e) => { const r = [...formData.reviews]; r[i] = { ...r[i], date: e.target.value }; handleChange("reviews", r); }}
+                        className="px-2 py-1.5 rounded-lg bg-white border border-terracotta/10 text-brown font-sans text-xs focus:outline-none" />
+                      <button onClick={() => handleChange("reviews", formData.reviews.filter((_, j) => j !== i))}
+                        className="text-red-400 hover:text-red-600 transition-colors"><X className="w-4 h-4" /></button>
+                    </div>
+                    <textarea value={review.comment} onChange={(e) => { const r = [...formData.reviews]; r[i] = { ...r[i], comment: e.target.value }; handleChange("reviews", r); }}
+                      placeholder="Review comment" rows={2}
+                      className="w-full px-3 py-1.5 rounded-lg bg-white border border-terracotta/10 text-brown font-sans text-xs focus:outline-none resize-none" />
+                  </div>
+                ))}
+                {(formData.reviews || []).length === 0 && (
+                  <p className="text-brown-light/40 text-xs font-sans text-center py-2">No reviews yet. Click "Add Review" to add one.</p>
+                )}
               </div>
             </div>
 

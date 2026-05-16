@@ -52,7 +52,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       <div className="md:hidden fixed top-0 left-0 right-0 z-50 bg-white border-b border-terracotta/10 px-4 py-3 flex items-center justify-between">
         <div className="flex items-center gap-2.5">
           <div className="w-9 h-9 relative flex-shrink-0">
-            <Image src="/snakzee-logo.png" alt="Snakzee" fill sizes="36px" className="object-contain" />
+            <Image src="/logo-removebg-preview.png" alt="Snakzee" fill sizes="36px" className="object-contain" />
           </div>
           <p className="font-serif font-bold text-terracotta text-xl leading-none">Snakzee</p>
         </div>
@@ -106,7 +106,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         <div className="p-5 border-b border-terracotta/10">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 relative flex-shrink-0">
-              <Image src="/snakzee-logo.png" alt="Snakzee" fill sizes="36px" className="object-contain" />
+              <Image src="/logo-removebg-preview.png" alt="Snakzee" fill sizes="36px" className="object-contain" />
             </div>
             <div>
               <p className="font-serif font-bold text-brown text-sm">Snakzee</p>

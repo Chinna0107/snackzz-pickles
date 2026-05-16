@@ -7,7 +7,7 @@
   "background_color": "#FDF6EC",
   "theme_color": "#C8401A",
   "icons": [
-    { "src": "/snakzee-logo.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "/snakzee-logo.png", "sizes": "512x512", "type": "image/png" }
+    { "src": "/logo-removebg-preview.png", "sizes": "192x192", "type": "image/png" },
+    { "src": "/logo-removebg-preview.png", "sizes": "512x512", "type": "image/png" }
   ]
 }

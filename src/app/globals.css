@@ -155,6 +155,13 @@
    ═══════════════════════════════════════════════════════════════ */
 html {
   scroll-behavior: smooth;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+body {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -200,22 +207,22 @@ html {
   background: #A33315;
 }
 
-/* Global page scrollbar */
+/* Global page scrollbar — hidden */
 ::-webkit-scrollbar {
-  width: 8px;
+  width: 0px;
+  display: none;
 }
 
 ::-webkit-scrollbar-track {
-  background: #FDF6EC;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #C8401A;
-  border-radius: 4px;
+  background: transparent;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #A33315;
+  background: transparent;
 }
 
 /* ═══════════════════════════════════════════════════════════════
@@ -446,7 +453,36 @@ html {
    WHATSAPP TOOLTIP
    ═══════════════════════════════════════════════════════════════ */
 .whatsapp-tooltip {
-  position: relative;
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  z-index: 50;
+  width: 52px;
+  height: 52px;
+  background: #25D366;
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 4px 20px rgba(37, 211, 102, 0.3);
+  transition: all 0.3s ease;
+}
+
+@media (min-width: 640px) {
+  .whatsapp-tooltip {
+    right: 20px;
+    bottom: 20px;
+    width: 56px;
+    height: 56px;
+  }
+}
+
+@media (min-width: 768px) {
+  .whatsapp-tooltip {
+    width: 64px;
+    height: 64px;
+  }
 }
 
 .whatsapp-tooltip::before {
@@ -1680,18 +1716,6 @@ html {
 /* ═══════════════════════════════════════════════════════════════
    GLOBAL SCROLLBAR DARK MODE
    ═══════════════════════════════════════════════════════════════ */
-.dark ::-webkit-scrollbar-track {
-  background: #1A0D04;
-}
-
-.dark ::-webkit-scrollbar-thumb {
-  background: #5C2D13;
-}
-
-.dark ::-webkit-scrollbar-thumb:hover {
-  background: #E05A35;
-}
-
 .dark .custom-scrollbar::-webkit-scrollbar-track {
   background: #2A1508;
 }
@@ -2298,25 +2322,6 @@ html {
 
 
 /* ═══════════════════════════════════════════════════════════════
-   SCROLL PROGRESS BAR
-   ═══════════════════════════════════════════════════════════════ */
-.scroll-progress-bar {
-  position: fixed;
-  top: 0;
-  left: 0;
-  height: 3px;
-  background: linear-gradient(to right, #C8401A, #D4912A, #E05A35);
-  z-index: 9999;
-  transition: width 0.1s linear;
-  box-shadow: 0 0 8px rgba(200, 64, 26, 0.4);
-}
-
-.dark .scroll-progress-bar {
-  background: linear-gradient(to right, #E05A35, #E5A84D, #F07050);
-  box-shadow: 0 0 8px rgba(224, 90, 53, 0.5);
-}
-
-/* ═══════════════════════════════════════════════════════════════
    DECORATIVE SECTION DIVIDER - MANDALA PATTERN
    ═══════════════════════════════════════════════════════════════ */
 .mandala-divider {
@@ -2399,11 +2404,11 @@ html {
    ═══════════════════════════════════════════════════════════════ */
 .chatbot-bubble {
   position: fixed;
-  bottom: 24px;
-  right: 88px;
+  bottom: 72px;
+  right: 16px;
   z-index: 49;
-  width: 52px;
-  height: 52px;
+  width: 48px;
+  height: 48px;
   border-radius: 50%;
   background: linear-gradient(135deg, #C8401A, #E05A35);
   color: white;
@@ -2415,6 +2420,15 @@ html {
   transition: all 0.3s ease;
 }
 
+@media (min-width: 640px) {
+  .chatbot-bubble {
+    right: 20px;
+    bottom: 88px;
+    width: 52px;
+    height: 52px;
+  }
+}
+
 .chatbot-bubble:hover {
   transform: scale(1.1);
   box-shadow: 0 6px 24px rgba(200, 64, 26, 0.4);
@@ -2422,13 +2436,13 @@ html {
 
 .chatbot-window {
   position: fixed;
-  bottom: 84px;
-  right: 20px;
+  bottom: 132px;
+  right: 16px;
   z-index: 49;
-  width: 360px;
-  max-width: calc(100vw - 40px);
-  height: 480px;
-  max-height: calc(100vh - 120px);
+  width: calc(100vw - 32px);
+  max-width: 360px;
+  height: 70vh;
+  max-height: 480px;
   border-radius: 1rem;
   overflow: hidden;
   box-shadow: 0 16px 48px rgba(0, 0, 0, 0.15), 0 4px 12px rgba(0, 0, 0, 0.08);
@@ -2436,6 +2450,15 @@ html {
   display: flex;
   flex-direction: column;
   background: white;
+}
+
+@media (min-width: 640px) {
+  .chatbot-window {
+    right: 20px;
+    bottom: 152px;
+    width: 360px;
+    height: 480px;
+  }
 }
 
 .dark .chatbot-window {
@@ -2613,13 +2636,6 @@ html {
     border-radius: 0;
   }
   
-  .chatbot-bubble {
-    right: 76px;
-    bottom: 20px;
-    width: 44px;
-    height: 44px;
-  }
-
   .product-ribbon {
     font-size: 8px;
     padding: 2px 8px 2px 6px;
@@ -2923,4 +2939,12 @@ html {
 .bilingual-marquee-item .telugu {
   font-size: 0.75em;
   opacity: 0.6;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
 }

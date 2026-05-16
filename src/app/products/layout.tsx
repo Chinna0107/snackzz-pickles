@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Shop Snackzee Foods — Authentic Telangana Snacks",
     description: "Hot items, sweets, podis, vadiyalu & papads — all homemade with traditional Telangana recipes.",
-    images: [{ url: "/snakzee-logo.png", alt: "Snackzee Foods Products" }],
+    images: [{ url: "/logo-removebg-preview.png", alt: "Snackzee Foods Products" }],
   },
 };
 

@@ -54,7 +54,7 @@ export default function LoginPage() {
         description: `Logged in as ${data.user.email}`,
       });
 
-      router.push(data.user.role === "admin" ? "/admin" : "/dashboard");
+      router.push(data.user.role === "admin" ? "/admin" : "/");
     } catch {
       toast({ title: "Network error", description: "Could not reach the server.", variant: "destructive" });
     } finally {
@@ -72,11 +72,10 @@ export default function LoginPage() {
       >
         {/* Header */}
         <div className="bg-gradient-to-r from-terracotta to-terracotta-dark px-8 py-8 text-center">
-          <div className="w-14 h-14 mx-auto mb-3 relative">
-            <Image src="/snakzee-logo.png" alt="Snakzee" fill sizes="56px" className="object-contain" />
+          <div className="relative h-14 w-[180px] mx-auto mb-2">
+            <Image src="/logo-removebg-preview.png" alt="Snakzee" fill className="object-contain" sizes="180px" />
           </div>
-          <h1 className="font-serif text-2xl font-bold text-cream">Snakzee</h1>
-          <p className="text-cream/70 text-xs font-sans mt-1 tracking-wider uppercase">
+          <p className="text-cream/70 text-xs font-sans mt-2 tracking-wider uppercase">
             Art of Authentic Snacking
           </p>
         </div>

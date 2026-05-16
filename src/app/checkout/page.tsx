@@ -128,7 +128,7 @@ export default function CheckoutPage() {
 
         clearCart();
         toast({ title: "Order Placed! 🎉", description: `Payment ID: ${response.razorpay_payment_id}` });
-        router.push("/dashboard/orders");
+        router.push("/orders");
       },
       prefill: { name: address.name, email: address.email, contact: address.phone },
       theme: { color: "#C8401A" },

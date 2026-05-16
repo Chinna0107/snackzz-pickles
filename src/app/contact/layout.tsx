@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "Contact Snackzee Foods",
     description: "Reach Snackzee Foods via WhatsApp, phone or email. Fast response guaranteed!",
-    images: [{ url: "/snakzee-logo.png", alt: "Snackzee Foods" }],
+    images: [{ url: "/logo-removebg-preview.png", alt: "Snackzee Foods" }],
   },
 };
 

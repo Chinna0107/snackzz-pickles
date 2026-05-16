@@ -3,8 +3,9 @@
 import { useEffect, useState } from "react";
 import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
+import Link from "next/link";
 import { motion } from "framer-motion";
-import { ShoppingCart, Heart, Share2, Clock, Users, Flame, ArrowLeft } from "lucide-react";
+import { ShoppingCart, Heart, Share2, Clock, Users, Flame, ArrowLeft, Star } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/context/CartContext";
 import Header from "@/components/Header";
@@ -38,6 +39,8 @@ interface Product {
   ingredients: string[];
   nutrition: { calories: string; protein: string; carbs: string; fat: string; fiber: string };
   tags: string[];
+  reviews: { name: string; rating: number; comment: string; date: string }[];
+  slug?: string;
 }
 
 export default function ProductDetailPage() {
@@ -49,6 +52,7 @@ export default function ProductDetailPage() {
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedQuantity, setSelectedQuantity] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
+  const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
 
   useEffect(() => {
     if (params.slug) fetchProduct();
@@ -56,7 +60,6 @@ export default function ProductDetailPage() {
 
   const fetchProduct = async () => {
     try {
-      // Try slug first, fallback to ID
       const isNumeric = /^\d+$/.test(String(params.slug));
       const url = isNumeric
         ? `${BACKEND_URL}/products/${params.slug}`
@@ -65,12 +68,25 @@ export default function ProductDetailPage() {
       const data = await res.json();
       if (data.product) {
         setProduct(data.product);
+        fetchSimilar(data.product.category, data.product.id);
       }
     } catch (err) {
       toast({ title: "Error", description: "Failed to load product", variant: "destructive" });
     } finally {
       setLoading(false);
     }
+  };
+
+  const fetchSimilar = async (category: string, excludeId: number) => {
+    try {
+      const res = await fetch(`${BACKEND_URL}/products`);
+      const data = await res.json();
+      if (data.products) {
+        setSimilarProducts(
+          data.products.filter((p: Product) => p.category === category && p.id !== excludeId).slice(0, 4)
+        );
+      }
+    } catch {}
   };
 
   const addToCart = () => {
@@ -316,6 +332,76 @@ export default function ProductDetailPage() {
             )}
           </div>
         </div>
+
+        {/* Ratings & Reviews */}
+        {product.reviews && product.reviews.length > 0 && (() => {
+          const avg = product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length;
+          return (
+            <div className="mt-10">
+              <h2 className="font-serif text-2xl font-bold text-brown mb-6">
+                Ratings & Reviews
+                <span className="ml-3 text-base font-sans font-normal text-brown-light/50">({product.reviews.length})</span>
+              </h2>
+              {/* Average */}
+              <div className="flex items-center gap-4 mb-6 bg-white rounded-2xl border border-terracotta/10 p-5 w-fit">
+                <div className="text-center">
+                  <p className="font-serif text-5xl font-bold text-terracotta">{avg.toFixed(1)}</p>
+                  <div className="flex gap-0.5 mt-1 justify-center">
+                    {[1,2,3,4,5].map(s => (
+                      <Star key={s} className={`w-4 h-4 ${s <= Math.round(avg) ? "fill-amber-400 text-amber-400" : "text-brown-light/20"}`} />
+                    ))}
+                  </div>
+                  <p className="text-brown-light/50 text-xs font-sans mt-1">{product.reviews.length} reviews</p>
+                </div>
+              </div>
+              {/* Review Cards */}
+              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                {product.reviews.map((review, i) => (
+                  <div key={i} className="bg-white rounded-2xl border border-terracotta/10 p-5">
+                    <div className="flex items-center justify-between mb-2">
+                      <p className="font-sans font-bold text-brown text-sm">{review.name}</p>
+                      <p className="text-brown-light/40 text-xs font-sans">{review.date}</p>
+                    </div>
+                    <div className="flex gap-0.5 mb-3">
+                      {[1,2,3,4,5].map(s => (
+                        <Star key={s} className={`w-3.5 h-3.5 ${s <= review.rating ? "fill-amber-400 text-amber-400" : "text-brown-light/20"}`} />
+                      ))}
+                    </div>
+                    <p className="text-brown-light/70 text-sm font-sans leading-relaxed">{review.comment}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+          );
+        })()}
+
+        {/* People Also Buy */}
+        {similarProducts.length > 0 && (
+          <div className="mt-12">
+            <h2 className="font-serif text-2xl font-bold text-brown mb-6">People Also Buy</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+              {similarProducts.map((p) => (
+                <Link key={p.id} href={`/products/${p.slug || p.id}`}
+                  className="bg-white rounded-2xl border border-terracotta/10 overflow-hidden hover:shadow-md transition-shadow group">
+                  <div className="relative aspect-square bg-cream">
+                    {p.image ? (
+                      <Image src={p.image} alt={p.name} fill className="object-cover group-hover:scale-105 transition-transform duration-300" sizes="(max-width: 640px) 50vw, 25vw" />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center text-brown-light/30 text-xs">No Image</div>
+                    )}
+                    {p.badge && (
+                      <span className="absolute top-2 left-2 bg-terracotta text-white text-[9px] font-bold font-sans px-2 py-0.5 rounded-full">{p.badge}</span>
+                    )}
+                  </div>
+                  <div className="p-3">
+                    <p className="font-sans font-semibold text-brown text-sm truncate">{p.name_english}</p>
+                    <p className="font-serif font-bold text-terracotta mt-1">₹{p.price}</p>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );

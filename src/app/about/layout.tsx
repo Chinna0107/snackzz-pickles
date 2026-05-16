@@ -6,7 +6,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "About Snackzee Foods — From Grandmother's Kitchen to Your Doorstep",
     description: "The story of Snackzee Foods — authentic homemade Telangana snacks, sweets & podis made with love and tradition.",
-    images: [{ url: "/snakzee-logo.png", alt: "Snackzee Foods" }],
+    images: [{ url: "/logo-removebg-preview.png", alt: "Snackzee Foods" }],
   },
 };
 

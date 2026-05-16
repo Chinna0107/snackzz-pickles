@@ -53,7 +53,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
       <div className="md:hidden fixed top-0 left-0 right-0 bg-white border-b border-terracotta/10 px-4 py-3 flex items-center justify-between z-50">
         <div className="flex items-center gap-2">
           <div className="w-8 h-8 relative">
-            <Image src="/snakzee-logo.png" alt="Snakzee" fill sizes="32px" className="object-contain" />
+            <Image src="/logo-removebg-preview.png" alt="Snakzee" fill sizes="32px" className="object-contain" />
           </div>
           <span className="font-serif font-bold text-brown">Admin</span>
         </div>
@@ -74,7 +74,7 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
         <div className="p-5 border-b border-terracotta/10">
           <div className="flex items-center gap-3">
             <div className="w-9 h-9 relative flex-shrink-0">
-              <Image src="/snakzee-logo.png" alt="Snakzee" fill sizes="36px" className="object-contain" />
+              <Image src="/logo-removebg-preview.png" alt="Snakzee" fill sizes="36px" className="object-contain" />
             </div>
             <div>
               <p className="font-serif font-bold text-brown text-sm">Snakzee Admin</p>
