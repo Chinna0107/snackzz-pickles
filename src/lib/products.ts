@@ -33,6 +33,7 @@ export interface CategoryInfo {
   name: string;
   nameTelugu: string;
   icon: string;
+  image: string;
   count: number;
   color: string;
 }
@@ -87,6 +88,7 @@ export const categories: CategoryInfo[] = [
     name: "Hot Items",
     nameTelugu: "హాట్ మిక్స్",
     icon: "🍿",
+    image: "/products/Hot_Items/Crispy_Murukulu.jpg",
     count: 12,
     color: "bg-terracotta/10 text-terracotta",
   },
@@ -95,6 +97,7 @@ export const categories: CategoryInfo[] = [
     name: "Sweet Items",
     nameTelugu: "స్వీట్ మిక్స్",
     icon: "🍬",
+    image: "/products/Sweet_Items/Besan_Laddu.jpg",
     count: 11,
     color: "bg-gold/10 text-gold",
   },
@@ -103,6 +106,7 @@ export const categories: CategoryInfo[] = [
     name: "Podis & Powders",
     nameTelugu: "పొడులు",
     icon: "🌶️",
+    image: "/products/Podis_Powders/Idli_Podi.jpg",
     count: 10,
     color: "bg-terracotta-light/10 text-terracotta-light",
   },
@@ -111,6 +115,7 @@ export const categories: CategoryInfo[] = [
     name: "Vadiyalu & Papads",
     nameTelugu: "వడియాలు",
     icon: "☀️",
+    image: "/products/Vadiyalu_Papads/Rice_Papads.jpg",
     count: 8,
     color: "bg-gold-light/10 text-gold",
   },

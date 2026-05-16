@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef } from "react";
 import Link from "next/link";
+import TopAnnouncementBar from "@/components/TopAnnouncementBar";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -9,6 +10,7 @@ import { ShoppingCart, Menu, X, ChevronDown, Home as HomeIcon, Info, Phone, Shop
 import { useCart } from "@/context/CartContext";
 import { prefetchProducts } from "@/hooks/useProducts";
 import { categories } from "@/lib/products";
+
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -59,7 +61,9 @@ export default function Header() {
   };
 
   return (
-    <nav className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${
+    <>
+    <TopAnnouncementBar hidden={false} />
+    <nav className={`sticky top-0 z-[100] w-full transition-all duration-300 ${
       scrolled ? "bg-white/98 backdrop-blur-xl shadow-xl border-b-2 border-terracotta/20" : "bg-cream/95 backdrop-blur-md border-b border-transparent"
     }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -116,7 +120,7 @@ export default function Header() {
                       {categories.map((cat) => (
                         <button key={cat.id} onClick={() => handleCategoryClick(cat.id)}
                           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-terracotta/5 transition-colors group text-left">
-                          <span className="text-xl">{cat.icon}</span>
+                          <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-cream"><Image src={cat.image} alt={cat.name} fill className="object-cover" sizes="40px" /></div>
                           <div>
                             <p className="font-sans font-semibold text-brown text-sm group-hover:text-terracotta">{cat.name}</p>
                             <p className="text-brown-light/40 text-[10px] font-sans">{cat.nameTelugu}</p>
@@ -128,6 +132,13 @@ export default function Header() {
                 )}
               </AnimatePresence>
             </div>
+
+            <Link href="/cook-with-snakzee">
+              <motion.span whileHover={{ scale: 1.05 }} className="relative group flex items-center gap-1.5 px-3 py-2 text-brown hover:text-terracotta transition-colors font-medium text-sm tracking-wide uppercase cursor-pointer">
+                Cook with Snakzee
+                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-terracotta scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+              </motion.span>
+            </Link>
 
             <Link href="/about">
               <motion.span whileHover={{ scale: 1.05 }} className="relative group flex items-center gap-1.5 px-3 py-2 text-brown hover:text-terracotta transition-colors font-medium text-sm tracking-wide uppercase cursor-pointer">
@@ -239,12 +250,23 @@ export default function Header() {
                 </Link>
                 {categories.map((cat) => (
                   <button key={cat.id} onClick={() => handleCategoryClick(cat.id)}
-                    className="w-full flex items-center gap-2 px-3 py-2.5 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium text-sm text-left">
-                    {cat.icon} {cat.name} <span className="text-brown-light/40 text-[11px] font-sans ml-1">({cat.nameTelugu})</span>
+                    className="w-full flex items-center gap-3 px-3 py-2.5 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium text-sm text-left">
+                    <div className="relative h-10 w-10 rounded-2xl overflow-hidden bg-cream">
+                      <Image src={cat.image} alt={cat.name} fill className="object-cover" sizes="40px" />
+                    </div>
+                    <div className="flex-1 text-left font-sans">
+                      <div className="font-medium">{cat.name}</div>
+                      <div className="text-brown-light/40 text-[11px]">{cat.nameTelugu}</div>
+                    </div>
                   </button>
                 ))}
               </div>
 
+              <Link href="/cook-with-snakzee" onClick={() => setMobileMenuOpen(false)}>
+                <div className="flex items-center gap-2 px-4 py-3 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium">
+                  Cook with Snakzee
+                </div>
+              </Link>
               <Link href="/about" onClick={() => setMobileMenuOpen(false)}>
                 <div className="flex items-center gap-2 px-4 py-3 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium">
                   <Info className="w-4 h-4" /> About Us
@@ -280,5 +302,6 @@ export default function Header() {
         )}
       </AnimatePresence>
     </nav>
+    </>
   );
 }

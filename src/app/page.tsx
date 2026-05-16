@@ -3,9 +3,10 @@
 import { useState, useEffect, useCallback, useRef, Suspense } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
+import TopAnnouncementBar from "@/components/TopAnnouncementBar";
 import {
   MessageCircle,
   Phone,
@@ -77,6 +78,7 @@ import {
 } from "@/components/ui/accordion";
 import { useToast } from "@/hooks/use-toast";
 import { useProducts } from "@/hooks/useProducts";
+import BulkOrderSection from "@/components/BulkOrderSection";
 import {
   products as staticProducts,
   categories,
@@ -182,7 +184,10 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
   useEffect(() => {
     const stored = localStorage.getItem("snackzee_user");
     if (stored) {
-      try { setLoggedInUser(JSON.parse(stored)); } catch {}
+      try {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setLoggedInUser(JSON.parse(stored));
+      } catch { }
     }
   }, []);
 
@@ -228,8 +233,10 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
   };
 
   return (
+    <>
+    <TopAnnouncementBar hidden={false} />
     <nav
-      className={`fixed top-0 left-0 right-0 z-[100] transition-all duration-300 ${scrolled
+      className={`sticky top-0 z-[100] w-full transition-all duration-300 ${scrolled
         ? "bg-white/98 backdrop-blur-xl shadow-xl border-b-2 border-terracotta/20"
         : "bg-cream/95 backdrop-blur-md border-b border-transparent"
         }`}
@@ -292,7 +299,7 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
                           onClick={() => { setProductsOpen(false); router.push(`/products?category=${cat.id}`); }}
                           className="w-full flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-terracotta/5 transition-colors group text-left"
                         >
-                          <span className="text-xl">{cat.icon}</span>
+                          <div className="relative w-10 h-10 rounded-lg overflow-hidden flex-shrink-0 bg-cream"><Image src={cat.image} alt={cat.name} fill className="object-cover" sizes="40px" /></div>
                           <div>
                             <p className="font-sans font-semibold text-brown text-sm group-hover:text-terracotta transition-colors">{cat.name}</p>
                             <p className="text-brown-light/40 text-[10px] font-sans">{cat.nameTelugu}</p>
@@ -304,6 +311,13 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
                 )}
               </AnimatePresence>
             </div>
+
+            <Link href="/cook-with-snakzee">
+              <motion.span whileHover={{ scale: 1.05 }} className="relative group flex items-center gap-1.5 px-3 py-2 text-brown hover:text-terracotta transition-colors font-medium text-sm tracking-wide uppercase cursor-pointer">
+                Cook with Snakzee
+                <span className="absolute bottom-0 left-3 right-3 h-0.5 bg-terracotta scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
+              </motion.span>
+            </Link>
 
             <Link href="/about">
               <motion.span whileHover={{ scale: 1.05 }} className="relative group flex items-center gap-1.5 px-3 py-2 text-brown hover:text-terracotta transition-colors font-medium text-sm tracking-wide uppercase cursor-pointer">
@@ -434,7 +448,7 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
                 </Link>
                 {categories.map((cat) => (
                   <button key={cat.id} onClick={() => { setMobileMenuOpen(false); router.push(`/products?category=${cat.id}`); }} className="w-full flex items-center gap-2 px-3 py-2.5 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium text-sm text-left">
-                    {cat.icon} {cat.name} <span className="text-brown-light/40 text-[11px] font-sans">({cat.nameTelugu})</span>
+                    <div className="relative w-8 h-8 rounded-md overflow-hidden flex-shrink-0 bg-cream mr-2"><Image src={cat.image} alt={cat.name} fill className="object-cover" sizes="32px" /></div> {cat.name} <span className="text-brown-light/40 text-[11px] font-sans">({cat.nameTelugu})</span>
                   </button>
                 ))}
               </div>
@@ -475,6 +489,7 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
         )}
       </AnimatePresence>
     </nav>
+    </>
   );
 }
 
@@ -496,7 +511,7 @@ function HeroSection() {
             const local = JSON.parse(stored).filter((b: { active: boolean }) => b.active);
             if (local.length > 0) setBanners(local);
           }
-        } catch {}
+        } catch { }
       })
       .catch(() => {
         try {
@@ -505,7 +520,7 @@ function HeroSection() {
             const local = JSON.parse(stored).filter((b: { active: boolean }) => b.active);
             if (local.length > 0) setBanners(local);
           }
-        } catch {}
+        } catch { }
       });
   }, []);
 
@@ -525,7 +540,7 @@ function HeroSection() {
   const slides = banners.length > 0 ? banners : fallbackImages;
 
   return (
-    <section className="relative w-full h-[60vh] sm:h-[70vh] md:h-[80vh] lg:h-screen overflow-hidden">
+    <section className="relative w-full px-4 sm:px-6 lg:px-8 h-[35vh] sm:h-[40vh] md:h-[62vh] lg:h-[68vh] overflow-hidden py-4 md:py-0">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentBanner}
@@ -533,16 +548,18 @@ function HeroSection() {
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={{ duration: 0.6 }}
-          className="absolute inset-0"
+          className="absolute inset-0 flex justify-center"
         >
-          <Image
-            src={slides[currentBanner].url}
-            alt={slides[currentBanner].label || "Snakzee Banner"}
-            fill
-            className="object-cover"
-            priority
-            sizes="100vw"
-          />
+          <div className="relative h-full w-[90vw] sm:w-[85vw] md:w-[80vw] lg:w-[76vw] max-w-[1300px] mx-auto overflow-hidden rounded-[2rem] shadow-2xl bg-cream-dark">
+            <Image
+              src={slides[currentBanner].url}
+              alt={slides[currentBanner].label || "Snakzee Banner"}
+              fill
+              className="object-contain md:object-cover"
+              priority
+              sizes="100vw"
+            />
+          </div>
         </motion.div>
       </AnimatePresence>
 
@@ -553,9 +570,8 @@ function HeroSection() {
             <button
               key={i}
               onClick={() => setCurrentBanner(i)}
-              className={`rounded-full transition-all ${
-                i === currentBanner ? "w-5 sm:w-6 h-1.5 sm:h-2 bg-white" : "w-1.5 sm:w-2 h-1.5 sm:h-2 bg-white/50 hover:bg-white/80"
-              }`}
+              className={`rounded-full transition-all ${i === currentBanner ? "w-5 sm:w-6 h-1.5 sm:h-2 bg-white" : "w-1.5 sm:w-2 h-1.5 sm:h-2 bg-white/50 hover:bg-white/80"
+                }`}
               aria-label={`Go to banner ${i + 1}`}
             />
           ))}
@@ -640,7 +656,7 @@ function BestSellers({ products, onCategorySelect }: { products: Product[]; onCa
             <div key={product.id}
               onClick={() => router.push(`/products/${(product as any).slug || product.id}`)}
               className="flex-shrink-0 w-40 sm:w-48 md:w-56 bg-cream rounded-xl sm:rounded-2xl border border-terracotta/10 overflow-hidden cursor-pointer hover:shadow-lg hover:border-terracotta/20 transition-all snap-start group active:scale-95">
-              <div className="relative h-36 sm:h-44 md:h-52 overflow-hidden bg-cream-dark">
+              <div className="relative h-32 sm:h-40 md:h-48 overflow-hidden bg-cream-dark">
                 <Image src={product.image} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 160px, 224px" />
                 <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-gold text-brown text-[8px] sm:text-[9px] font-bold font-sans px-1.5 py-0.5 sm:px-2 rounded-full flex items-center gap-0.5 sm:gap-1">
                   <Crown className="w-2 h-2 sm:w-2.5 sm:h-2.5 fill-current" /> Bestseller
@@ -652,11 +668,10 @@ function BestSellers({ products, onCategorySelect }: { products: Product[]; onCa
                 <div className="flex items-center justify-between">
                   <span className="font-sans font-normal text-gold text-base sm:text-lg">₹{product.price}</span>
                   <button onClick={(e) => handleAdd(e, product)}
-                    className={`flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold font-sans transition-all ${
-                      addedId === product.id
+                    className={`flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold font-sans transition-all ${addedId === product.id
                         ? "bg-green-500 text-white"
                         : "bg-terracotta hover:bg-terracotta-dark text-white active:scale-95"
-                    }`}>
+                      }`}>
                     {addedId === product.id ? <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : <ShoppingCart className="w-2.5 h-2.5 sm:w-3 sm:h-3" />}
                     {addedId === product.id ? "Added" : "Add"}
                   </button>
@@ -710,7 +725,9 @@ function CategoryGrid({ products, onCategorySelect }: { products: Product[]; onC
                 <div className="absolute inset-0" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='20' height='20' viewBox='0 0 20 20' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23C8401A' fill-opacity='0.5'%3E%3Ccircle cx='10' cy='10' r='1.5'/%3E%3C/g%3E%3C/svg%3E")` }} />
               </div>
               <div className="relative z-10">
-                <div className="text-2xl sm:text-3xl md:text-4xl mb-1.5 sm:mb-2 md:mb-3 group-hover:scale-110 transition-transform duration-300">{cat.icon}</div>
+                <div className="relative w-16 h-16 sm:w-20 sm:h-20 md:w-24 md:h-24 mb-3 mx-auto group-hover:scale-110 transition-transform duration-300 rounded-full overflow-hidden border-2 border-terracotta/20 bg-cream">
+                  <Image src={cat.image} alt={cat.name} fill className="object-cover" sizes="96px" />
+                </div>
                 <h3 className="category-underline font-serif text-base sm:text-lg md:text-xl font-bold text-brown mb-0.5 group-hover:text-terracotta transition-colors">{cat.name}</h3>
                 <p className="text-brown-light/50 text-[11px] sm:text-[13px] mb-1 sm:mb-1.5 font-sans">{cat.nameTelugu}</p>
                 <Badge variant="secondary" className="bg-terracotta/10 text-terracotta font-sans text-[9px] sm:text-[10px]">
@@ -1278,7 +1295,7 @@ function FeaturedProducts({
                 : "bg-white text-brown-light border border-terracotta/10 hover:border-terracotta/30"
                 }`}
             >
-              {cat.icon} {cat.name}
+              <div className="relative w-8 h-8 rounded-md overflow-hidden flex-shrink-0 bg-cream mr-2"><Image src={cat.image} alt={cat.name} fill className="object-cover" sizes="32px" /></div> {cat.name}
             </button>
           ))}
 
@@ -1889,180 +1906,19 @@ function FestiveCombos() {
 }
 
 // ─── Bulk Order Section ──────────────────────────────────────
-function BulkOrderSection({ products }: { products: Product[] }) {
-  const [selectedItems, setSelectedItems] = useState<Map<string, number>>(new Map());
-
-  const toggleItem = (productId: string) => {
-    setSelectedItems((prev) => {
-      const next = new Map(prev);
-      if (next.has(productId)) {
-        next.delete(productId);
-      } else {
-        next.set(productId, 5);
-      }
-      return next;
-    });
-  };
-
-  const updateQty = (productId: string, delta: number) => {
-    setSelectedItems((prev) => {
-      const next = new Map(prev);
-      const current = next.get(productId) || 5;
-      const newQty = Math.max(1, Math.min(100, current + delta));
-      next.set(productId, newQty);
-      return next;
-    });
-  };
-
-  const bulkItems = Array.from(selectedItems.entries()).map(([id, qty]) => {
-    const product = products.find((p) => p.id === id);
-    return { name: product?.name || id, qty };
-  });
-
-  const hasSelection = selectedItems.size > 0;
-
-  return (
-    <section id="bulk-order" className="py-12 sm:py-20 bg-white border-y border-terracotta/10">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          className="text-center mb-8 sm:mb-12"
-        >
-          <Badge className="bg-gold/10 text-gold border-gold/20 mb-4 font-sans">
-            <Users className="w-3 h-3 mr-1" />
-            Bulk & Catering
-          </Badge>
-          <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-brown mb-3 sm:mb-4">
-            Planning an <span className="text-terracotta">Event?</span>
-          </h2>
-          <p className="text-brown-light/70 text-base sm:text-lg max-w-2xl mx-auto font-sans">
-            Weddings, housewarmings, festivals, or corporate events — we handle bulk orders with custom packaging and special pricing
-          </p>
-        </motion.div>
-
-        {/* Product Selection Grid */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 max-h-96 overflow-y-auto custom-scrollbar pr-2">
-          {products.map((product) => {
-            const isSelected = selectedItems.has(product.id);
-            const qty = selectedItems.get(product.id) || 0;
-            return (
-              <motion.div
-                key={product.id}
-                whileTap={{ scale: 0.97 }}
-                onClick={() => toggleItem(product.id)}
-                className={`bulk-card rounded-xl p-3 sm:p-4 ${isSelected ? "selected" : ""}`}
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 sm:w-12 sm:h-12 relative rounded-lg overflow-hidden flex-shrink-0 bg-cream-dark">
-                    <Image
-                      src={product.image}
-                      alt={product.name}
-                      fill
-                      className="object-cover"
-                      sizes="48px"
-                    />
-                  </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="font-serif font-bold text-brown text-xs sm:text-sm truncate">{product.name}</p>
-                    <p className="text-brown-light/50 text-[10px] sm:text-xs font-sans">₹{product.price}/{product.priceUnit}</p>
-                  </div>
-                  {isSelected && (
-                    <div className="flex-shrink-0 w-5 h-5 bg-terracotta text-white rounded-full flex items-center justify-center">
-                      <CheckCircle2 className="w-3 h-3" />
-                    </div>
-                  )}
-                </div>
-                {isSelected && (
-                  <motion.div
-                    initial={{ opacity: 0, height: 0 }}
-                    animate={{ opacity: 1, height: "auto" }}
-                    exit={{ opacity: 0, height: 0 }}
-                    className="mt-3 flex items-center justify-between"
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <span className="text-[10px] text-brown-light/60 font-sans">Qty:</span>
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => updateQty(product.id, -1)}
-                        className="quantity-btn w-7 h-7 text-sm"
-                        disabled={qty <= 1}
-                      >
-                        <Minus className="w-3 h-3" />
-                      </button>
-                      <span className="text-sm font-bold text-brown font-sans w-6 text-center counter-bump" key={qty}>
-                        {qty}
-                      </span>
-                      <button
-                        onClick={() => updateQty(product.id, 1)}
-                        className="quantity-btn w-7 h-7 text-sm"
-                      >
-                        <Plus className="w-3 h-3" />
-                      </button>
-                    </div>
-                  </motion.div>
-                )}
-              </motion.div>
-            );
-          })}
-        </div>
-
-        {/* CTA */}
-        <div className="text-center">
-          {!hasSelection ? (
-            <p className="text-brown-light/50 text-sm font-sans mb-4">
-              👆 Select products above to build your bulk order
-            </p>
-          ) : (
-            <motion.div
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              className="mb-4"
-            >
-              <p className="text-brown font-semibold text-sm font-sans mb-2">
-                {selectedItems.size} product{selectedItems.size > 1 ? "s" : ""} selected for bulk order
-              </p>
-              <div className="flex flex-wrap justify-center gap-2 mb-4">
-                {Array.from(selectedItems.entries()).map(([id, qty]) => {
-                  const product = products.find((p) => p.id === id);
-                  return (
-                    <Badge key={id} className="bg-terracotta/10 text-terracotta font-sans text-xs">
-                      {product?.name} × {qty}
-                    </Badge>
-                  );
-                })}
-              </div>
-            </motion.div>
-          )}
-          <a
-            href={hasSelection ? getBulkOrderLink(bulkItems) : undefined}
-            target="_blank"
-            rel="noopener noreferrer"
-            onClick={(e) => { if (!hasSelection) e.preventDefault(); }}
-            className={`inline-flex items-center gap-2 px-8 py-4 rounded-full font-bold text-base sm:text-lg transition-all shadow-xl font-sans wa-ripple ${hasSelection
-              ? "bg-whatsapp hover:bg-whatsapp-dark text-white hover:scale-105 shadow-whatsapp/20"
-              : "bg-terracotta/20 text-terracotta/50 cursor-not-allowed shadow-none"
-              }`}
-          >
-            <MessageCircle className="w-5 h-5" />
-            {hasSelection ? "Send Bulk Inquiry" : "Select Products to Continue"}
-          </a>
-        </div>
-      </div>
-    </section>
-  );
-}
-
 // ─── Product Quick View Modal (Enhanced) ─────────────────────
 function ProductQuickView({
   product,
   open,
   onClose,
+  isFavorite,
+  onToggleFavorite,
 }: {
   product: Product | null;
   open: boolean;
   onClose: () => void;
+  isFavorite: boolean;
+  onToggleFavorite: (id: string) => void;
 }) {
   const [quantity, setQuantity] = useState(1);
   const [counterKey, setCounterKey] = useState(0);
@@ -2102,7 +1958,9 @@ function ProductQuickView({
           >
             <Heart className={`w-5 h-5 ${isFavorite ? "fill-current" : ""}`} />
           </button>
-          <DialogClose className="absolute top-3 right-3 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center text-brown transition-colors" />
+          <DialogClose className="absolute top-3 right-3 w-8 h-8 bg-white/80 hover:bg-white rounded-full flex items-center justify-center text-brown transition-colors">
+            <X className="w-5 h-5" />
+          </DialogClose>
         </div>
         <div className="p-6">
           <div className="flex items-center gap-2 mb-2 flex-wrap">
@@ -2940,152 +2798,185 @@ function FreeDeliveryBanner() {
 }
 
 // ─── Footer ──────────────────────────────────────────────────
+
 function Footer() {
+  const pathname = usePathname();
+  const isHome = pathname === "/";
+  const [footerOpenSections, setFooterOpenSections] = useState({
+    categories: false,
+    quickLinks: false,
+    policies: false,
+    contact: false,
+  });
+
+  const toggleFooterSection = (section: "categories" | "quickLinks" | "policies" | "contact") => {
+    setFooterOpenSections((prev) => ({
+      ...prev,
+      [section]: !prev[section],
+    }));
+  };
+
+  const scrollOrLink = (id: string, label: string) => {
+    if (isHome) {
+      return (
+        <button
+          onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })}
+          className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm text-left"
+        >
+          {label}
+        </button>
+      );
+    }
+    return (
+      <Link href={`/#${id}`} className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm">
+        {label}
+      </Link>
+    );
+  };
+
   return (
-    <footer className="bg-brown text-cream pt-12 sm:pt-16 pb-6 sm:pb-8 footer-gradient-border">
+    <footer className="bg-terracotta text-white pt-12 sm:pt-16 pb-6 sm:pb-8 shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-black/10 rounded-t-3xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-8 sm:gap-12 mb-8 sm:mb-12">
           {/* Brand */}
           <div className="sm:col-span-2 lg:col-span-2">
-            <Link href="/" className="inline-block mb-5">
+            <button onClick={() => document.getElementById("hero")?.scrollIntoView({ behavior: "smooth" })} className="inline-block mb-5 group">
               <div className="relative h-20 w-[240px]">
                 <Image
                   src="/logo-removebg-preview.png"
                   alt="Snakzee"
                   fill
-                  className="object-contain"
+                  className="object-contain drop-shadow-md bg-white/90 p-2 rounded-xl"
                   sizes="240px"
                 />
               </div>
-            </Link>
-            <p className="text-cream/60 text-sm leading-relaxed mb-4 font-sans">
-              Bringing the authentic taste of Telangana to your doorstep.
+            </button>
+            <p className="text-white/80 text-sm leading-relaxed mb-4 font-sans">
+              Bringing the authentic taste of Telangana and Andhra Pradesh to your doorstep.
               Homemade snacks, sweets, podis & vadiyalu — crafted with love
               and tradition.
             </p>
             <div className="flex gap-3">
-              <a
-                href="https://www.instagram.com/snak_zee"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-cream/10 hover:bg-cream/20 rounded-full flex items-center justify-center transition-colors"
-                aria-label="Instagram"
-              >
-                <Instagram className="w-4 h-4" />
+              <a href="https://www.instagram.com/snak_zee" target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
+                <Instagram className="w-4 h-4 text-white" />
               </a>
-              <a
-                href={getWhatsAppLink()}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-10 h-10 bg-cream/10 hover:bg-whatsapp/30 rounded-full flex items-center justify-center transition-colors"
-                aria-label="WhatsApp"
-              >
-                <MessageCircle className="w-4 h-4" />
+              <a href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer" className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center transition-colors">
+                <MessageCircle className="w-4 h-4 text-white" />
               </a>
             </div>
           </div>
 
           {/* Categories */}
           <div>
-            <h4 className="font-serif text-lg font-bold mb-4">Categories</h4>
-            <ul className="space-y-2 font-sans">
-              {categories.map((cat) => (
-                <li key={cat.id}>
-                  <button
-                    onClick={() =>
-                      document
-                        .getElementById(cat.id)
-                        ?.scrollIntoView({ behavior: "smooth" })
-                    }
-                    className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm"
-                  >
-                    {cat.icon} {cat.name} ({cat.nameTelugu})
-                  </button>
-                </li>
-              ))}
-            </ul>
+            <div className="md:hidden">
+              <button type="button" onClick={() => toggleFooterSection("categories")} className="w-full flex items-center justify-between py-2 text-left">
+                <span className="font-serif text-lg font-bold text-white">Categories</span>
+                {footerOpenSections.categories ? <Minus className="w-5 h-5 text-white" /> : <Plus className="w-5 h-5 text-white" />}
+              </button>
+            </div>
+            <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">Categories</h4>
+            <div className={`${footerOpenSections.categories ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
+              <ul className="space-y-2 font-sans">
+                {categories.map((cat) => (
+                  <li key={cat.id}>
+                    <button onClick={() => document.getElementById(cat.id)?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm text-left">{cat.icon} {cat.name} ({cat.nameTelugu})</button>
+                  </li>
+                ))}
+              </ul>
+            </div>
           </div>
 
           {/* Quick Links */}
           <div>
-            <h4 className="font-serif text-lg font-bold mb-4">Quick Links</h4>
-            <ul className="space-y-2 font-sans">
-              <li><button onClick={() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">All Products</button></li>
-              <li><button onClick={() => document.getElementById("order")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">How to Order</button></li>
-              <li><button onClick={() => document.getElementById("reviews")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Customer Reviews</button></li>
-              <li><button onClick={() => document.getElementById("bulk-order")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Bulk Orders</button></li>
-              <li><button onClick={() => document.getElementById("our-story")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Our Story</button></li>
-            </ul>
+            <div className="md:hidden">
+              <button type="button" onClick={() => toggleFooterSection("quickLinks")} className="w-full flex items-center justify-between py-2 text-left">
+                <span className="font-serif text-lg font-bold text-white">Quick Links</span>
+                {footerOpenSections.quickLinks ? <Minus className="w-5 h-5 text-white" /> : <Plus className="w-5 h-5 text-white" />}
+              </button>
+            </div>
+            <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">Quick Links</h4>
+            <div className={`${footerOpenSections.quickLinks ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
+              <ul className="space-y-2 font-sans">
+                <li><button onClick={() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm text-left">All Products</button></li>
+                <li><button onClick={() => document.getElementById("order")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm text-left">How to Order</button></li>
+                <li><button onClick={() => document.getElementById("reviews")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm text-left">Customer Reviews</button></li>
+                <li><button onClick={() => document.getElementById("bulk-order")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm text-left">Bulk Orders</button></li>
+                <li><button onClick={() => document.getElementById("our-story")?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm text-left">Our Story</button></li>
+                
+              </ul>
+            </div>
           </div>
 
           {/* Policies */}
           <div>
-            <h4 className="font-serif text-lg font-bold mb-4">Policies</h4>
-            <ul className="space-y-2 font-sans">
-              <li><Link href="/privacy-policy" className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Privacy Policy</Link></li>
-              <li><Link href="/terms" className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Terms & Conditions</Link></li>
-              <li><Link href="/refund-policy" className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Return & Refund Policy</Link></li>
-              <li><Link href="/shipping-policy" className="footer-link-hover text-cream/60 hover:text-gold transition-colors text-sm">Shipping & Delivery</Link></li>
-            </ul>
+            <div className="md:hidden">
+              <button type="button" onClick={() => toggleFooterSection("policies")} className="w-full flex items-center justify-between py-2 text-left">
+                <span className="font-serif text-lg font-bold text-white">Policies</span>
+                {footerOpenSections.policies ? <Minus className="w-5 h-5 text-white" /> : <Plus className="w-5 h-5 text-white" />}
+              </button>
+            </div>
+            <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">Policies</h4>
+            <div className={`${footerOpenSections.policies ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
+              <ul className="space-y-2 font-sans">
+                <li><Link href="/privacy-policy" className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm">Privacy Policy</Link></li>
+                <li><Link href="/terms" className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm">Terms & Conditions</Link></li>
+                <li><Link href="/refund-policy" className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm">Return & Refund Policy</Link></li>
+                <li><Link href="/shipping-policy" className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm">Shipping & Delivery</Link></li>
+              </ul>
+            </div>
           </div>
 
           {/* Contact */}
           <div>
-            <h4 className="font-serif text-lg font-bold mb-4">Contact Us</h4>
-            <ul className="space-y-3 font-sans">
-              <li>
-                <a
-                  href="tel:+919505550051"
-                  className="footer-link-hover flex items-center gap-2 text-cream/60 hover:text-gold transition-colors text-sm"
-                >
-                  <Phone className="w-4 h-4 flex-shrink-0" />
-                  +91 95055 50051
-                </a>
-              </li>
-              <li>
-                <a
-                  href="tel:+918897586142"
-                  className="footer-link-hover flex items-center gap-2 text-cream/60 hover:text-gold transition-colors text-sm"
-                >
-                  <Phone className="w-4 h-4 flex-shrink-0" />
-                  +91 88975 86142
-                </a>
-              </li>
-              <li>
-                <a
-                  href={getWhatsAppLink()}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="footer-link-hover flex items-center gap-2 text-whatsapp hover:text-whatsapp-dark transition-colors text-sm font-semibold"
-                >
-                  <MessageCircle className="w-4 h-4 flex-shrink-0" />
-                  WhatsApp Order
-                </a>
-              </li>
-              <li className="flex items-center gap-2 text-cream/60 text-sm">
-                <MapPin className="w-4 h-4 flex-shrink-0" />
-                Telangana, India
-              </li>
-            </ul>
+            <div className="md:hidden">
+              <button type="button" onClick={() => toggleFooterSection("contact")} className="w-full flex items-center justify-between py-2 text-left">
+                <span className="font-serif text-lg font-bold text-white">Contact Us</span>
+                {footerOpenSections.contact ? <Minus className="w-5 h-5 text-white" /> : <Plus className="w-5 h-5 text-white" />}
+              </button>
+            </div>
+            <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">Contact Us</h4>
+            <div className={`${footerOpenSections.contact ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
+              <ul className="space-y-3 font-sans">
+                <li>
+                  <a href="tel:+919505550051" className="footer-link-hover flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm">
+                    <Phone className="w-4 h-4 flex-shrink-0" /> +91 95055 50051
+                  </a>
+                </li>
+                <li>
+                  <a href="tel:+918897586142" className="footer-link-hover flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm">
+                    <Phone className="w-4 h-4 flex-shrink-0" /> +91 88975 86142
+                  </a>
+                </li>
+                <li>
+                  <a href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer" className="footer-link-hover flex items-center gap-2 bg-white/10 hover:bg-white/20 rounded-full px-3 py-2 text-white transition-colors text-sm font-semibold w-max">
+                    <MessageCircle className="w-4 h-4 flex-shrink-0" /> WhatsApp Order
+                  </a>
+                </li>
+                <li className="flex items-start gap-2 text-white/80 text-sm mt-3">
+                  <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                  <span>House No 1/2/32, Taka Street, Near Main Road, Jagtial, Telangana — 505327</span>
+                </li>
+              </ul>
+            </div>
           </div>
         </div>
 
         {/* Bottom bar */}
-        <div className="border-t border-cream/10 pt-6">
-          <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-3">
-            <p className="text-cream/40 text-xs sm:text-sm font-sans">
-              © {new Date().getFullYear()} Snakzee. All rights reserved. Made with ❤️ in Telangana
+        <div className="border-t border-black/10 pt-6 mt-8">
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-4">
+            <p className="text-white/80 text-xs sm:text-sm font-sans">
+              © {new Date().getFullYear()} Snakzee. All rights reserved. Made with ❤️ in Telangana and Andhra Pradesh
             </p>
-            <p className="text-cream/30 text-xs font-sans">Homemade • No Preservatives • Fresh Every Order</p>
+            <p className="text-white/80 text-xs sm:text-sm font-sans font-medium bg-white/10 px-3 py-1.5 rounded-full">Homemade • No Preservatives • Fresh Every Order</p>
           </div>
-          <div className="flex flex-wrap justify-center sm:justify-start gap-x-4 gap-y-1">
+          <div className="flex flex-wrap justify-center sm:justify-start gap-x-6 gap-y-2">
             {[
               { href: "/privacy-policy", label: "Privacy Policy" },
               { href: "/terms", label: "Terms & Conditions" },
               { href: "/refund-policy", label: "Refund Policy" },
               { href: "/shipping-policy", label: "Shipping Policy" },
             ].map((p) => (
-              <Link key={p.href} href={p.href} className="text-cream/30 hover:text-cream/60 text-[11px] font-sans transition-colors">{p.label}</Link>
+              <Link key={p.href} href={p.href} className="text-white/70 hover:text-white text-xs font-sans transition-colors">{p.label}</Link>
             ))}
           </div>
         </div>
@@ -3127,6 +3018,7 @@ function SocialProofNotification({ products }: { products: Product[] }) {
 
   useEffect(() => {
     if (typeof window !== "undefined" && sessionStorage.getItem("snackzee-notif-dismissed") === "true") {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setDismissed(true);
       return;
     }
@@ -3783,6 +3675,7 @@ function HomeContent() {
   useEffect(() => {
     const cat = searchParams.get("category");
     if (cat) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveCategory(cat);
       setTimeout(() => document.getElementById("products")?.scrollIntoView({ behavior: "smooth" }), 300);
     }
@@ -3794,6 +3687,7 @@ function HomeContent() {
 
   // Fetch products from backend — handled by useProducts hook
   useEffect(() => {
+    // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
   }, []);
 
@@ -3838,9 +3732,9 @@ function HomeContent() {
       <StickyNav onCategorySelect={setActiveCategory} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
       <main className="flex-1">
         <HeroSection />
+        <SectionReveal><CategoryGrid products={products} onCategorySelect={setActiveCategory} /></SectionReveal>
         <BestSellers products={products} onCategorySelect={setActiveCategory} />
         <MarqueeStrip />
-        <SectionReveal><CategoryGrid products={products} onCategorySelect={setActiveCategory} /></SectionReveal>
         <FeaturedProducts
           products={products}
           compareIds={new Set(compareIds)}
@@ -3871,7 +3765,7 @@ function HomeContent() {
         */}
       </main>
       <Footer />
-      <FloatingWhatsApp />
+
       <ChatbotWidget />
       <SocialProofNotification products={products} />
       <MobileBottomCTA />
