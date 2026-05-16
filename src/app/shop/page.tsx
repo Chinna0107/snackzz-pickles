@@ -47,13 +47,13 @@ function ProductCard({ product }: {
       viewport={{ once: true }}
       transition={{ duration: 0.3 }}
       onClick={() => router.push(`/products/${product.slug || product.id}`)}
-      className="group bg-white rounded-2xl border border-terracotta/10 overflow-hidden cursor-pointer hover:shadow-lg hover:border-terracotta/20 transition-all duration-300 flex"
+      className="group bg-white rounded-2xl border border-terracotta/10 overflow-hidden cursor-pointer hover:shadow-lg hover:border-terracotta/20 transition-all duration-300 flex flex-col sm:flex-row"
     >
-      {/* Image — left side */}
-      <div className="relative w-36 sm:w-44 flex-shrink-0 overflow-hidden bg-cream-dark">
+      {/* Image */}
+      <div className="relative w-full h-56 sm:w-44 sm:h-auto flex-shrink-0 overflow-hidden bg-cream-dark">
         <Image src={product.image} alt={product.name} fill
           className="object-cover group-hover:scale-105 transition-transform duration-500"
-          sizes="(max-width: 640px) 144px, 176px" />
+          sizes="(max-width: 640px) 100vw, 176px" />
         {product.badge && (
           <span className="absolute top-2 left-2 bg-terracotta text-white text-[9px] font-bold font-sans px-2 py-0.5 rounded-full">
             {product.badge}
@@ -84,16 +84,16 @@ function ProductCard({ product }: {
           </p>
         </div>
 
-        <div className="flex items-center justify-between mt-3 gap-3">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 gap-3">
           <div>
-            <span className="font-serif text-2xl font-bold text-gold">₹{product.price}</span>
+            <span className="font-sans text-2xl font-normal text-gold">₹{product.price}</span>
             <span className="text-brown-light/40 text-xs ml-1 font-sans">/ {product.priceUnit}</span>
           </div>
 
           <motion.button
             onClick={handleAddToCart}
             whileTap={{ scale: 0.95 }}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full font-semibold text-sm font-sans transition-all duration-300 flex-shrink-0 ${
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm font-sans transition-all duration-300 flex-shrink-0 ${
               added || inCart
                 ? "bg-green-500 text-white shadow-lg shadow-green-500/20"
                 : "bg-terracotta hover:bg-terracotta-dark text-white shadow-md shadow-terracotta/20 hover:scale-105"

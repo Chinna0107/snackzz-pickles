@@ -650,7 +650,7 @@ function BestSellers({ products, onCategorySelect }: { products: Product[]; onCa
                 <p className="font-serif font-bold text-brown text-xs sm:text-sm leading-tight mb-0.5 line-clamp-1">{product.name}</p>
                 <p className="text-brown-light/50 text-[10px] sm:text-[11px] font-sans mb-1.5 sm:mb-2 line-clamp-1">{product.nameEnglish}</p>
                 <div className="flex items-center justify-between">
-                  <span className="font-serif font-bold text-gold text-base sm:text-lg">₹{product.price}</span>
+                  <span className="font-sans font-normal text-gold text-base sm:text-lg">₹{product.price}</span>
                   <button onClick={(e) => handleAdd(e, product)}
                     className={`flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold font-sans transition-all ${
                       addedId === product.id
@@ -1143,11 +1143,11 @@ function ProductCard({
 
         <div className="flex items-center justify-between gap-2 mb-3">
           <div>
-            <span className="text-2xl font-bold text-gold font-serif">
+            <span className="text-2xl font-normal text-gold font-sans">
               ₹{product.price}
             </span>
             <span className="text-brown-light/40 text-xs ml-1 font-sans">
-              / {product.priceUnit}
+              {' '}{product.priceUnit}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
