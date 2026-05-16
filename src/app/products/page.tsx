@@ -104,7 +104,7 @@ function ProductCard({ product }: { product: Product }) {
         </div>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <span className="text-2xl font-bold text-gold font-serif">₹{product.price}</span>
+            <span className="text-2xl font-bold text-gold font-sans">₹{product.price}</span>
             <span className="text-brown-light/40 text-xs ml-1 font-sans">/ {product.priceUnit}</span>
           </div>
           <a

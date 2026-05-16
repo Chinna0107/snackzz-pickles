@@ -194,7 +194,7 @@ export default function ProductDetailPage() {
               <p className="text-brown-light/70 text-lg font-sans mb-4">{product.name_english}</p>
               
               <div className="flex items-baseline gap-3 mb-2">
-                <span className="font-serif text-4xl font-bold text-terracotta">₹{currentPrice}</span>
+                <span className="font-sans text-4xl font-bold text-terracotta">₹{currentPrice}</span>
                 {currentMRP && currentMRP > currentPrice && (
                   <>
                     <span className="text-brown-light/40 text-xl line-through">₹{currentMRP}</span>
@@ -223,7 +223,7 @@ export default function ProductDetailPage() {
                       selectedQuantity === null ? "border-terracotta bg-terracotta/5" : "border-terracotta/10 hover:border-terracotta/30"
                     }`}>
                     <p className="font-sans font-bold text-brown text-sm">{product.price_unit}</p>
-                    <p className="font-serif font-bold text-terracotta">₹{product.price}</p>
+                    <p className="font-sans font-bold text-terracotta">₹{product.price}</p>
                   </button>
                   {product.quantity_prices.map((qp, i) => (
                     <button key={i} onClick={() => setSelectedQuantity(i)}
@@ -231,7 +231,7 @@ export default function ProductDetailPage() {
                         selectedQuantity === i ? "border-terracotta bg-terracotta/5" : "border-terracotta/10 hover:border-terracotta/30"
                       }`}>
                       <p className="font-sans font-bold text-brown text-sm">{qp.quantity}</p>
-                      <p className="font-serif font-bold text-terracotta">₹{qp.price}</p>
+                      <p className="font-sans font-bold text-terracotta">₹{qp.price}</p>
                       {qp.mrp && qp.mrp > qp.price && (
                         <p className="text-brown-light/40 text-xs line-through">₹{qp.mrp}</p>
                       )}
@@ -345,7 +345,7 @@ export default function ProductDetailPage() {
               {/* Average */}
               <div className="flex items-center gap-4 mb-6 bg-white rounded-2xl border border-terracotta/10 p-5 w-fit">
                 <div className="text-center">
-                  <p className="font-serif text-5xl font-bold text-terracotta">{avg.toFixed(1)}</p>
+                  <p className="font-sans text-5xl font-bold text-terracotta">{avg.toFixed(1)}</p>
                   <div className="flex gap-0.5 mt-1 justify-center">
                     {[1,2,3,4,5].map(s => (
                       <Star key={s} className={`w-4 h-4 ${s <= Math.round(avg) ? "fill-amber-400 text-amber-400" : "text-brown-light/20"}`} />
@@ -395,7 +395,7 @@ export default function ProductDetailPage() {
                   </div>
                   <div className="p-3">
                     <p className="font-sans font-semibold text-brown text-sm truncate">{p.name_english}</p>
-                    <p className="font-serif font-bold text-terracotta mt-1">₹{p.price}</p>
+                    <p className="font-sans font-bold text-terracotta mt-1">₹{p.price}</p>
                   </div>
                 </Link>
               ))}

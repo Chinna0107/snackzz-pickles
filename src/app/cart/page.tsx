@@ -78,7 +78,7 @@ export default function CartPage() {
                   <div className="flex-1 min-w-0">
                     <p className="font-serif font-bold text-brown text-lg leading-tight">{item.product.name}</p>
                     <p className="text-brown-light/50 text-xs font-sans">{item.product.nameEnglish} · {item.product.priceUnit}</p>
-                    <p className="text-gold font-serif font-bold text-lg mt-1">₹{item.product.price * item.quantity}</p>
+                    <p className="text-gold font-sans font-bold text-lg mt-1">₹{item.product.price * item.quantity}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
                     <button onClick={() => updateQty(item.product.id, item.quantity - 1)} className="w-8 h-8 rounded-full border border-terracotta/20 flex items-center justify-center hover:bg-terracotta/10 transition-colors">
@@ -146,7 +146,7 @@ export default function CartPage() {
                 </div>
                 <div className="border-t border-terracotta/10 pt-2 flex justify-between font-bold text-brown text-base">
                   <span>Total</span>
-                  <span className="text-gold font-serif text-xl">₹{finalTotal}</span>
+                  <span className="text-gold font-sans text-xl">₹{finalTotal}</span>
                 </div>
               </div>
               <Link
