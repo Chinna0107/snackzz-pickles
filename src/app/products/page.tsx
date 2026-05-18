@@ -237,19 +237,40 @@ function ProductsContent() {
           <div className="flex flex-wrap gap-2 sm:gap-3 mb-6 justify-center">
             <button
               onClick={() => handleCategoryChange("all")}
-              className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all font-sans ${activeCategory === "all" ? "bg-terracotta text-white shadow-lg shadow-terracotta/20" : "bg-white text-brown-light border border-terracotta/10 hover:border-terracotta/30"}`}
+              className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all font-sans flex items-center gap-2 border ${
+                activeCategory === "all"
+                  ? "bg-terracotta text-white border-terracotta shadow-lg shadow-terracotta/20"
+                  : "bg-white text-brown-light border-terracotta/10 hover:border-terracotta/30"
+              }`}
             >
-              All Products ({products.length})
+              <div className="flex items-center justify-center w-5 h-5 rounded-full bg-cream text-[10px] flex-shrink-0 shadow-sm border border-terracotta/5">
+                🛍️
+              </div>
+              <span>All Products ({products.length})</span>
             </button>
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => handleCategoryChange(cat.id)}
-                className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all font-sans flex items-center gap-1.5 ${activeCategory === cat.id ? "bg-terracotta text-white shadow-lg shadow-terracotta/20" : "bg-white text-brown-light border border-terracotta/10 hover:border-terracotta/30"}`}
+                className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all font-sans flex items-center gap-2 border ${
+                  activeCategory === cat.id
+                    ? "bg-terracotta text-white border-terracotta shadow-lg shadow-terracotta/20"
+                    : "bg-white text-brown-light border-terracotta/10 hover:border-terracotta/30"
+                }`}
               >
-                <span>{cat.icon}</span>
+                <div className={`relative w-5 h-5 rounded-full overflow-hidden flex-shrink-0 bg-cream-dark ${activeCategory === cat.id ? "border border-white/30" : "border border-terracotta/10"}`}>
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    className="object-cover"
+                    sizes="20px"
+                  />
+                </div>
                 <span>{cat.name}</span>
-                <span className="text-[10px] opacity-70">({products.filter(p => p.category === cat.id).length})</span>
+                <span className={`text-[10px] ${activeCategory === cat.id ? "text-white/70" : "text-brown-light/40"}`}>
+                  ({products.filter((p) => p.category === cat.id).length})
+                </span>
               </button>
             ))}
           </div>

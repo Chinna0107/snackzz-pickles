@@ -84,10 +84,21 @@ export default function Footer() {
             </div>
             <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">Categories</h4>
             <div className={`${footerOpenSections.categories ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
-              <ul className="space-y-2 font-sans">
+              <ul className="space-y-3 font-sans">
                 {categories.map((cat) => (
                   <li key={cat.id}>
-                    <Link href={`/shop?category=${cat.id}`} className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm">{cat.icon} {cat.name}</Link>
+                    <Link href={`/shop?category=${cat.id}`} className="footer-link-hover flex items-center gap-2.5 text-white/80 hover:text-white transition-colors text-sm group">
+                      <div className="relative w-7 h-7 rounded-lg overflow-hidden flex-shrink-0 bg-white/10 border border-white/10 group-hover:border-white/20 transition-all duration-300">
+                        <Image
+                          src={cat.image}
+                          alt={cat.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          sizes="28px"
+                        />
+                      </div>
+                      <span className="font-medium">{cat.name}</span>
+                    </Link>
                   </li>
                 ))}
               </ul>

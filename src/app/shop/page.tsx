@@ -168,17 +168,41 @@ function ShopContent() {
 
           {/* Category Filters */}
           <div className="flex flex-wrap justify-center gap-2 sm:gap-3 mb-8">
-            <button onClick={() => setActiveCategory("all")}
-              className={`px-4 sm:px-6 py-2 rounded-full font-semibold text-xs sm:text-sm transition-all font-sans ${activeCategory === "all" ? "bg-terracotta text-white shadow-lg shadow-terracotta/20" : "bg-white text-brown-light border border-terracotta/10 hover:border-terracotta/30"}`}>
-              All Items
+            <button
+              onClick={() => setActiveCategory("all")}
+              className={`px-4 sm:px-5 py-2 rounded-full font-semibold text-xs sm:text-sm transition-all font-sans flex items-center gap-2 border ${
+                activeCategory === "all"
+                  ? "bg-terracotta text-white border-terracotta shadow-lg shadow-terracotta/20"
+                  : "bg-white text-brown-light border-terracotta/10 hover:border-terracotta/30"
+              }`}
+            >
+              <div className="flex items-center justify-center w-5 h-5 rounded-full bg-cream text-[10px] flex-shrink-0 shadow-sm border border-terracotta/5">
+                🛍️
+              </div>
+              <span>All Items</span>
             </button>
             {categories.map((cat) => (
-              <button key={cat.id} onClick={() => setActiveCategory(cat.id)}
-                className={`px-4 sm:px-6 py-2 rounded-full font-semibold text-xs sm:text-sm transition-all font-sans ${activeCategory === cat.id ? "bg-terracotta text-white shadow-lg shadow-terracotta/20" : "bg-white text-brown-light border border-terracotta/10 hover:border-terracotta/30"}`}>
-                {cat.icon} {cat.name}
+              <button
+                key={cat.id}
+                onClick={() => setActiveCategory(cat.id)}
+                className={`px-4 sm:px-5 py-2 rounded-full font-semibold text-xs sm:text-sm transition-all font-sans flex items-center gap-2 border ${
+                  activeCategory === cat.id
+                    ? "bg-terracotta text-white border-terracotta shadow-lg shadow-terracotta/20"
+                    : "bg-white text-brown-light border-terracotta/10 hover:border-terracotta/30"
+                }`}
+              >
+                <div className={`relative w-5 h-5 rounded-full overflow-hidden flex-shrink-0 bg-cream-dark ${activeCategory === cat.id ? "border border-white/30" : "border border-terracotta/10"}`}>
+                  <Image
+                    src={cat.image}
+                    alt={cat.name}
+                    fill
+                    className="object-cover"
+                    sizes="20px"
+                  />
+                </div>
+                <span>{cat.name}</span>
               </button>
             ))}
-
           </div>
 
           {/* Count */}

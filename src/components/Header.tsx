@@ -61,11 +61,11 @@ export default function Header() {
   };
 
   return (
-    <>
-    <TopAnnouncementBar hidden={false} />
-    <nav className={`sticky top-0 z-[100] w-full transition-all duration-300 ${
-      scrolled ? "bg-white/98 backdrop-blur-xl shadow-xl border-b-2 border-terracotta/20" : "bg-cream/95 backdrop-blur-md border-b border-transparent"
-    }`}>
+    <div className="sticky top-0 z-[100] w-full">
+      <TopAnnouncementBar hidden={false} />
+      <nav className={`w-full transition-all duration-300 ${
+        scrolled ? "bg-white/98 backdrop-blur-xl shadow-xl border-b-2 border-terracotta/20" : "bg-cream/95 backdrop-blur-md border-b border-transparent"
+      }`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
 
@@ -301,7 +301,7 @@ export default function Header() {
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
-    </>
+      </nav>
+    </div>
   );
 }

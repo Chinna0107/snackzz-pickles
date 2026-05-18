@@ -233,14 +233,14 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
   };
 
   return (
-    <>
-    <TopAnnouncementBar hidden={false} />
-    <nav
-      className={`sticky top-0 z-[100] w-full transition-all duration-300 ${scrolled
-        ? "bg-white/98 backdrop-blur-xl shadow-xl border-b-2 border-terracotta/20"
-        : "bg-cream/95 backdrop-blur-md border-b border-transparent"
-        }`}
-    >
+    <div className="sticky top-0 z-[100] w-full">
+      <TopAnnouncementBar hidden={false} />
+      <nav
+        className={`w-full transition-all duration-300 ${scrolled
+          ? "bg-white/98 backdrop-blur-xl shadow-xl border-b-2 border-terracotta/20"
+          : "bg-cream/95 backdrop-blur-md border-b border-transparent"
+          }`}
+      >
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex items-center justify-between h-16 sm:h-20">
 
@@ -488,8 +488,8 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
           </motion.div>
         )}
       </AnimatePresence>
-    </nav>
-    </>
+      </nav>
+    </div>
   );
 }
 
@@ -2876,10 +2876,24 @@ function Footer() {
             </div>
             <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">Categories</h4>
             <div className={`${footerOpenSections.categories ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
-              <ul className="space-y-2 font-sans">
+              <ul className="space-y-3 font-sans">
                 {categories.map((cat) => (
                   <li key={cat.id}>
-                    <button onClick={() => document.getElementById(cat.id)?.scrollIntoView({ behavior: "smooth" })} className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm text-left">{cat.icon} {cat.name} ({cat.nameTelugu})</button>
+                    <button
+                      onClick={() => document.getElementById(cat.id)?.scrollIntoView({ behavior: "smooth" })}
+                      className="footer-link-hover flex items-center gap-2.5 text-white/80 hover:text-white transition-colors text-sm text-left group"
+                    >
+                      <div className="relative w-7 h-7 rounded-lg overflow-hidden flex-shrink-0 bg-white/10 border border-white/10 group-hover:border-white/20 transition-all duration-300">
+                        <Image
+                          src={cat.image}
+                          alt={cat.name}
+                          fill
+                          className="object-cover group-hover:scale-105 transition-transform duration-300"
+                          sizes="28px"
+                        />
+                      </div>
+                      <span className="font-medium">{cat.name}</span>
+                    </button>
                   </li>
                 ))}
               </ul>
