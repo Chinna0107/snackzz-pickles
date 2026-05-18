@@ -583,14 +583,14 @@ function HeroSection() {
 
 // ─── Marquee Strip ───────────────────────────────────────────
 function MarqueeStrip() {
-  const items = [...MARQUEE_ITEMS, ...MARQUEE_ITEMS];
+  const items = Array(6).fill("For Telangana and Andhra Pradesh free delivery on order above ₹999");
   return (
     <div className="bg-terracotta py-2.5 sm:py-3 md:py-4 marquee-wrapper overflow-hidden">
       <div className="animate-marquee whitespace-nowrap flex items-center">
         {items.map((item, i) => (
           <span
             key={i}
-            className="inline-flex items-center text-cream font-serif text-base sm:text-lg md:text-xl font-semibold mx-3 sm:mx-4 md:mx-8"
+            className="inline-flex items-center text-cream font-sans text-base sm:text-lg md:text-xl font-semibold mx-3 sm:mx-4 md:mx-8"
           >
             {item}
             <span className="ml-3 sm:ml-4 md:ml-8 text-gold">✦</span>
