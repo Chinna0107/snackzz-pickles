@@ -1248,26 +1248,39 @@ export const CHATBOT_QA = [
 export const PROCESS_STEPS = [
   {
     step: 1,
-    title: "Sourcing",
-    description: "Handpicked ingredients from local Telangana farms — fresh chilies, peanuts, millets and spices",
+    title: "Sourcing (Telangana farms)",
+    description: "Handpicked fresh ingredients directly from local Telangana farms — fresh chilies, peanuts, spices, and premium grains.",
     icon: "🌱",
   },
   {
     step: 2,
-    title: "Preparation",
-    description: "Traditional stone-grinding for podis, sun-drying for vadiyalu, hand-rolling for snacks",
+    title: "Preparation (stone grinding, hand rolling)",
+    description: "Ingredients are ground slowly on traditional stone mortars to retain natural oils, and rolled by hand using heritage methods.",
     icon: "👩‍🍳",
   },
   {
     step: 3,
-    title: "Cooking",
-    description: "Slow-cooked in small batches with cold-pressed oils and age-old techniques. No shortcuts",
+    title: "Cooking (small batch, cold pressed oil)",
+    description: "Prepared meticulously in small, artisanal batches and slow-cooked using pure, heart-healthy cold-pressed oils.",
     icon: "🔥",
   },
   {
     step: 4,
-    title: "Packing & Delivery",
-    description: "Sealed in food-grade containers while still fresh, and dispatched within 24 hours",
+    title: "Sun Drying (vadiyalu process)",
+    description: "Naturally sun-dried under warm sunlight to produce perfectly crisp, light, and traditional vadiyalu and papads.",
+    icon: "☀️",
+  },
+  {
+    step: 5,
+    title: "Packing & Hygiene",
+    description: "Double-sanitized, packed with extreme care in airtight, food-grade containers to preserve authentic aroma and taste.",
     icon: "📦",
   },
+  {
+    step: 6,
+    title: "Delivery process",
+    description: "Dispatched within 24 hours of preparation, ensuring the product reaches your doorstep fresh and crisp in 2-3 days.",
+    icon: "🚚",
+  },
 ];
+

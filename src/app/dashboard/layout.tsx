@@ -12,6 +12,7 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:500
 const NAV = [
   { href: "/dashboard", label: "Dashboard", icon: <LayoutDashboard className="w-4 h-4" /> },
   { href: "/dashboard/orders", label: "My Orders", icon: <ShoppingBag className="w-4 h-4" /> },
+  { href: "/profile", label: "Profile", icon: <User className="w-4 h-4" /> },
   { href: "/dashboard/products", label: "Products", icon: <Home className="w-4 h-4" /> },
 ];
 

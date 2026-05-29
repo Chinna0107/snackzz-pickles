@@ -25,6 +25,61 @@ export default function LoginPage() {
   const [otpSending, setOtpSending] = useState(false);
   const [countdown, setCountdown] = useState(0);
 
+  const handleGoogleLoginSuccess = async (response: any) => {
+    const idToken = response.credential;
+    setLoading(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/auth/google`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ idToken }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        toast({ title: "Google Sign-In Error", description: data.error, variant: "destructive" });
+        return;
+      }
+      localStorage.setItem("snackzee_token", data.token);
+      localStorage.setItem("snackzee_user", JSON.stringify(data.user));
+      toast({ title: "Welcome back! 🎉", description: `Logged in via Google as ${data.user.email}` });
+      router.push(data.user.role === "admin" ? "/admin" : "/");
+    } catch {
+      toast({ title: "Network error", description: "Google Sign-In failed.", variant: "destructive" });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    const initGoogle = () => {
+      if (typeof window !== "undefined" && (window as any).google) {
+        (window as any).google.accounts.id.initialize({
+          client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "your-google-client-id.apps.googleusercontent.com",
+          callback: handleGoogleLoginSuccess,
+        });
+        const btnContainer = document.getElementById("google-signin-btn");
+        if (btnContainer) {
+          (window as any).google.accounts.id.renderButton(
+            btnContainer,
+            { theme: "outline", size: "large", width: "100%" }
+          );
+        }
+      }
+    };
+
+    if (document.getElementById("google-gsi-client")) {
+      initGoogle();
+    } else {
+      const script = document.createElement("script");
+      script.id = "google-gsi-client";
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = initGoogle;
+      document.body.appendChild(script);
+    }
+  }, [mode]);
+
   // Countdown timer for resending OTP
   useEffect(() => {
     if (countdown > 0) {
@@ -39,8 +94,8 @@ export default function LoginPage() {
   // Send OTP
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!form.email) {
-      toast({ title: "Email required", description: "Please enter your email to receive an OTP.", variant: "destructive" });
+    if (!form.email || !form.phone) {
+      toast({ title: "Fields required", description: "Please enter your email and phone to receive an OTP.", variant: "destructive" });
       return;
     }
 
@@ -49,7 +104,7 @@ export default function LoginPage() {
       const res = await fetch(`${BACKEND_URL}/auth/send-otp`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: form.email }),
+        body: JSON.stringify({ email: form.email, phone: form.phone }),
       });
 
       const data = await res.json();
@@ -221,6 +276,12 @@ export default function LoginPage() {
                   {loading ? "Please wait..." : "Sign In"}
                 </Button>
 
+                <div className="relative my-4">
+                  <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-terracotta/10" /></div>
+                  <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-brown-light/40 font-sans">Or continue with</span></div>
+                </div>
+                <div id="google-signin-btn" className="w-full min-h-[40px] flex justify-center" />
+
                 <p className="text-center text-brown-light/50 text-xs font-sans mt-4">
                   Don't have an account?{" "}
                   <button
@@ -248,7 +309,7 @@ export default function LoginPage() {
                   // ─── STEP 1: REQUEST OTP ───
                   <form onSubmit={handleSendOtp} className="space-y-4">
                     <p className="text-xs text-brown-light/70 font-sans text-center mb-2">
-                      Enter your email to receive a 6-digit OTP code to verify your identity.
+                      Enter your email and phone number to receive a 6-digit OTP code to verify your identity.
                     </p>
                     <div className="relative">
                       <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brown-light/40" />
@@ -259,6 +320,21 @@ export default function LoginPage() {
                         placeholder="Email address"
                         value={form.email}
                         onChange={handleChange}
+                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown text-sm font-sans placeholder:text-brown-light/40 focus:outline-none focus:border-terracotta/40"
+                      />
+                    </div>
+
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brown-light/40" />
+                      <input
+                        name="phone"
+                        type="tel"
+                        required
+                        placeholder="Phone number (e.g. 9876543210)"
+                        value={form.phone}
+                        onChange={handleChange}
+                        pattern="[0-9]{10}"
+                        title="Enter a valid 10-digit phone number"
                         className="w-full pl-10 pr-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown text-sm font-sans placeholder:text-brown-light/40 focus:outline-none focus:border-terracotta/40"
                       />
                     </div>
@@ -276,6 +352,12 @@ export default function LoginPage() {
                         </>
                       )}
                     </Button>
+
+                    <div className="relative my-4">
+                      <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-terracotta/10" /></div>
+                      <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-brown-light/40 font-sans">Or continue with</span></div>
+                    </div>
+                    <div id="google-signin-btn" className="w-full min-h-[40px] flex justify-center" />
                   </form>
                 ) : (
                   // ─── STEP 2: VERIFY OTP + REMAINING DETAILS ───
@@ -296,6 +378,14 @@ export default function LoginPage() {
                       >
                         <Edit2 className="w-3 h-3" /> Change
                       </button>
+                    </div>
+
+                    {/* Display active phone with edit/back option */}
+                    <div className="flex items-center justify-between p-3 rounded-xl bg-cream border border-terracotta/10 text-xs font-sans text-brown">
+                      <div className="flex items-center gap-2 truncate">
+                        <Phone className="w-3.5 h-3.5 text-terracotta flex-shrink-0" />
+                        <span className="font-medium truncate">{form.phone}</span>
+                      </div>
                     </div>
 
                     {/* OTP input */}
@@ -323,22 +413,6 @@ export default function LoginPage() {
                         placeholder="Full name"
                         value={form.name}
                         onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown text-sm font-sans placeholder:text-brown-light/40 focus:outline-none focus:border-terracotta/40"
-                      />
-                    </div>
-
-                    {/* Phone number */}
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brown-light/40" />
-                      <input
-                        name="phone"
-                        type="tel"
-                        required
-                        placeholder="Phone number (e.g. 9876543210)"
-                        value={form.phone}
-                        onChange={handleChange}
-                        pattern="[0-9]{10}"
-                        title="Enter a valid 10-digit phone number"
                         className="w-full pl-10 pr-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown text-sm font-sans placeholder:text-brown-light/40 focus:outline-none focus:border-terracotta/40"
                       />
                     </div>

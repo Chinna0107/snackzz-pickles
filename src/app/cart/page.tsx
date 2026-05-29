@@ -6,34 +6,10 @@ import { useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { Minus, Plus, Trash2, ShoppingCart, ArrowRight, Tag } from "lucide-react";
-import { useState } from "react";
-
-const COUPONS: Record<string, number> = {
-  SNACKZEE10: 10,
-  WELCOME15: 15,
-  FESTIVE20: 20,
-};
+import { Minus, Plus, Trash2, ShoppingCart, ArrowRight } from "lucide-react";
 
 export default function CartPage() {
   const { items, removeItem, updateQty, total, clearCart } = useCart();
-  const [coupon, setCoupon] = useState("");
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; pct: number } | null>(null);
-  const [couponError, setCouponError] = useState("");
-
-  const applyCoupon = () => {
-    const pct = COUPONS[coupon.toUpperCase()];
-    if (pct) {
-      setAppliedCoupon({ code: coupon.toUpperCase(), pct });
-      setCouponError("");
-    } else {
-      setCouponError("Invalid coupon code");
-      setAppliedCoupon(null);
-    }
-  };
-
-  const discount = appliedCoupon ? Math.round((total * appliedCoupon.pct) / 100) : 0;
-  const finalTotal = total - discount;
 
   if (items.length === 0) {
     return (
@@ -99,33 +75,6 @@ export default function CartPage() {
 
           {/* Summary */}
           <div className="space-y-4">
-            {/* Coupon */}
-            <div className="bg-white rounded-2xl border border-terracotta/10 p-5">
-              <p className="font-serif font-bold text-brown mb-3 flex items-center gap-2">
-                <Tag className="w-4 h-4 text-terracotta" /> Apply Coupon
-              </p>
-              {appliedCoupon ? (
-                <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-2">
-                  <span className="text-green-700 font-bold font-sans text-sm">{appliedCoupon.code} — {appliedCoupon.pct}% OFF</span>
-                  <button onClick={() => setAppliedCoupon(null)} className="text-green-500 hover:text-green-700 text-xs font-sans">Remove</button>
-                </div>
-              ) : (
-                <div className="flex gap-2">
-                  <input
-                    value={coupon}
-                    onChange={(e) => { setCoupon(e.target.value); setCouponError(""); }}
-                    placeholder="Enter coupon code"
-                    className="flex-1 px-3 py-2 rounded-xl bg-cream border border-terracotta/10 text-brown text-sm font-sans focus:outline-none focus:border-terracotta/30"
-                  />
-                  <button onClick={applyCoupon} className="bg-terracotta text-white px-4 py-2 rounded-xl text-sm font-bold font-sans hover:bg-terracotta-dark transition-colors">
-                    Apply
-                  </button>
-                </div>
-              )}
-              {couponError && <p className="text-red-500 text-xs font-sans mt-1">{couponError}</p>}
-              <p className="text-brown-light/40 text-[10px] font-sans mt-2">Try: SNACKZEE10, WELCOME15, FESTIVE20</p>
-            </div>
-
             {/* Order Summary */}
             <div className="bg-white rounded-2xl border border-terracotta/10 p-5">
               <h3 className="font-serif font-bold text-brown text-lg mb-4">Order Summary</h3>
@@ -134,19 +83,9 @@ export default function CartPage() {
                   <span>Subtotal ({items.reduce((s, i) => s + i.quantity, 0)} items)</span>
                   <span>₹{total}</span>
                 </div>
-                {discount > 0 && (
-                  <div className="flex justify-between text-green-600">
-                    <span>Discount ({appliedCoupon?.pct}%)</span>
-                    <span>−₹{discount}</span>
-                  </div>
-                )}
-                <div className="flex justify-between text-brown-light/70">
-                  <span>Delivery</span>
-                  <span className="text-green-600">FREE</span>
-                </div>
                 <div className="border-t border-terracotta/10 pt-2 flex justify-between font-bold text-brown text-base">
                   <span>Total</span>
-                  <span className="text-gold font-sans text-xl">₹{finalTotal}</span>
+                  <span className="text-gold font-sans text-xl">₹{total}</span>
                 </div>
               </div>
               <Link

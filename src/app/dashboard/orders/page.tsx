@@ -27,6 +27,10 @@ const STATUS_COLORS: Record<string, string> = {
   cancelled: "bg-red-100 text-red-700",
 };
 
+function getDelhiveryTrackingUrl(order: Order) {
+  return order.tracking_link || (order.tracking_id ? `https://www.delhivery.com/track/package/${order.tracking_id}` : "");
+}
+
 export default function MyOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
@@ -43,7 +47,14 @@ export default function MyOrdersPage() {
       .finally(() => setLoading(false));
   }, []);
 
-  const handleTrack = async (orderId: number) => {
+  const handleTrack = async (order: Order) => {
+    const trackingUrl = getDelhiveryTrackingUrl(order);
+    if (trackingUrl) {
+      window.open(trackingUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    const orderId = order.id;
     const token = localStorage.getItem("snackzee_token");
     setTrackingLoading((p) => ({ ...p, [orderId]: true }));
     try {
@@ -130,11 +141,11 @@ export default function MyOrdersPage() {
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
                     {order.tracking_id && (
-                      <button onClick={() => handleTrack(order.id)}
+                      <button onClick={() => handleTrack(order)}
                         disabled={trackingLoading[order.id]}
                         className="flex items-center gap-1.5 text-xs font-sans font-semibold text-terracotta border border-terracotta/30 px-3 py-1.5 rounded-lg hover:bg-terracotta/5 transition-colors disabled:opacity-50">
                         <MapPin className="w-3 h-3" />
-                        {trackingLoading[order.id] ? "..." : "Track"}
+                        {trackingLoading[order.id] ? "..." : "Live Track"}
                       </button>
                     )}
                   </div>

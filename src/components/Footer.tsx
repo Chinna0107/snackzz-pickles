@@ -11,32 +11,32 @@ export default function Footer() {
   const pathname = usePathname();
   const isHome = pathname === "/";
   const [footerOpenSections, setFooterOpenSections] = useState({
-    categories: false,
-    quickLinks: false,
-    policies: false,
-    contact: false,
+    shop: false,
+    discover: false,
+    company: false,
+    support: false,
   });
 
-  const toggleFooterSection = (section) => {
-    setFooterOpenSections((prev) => ({
+  const toggleFooterSection = (section: string) => {
+    setFooterOpenSections((prev: any) => ({
       ...prev,
       [section]: !prev[section],
     }));
   };
 
-  const scrollOrLink = (id, label) => {
+  const scrollOrLink = (id: string, label: string) => {
     if (isHome) {
       return (
         <button
           onClick={() => document.getElementById(id)?.scrollIntoView({ behavior: "smooth" })}
-          className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm text-left"
+          className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm text-left font-sans"
         >
           {label}
         </button>
       );
     }
     return (
-      <Link href={`/#${id}`} className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm">
+      <Link href={`/#${id}`} className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm font-sans">
         {label}
       </Link>
     );
@@ -74,106 +74,94 @@ export default function Footer() {
             </div>
           </div>
 
-          {/* Categories */}
+          {/* SHOP */}
           <div>
             <div className="md:hidden">
-              <button type="button" onClick={() => toggleFooterSection("categories")} className="w-full flex items-center justify-between py-2 text-left">
-                <span className="font-serif text-lg font-bold text-white">Categories</span>
-                {footerOpenSections.categories ? <Minus className="w-5 h-5 text-white" /> : <Plus className="w-5 h-5 text-white" />}
+              <button type="button" onClick={() => toggleFooterSection("shop")} className="w-full flex items-center justify-between py-2 text-left">
+                <span className="font-serif text-lg font-bold text-white">SHOP</span>
+                {footerOpenSections.shop ? <Minus className="w-5 h-5 text-white" /> : <Plus className="w-5 h-5 text-white" />}
               </button>
             </div>
-            <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">Categories</h4>
-            <div className={`${footerOpenSections.categories ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
-              <ul className="space-y-3 font-sans">
-                {categories.map((cat) => (
-                  <li key={cat.id}>
-                    <Link href={`/shop?category=${cat.id}`} className="footer-link-hover flex items-center gap-2.5 text-white/80 hover:text-white transition-colors text-sm group">
-                      <div className="relative w-7 h-7 rounded-lg overflow-hidden flex-shrink-0 bg-white/10 border border-white/10 group-hover:border-white/20 transition-all duration-300">
-                        <Image
-                          src={cat.image}
-                          alt={cat.name}
-                          fill
-                          className="object-cover group-hover:scale-105 transition-transform duration-300"
-                          sizes="28px"
-                        />
-                      </div>
-                      <span className="font-medium">{cat.name}</span>
-                    </Link>
-                  </li>
-                ))}
+            <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">SHOP</h4>
+            <div className={`${footerOpenSections.shop ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
+              <ul className="space-y-2.5 font-sans text-sm">
+                <li><Link href="/shop" className="footer-link-hover text-white/80 hover:text-white transition-colors">All Products</Link></li>
+                <li><Link href="/shop?category=hot-items" className="footer-link-hover text-white/80 hover:text-white transition-colors">Hot Items</Link></li>
+                <li><Link href="/shop?category=sweet-items" className="footer-link-hover text-white/80 hover:text-white transition-colors">Sweet Items</Link></li>
+                <li><Link href="/shop?category=podis-powders" className="footer-link-hover text-white/80 hover:text-white transition-colors">Podis & Powders</Link></li>
+                <li><Link href="/shop?category=vadiyalu-papads" className="footer-link-hover text-white/80 hover:text-white transition-colors">Vadiyalu & Papads</Link></li>
+                <li><Link href="/shop?filter=best-sellers" className="footer-link-hover text-white/80 hover:text-white transition-colors">Best Sellers</Link></li>
               </ul>
             </div>
           </div>
 
-          {/* Quick Links */}
+          {/* DISCOVER */}
           <div>
             <div className="md:hidden">
-              <button type="button" onClick={() => toggleFooterSection("quickLinks")} className="w-full flex items-center justify-between py-2 text-left">
-                <span className="font-serif text-lg font-bold text-white">Quick Links</span>
-                {footerOpenSections.quickLinks ? <Minus className="w-5 h-5 text-white" /> : <Plus className="w-5 h-5 text-white" />}
+              <button type="button" onClick={() => toggleFooterSection("discover")} className="w-full flex items-center justify-between py-2 text-left">
+                <span className="font-serif text-lg font-bold text-white">DISCOVER</span>
+                {footerOpenSections.discover ? <Minus className="w-5 h-5 text-white" /> : <Plus className="w-5 h-5 text-white" />}
               </button>
             </div>
-            <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">Quick Links</h4>
-            <div className={`${footerOpenSections.quickLinks ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
-              <ul className="space-y-2 font-sans">
-                <li><Link href="/shop" className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm">All Products</Link></li>
-                <li><Link href="/about" className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm">About Us</Link></li>
-                <li><Link href="/contact" className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm">Contact Us</Link></li>
-                <li>{scrollOrLink("order", "How to Order")}</li>
-                <li>{scrollOrLink("reviews", "Customer Reviews")}</li>
+            <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">DISCOVER</h4>
+            <div className={`${footerOpenSections.discover ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
+              <ul className="space-y-2.5 font-sans text-sm">
+                <li><Link href="/cook-with-snakzee" className="footer-link-hover text-white/80 hover:text-white transition-colors">Cook with Snakzee (Recipes)</Link></li>
+                <li><Link href="/about#festival-calendar" className="footer-link-hover text-white/80 hover:text-white transition-colors">Festival Specials</Link></li>
+                <li><Link href="/how-its-made" className="footer-link-hover text-white/80 hover:text-white transition-colors">How It’s Made</Link></li>
+                <li>{scrollOrLink("ingredients", "Our Ingredients")}</li>
+                <li><Link href="/about#rewards" className="footer-link-hover text-white/80 hover:text-white transition-colors">Snakzee Rewards</Link></li>
+              </ul>
+            </div>
+          </div>
+
+          {/* COMPANY */}
+          <div>
+            <div className="md:hidden">
+              <button type="button" onClick={() => toggleFooterSection("company")} className="w-full flex items-center justify-between py-2 text-left">
+                <span className="font-serif text-lg font-bold text-white">COMPANY</span>
+                {footerOpenSections.company ? <Minus className="w-5 h-5 text-white" /> : <Plus className="w-5 h-5 text-white" />}
+              </button>
+            </div>
+            <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">COMPANY</h4>
+            <div className={`${footerOpenSections.company ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
+              <ul className="space-y-2.5 font-sans text-sm">
+                <li><Link href="/about" className="footer-link-hover text-white/80 hover:text-white transition-colors">About Snakzee</Link></li>
+                <li><Link href="/about#team" className="footer-link-hover text-white/80 hover:text-white transition-colors">Team Behind Snakzee</Link></li>
                 <li>{scrollOrLink("bulk-order", "Bulk Orders")}</li>
+                <li><Link href="/about#testimonials" className="footer-link-hover text-white/80 hover:text-white transition-colors">Customer Reviews</Link></li>
               </ul>
             </div>
           </div>
 
-          {/* Policies */}
+          {/* Support */}
           <div>
             <div className="md:hidden">
-              <button type="button" onClick={() => toggleFooterSection("policies")} className="w-full flex items-center justify-between py-2 text-left">
-                <span className="font-serif text-lg font-bold text-white">Policies</span>
-                {footerOpenSections.policies ? <Minus className="w-5 h-5 text-white" /> : <Plus className="w-5 h-5 text-white" />}
+              <button type="button" onClick={() => toggleFooterSection("support")} className="w-full flex items-center justify-between py-2 text-left">
+                <span className="font-serif text-lg font-bold text-white">Support</span>
+                {footerOpenSections.support ? <Minus className="w-5 h-5 text-white" /> : <Plus className="w-5 h-5 text-white" />}
               </button>
             </div>
-            <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">Policies</h4>
-            <div className={`${footerOpenSections.policies ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
-              <ul className="space-y-2 font-sans">
-                <li><Link href="/privacy-policy" className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm">Privacy Policy</Link></li>
-                <li><Link href="/terms" className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm">Terms & Conditions</Link></li>
-                <li><Link href="/refund-policy" className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm">Return & Refund Policy</Link></li>
-                <li><Link href="/shipping-policy" className="footer-link-hover text-white/80 hover:text-white transition-colors text-sm">Shipping & Delivery</Link></li>
-              </ul>
-            </div>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <div className="md:hidden">
-              <button type="button" onClick={() => toggleFooterSection("contact")} className="w-full flex items-center justify-between py-2 text-left">
-                <span className="font-serif text-lg font-bold text-white">Contact Us</span>
-                {footerOpenSections.contact ? <Minus className="w-5 h-5 text-white" /> : <Plus className="w-5 h-5 text-white" />}
-              </button>
-            </div>
-            <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">Contact Us</h4>
-            <div className={`${footerOpenSections.contact ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
-              <ul className="space-y-3 font-sans">
+            <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">Support</h4>
+            <div className={`${footerOpenSections.support ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
+              <ul className="space-y-2.5 font-sans text-sm">
+                <li><Link href="/orders" className="footer-link-hover text-white/80 hover:text-white transition-colors">Order Tracking</Link></li>
+                <li>{scrollOrLink("faq", "FAQ")}</li>
+                <li><Link href="/contact" className="footer-link-hover text-white/80 hover:text-white transition-colors">Contact Us</Link></li>
                 <li>
-                  <a href="tel:+919505550051" className="footer-link-hover flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm">
-                    <Phone className="w-4 h-4 flex-shrink-0" /> +91 95055 50051
+                  <a href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer" className="footer-link-hover flex items-center gap-1.5 text-white/80 hover:text-white transition-colors font-semibold">
+                    WhatsApp Support
                   </a>
                 </li>
-                <li>
-                  <a href="tel:+918897586142" className="footer-link-hover flex items-center gap-2 text-white/80 hover:text-white transition-colors text-sm">
-                    <Phone className="w-4 h-4 flex-shrink-0" /> +91 88975 86142
-                  </a>
-                </li>
-                <li>
-                  <a href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer" className="footer-link-hover flex items-center gap-2 bg-white/10 hover:bg-white/20 rounded-full px-3 py-2 text-white transition-colors text-sm font-semibold w-max">
-                    <MessageCircle className="w-4 h-4 flex-shrink-0" /> WhatsApp Order
-                  </a>
-                </li>
-                <li className="flex items-start gap-2 text-white/80 text-sm mt-3">
-                  <MapPin className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                  <span>House No 1/2/32, Taka Street, Near Main Road, Jagtial, Telangana — 505327</span>
+                
+                <li className="pt-2 border-t border-white/10 mt-2">
+                  <span className="text-[10px] text-white/50 block font-bold uppercase tracking-wider mb-1">Policies</span>
+                  <div className="flex flex-col gap-1.5 text-xs">
+                    <Link href="/privacy-policy" className="footer-link-hover text-white/70 hover:text-white">Privacy Policy</Link>
+                    <Link href="/terms" className="footer-link-hover text-white/70 hover:text-white">Terms & Conditions</Link>
+                    <Link href="/refund-policy" className="footer-link-hover text-white/70 hover:text-white">Refund Policy</Link>
+                    <Link href="/shipping-policy" className="footer-link-hover text-white/70 hover:text-white">Shipping Policy</Link>
+                  </div>
                 </li>
               </ul>
             </div>

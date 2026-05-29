@@ -3,12 +3,14 @@
 import Footer from "@/components/Footer";
 
 import { useState, useEffect } from "react";
+import type { ReactNode } from "react";
 import { useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { CheckCircle2, ChevronRight, Tag, MapPin, CreditCard, Package } from "lucide-react";
+import { CheckCircle2, ChevronDown, ChevronRight, Mail, MapPin, Phone, CreditCard, Package, Gift, Zap, Star, Crown } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { LOYALTY_TIERS, type LoyaltyTier, type LoyaltyTierName } from "@/lib/loyalty";
 
 declare global {
   interface Window {
@@ -28,15 +30,23 @@ interface RazorpayOptions {
   theme: { color: string };
 }
 
-const COUPONS: Record<string, number> = {
-  SNACKZEE10: 10,
-  WELCOME15: 15,
-  FESTIVE20: 20,
+type LoyaltyTierResponse = LoyaltyTier & {
+  orderCount: number;
+  nextTier: LoyaltyTier | null;
+  ordersToNextTier: number;
+  tiers?: LoyaltyTier[];
+};
+
+const TIER_COLORS: Record<LoyaltyTierName, { bg: string; text: string; border: string; badge: string; icon: ReactNode }> = {
+  Bronze:   { bg: 'bg-orange-50',  text: 'text-orange-700', border: 'border-orange-200', badge: 'bg-orange-100 text-orange-700', icon: <Star className="w-4 h-4" /> },
+  Silver:   { bg: 'bg-slate-50',   text: 'text-slate-700',  border: 'border-slate-200',  badge: 'bg-slate-100 text-slate-700', icon: <Zap className="w-4 h-4" /> },
+  Gold:     { bg: 'bg-yellow-50',  text: 'text-yellow-700', border: 'border-yellow-200', badge: 'bg-yellow-100 text-yellow-700', icon: <Gift className="w-4 h-4" /> },
+  Platinum: { bg: 'bg-purple-50',  text: 'text-purple-700', border: 'border-purple-200', badge: 'bg-purple-100 text-purple-700', icon: <Crown className="w-4 h-4" /> },
 };
 
 const STEPS = [
   { id: 1, label: "Review", icon: <Package className="w-4 h-4" /> },
-  { id: 2, label: "Address & Coupon", icon: <MapPin className="w-4 h-4" /> },
+  { id: 2, label: "Address & Rewards", icon: <MapPin className="w-4 h-4" /> },
   { id: 3, label: "Payment", icon: <CreditCard className="w-4 h-4" /> },
 ];
 
@@ -49,22 +59,99 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1);
 
   // Step 2 state
-  const [coupon, setCoupon] = useState("");
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; pct: number } | null>(null);
-  const [couponError, setCouponError] = useState("");
+  const [loyaltyTier, setLoyaltyTier] = useState<LoyaltyTierResponse | null>(null);
+  const [loyaltyTiers, setLoyaltyTiers] = useState<LoyaltyTier[]>(LOYALTY_TIERS);
+  const [loyaltyLoading, setLoyaltyLoading] = useState(false);
+  const [couponsOpen, setCouponsOpen] = useState(false);
   const [address, setAddress] = useState({
     name: "", email: "", phone: "", line1: "", line2: "", city: "", state: "Telangana", customState: "", pincode: "",
   });
 
+  useEffect(() => {
+    try {
+      const stored = localStorage.getItem("snackzee_user");
+      if (!stored) return;
+
+      const user = JSON.parse(stored) as { name?: string; email?: string; phone?: string };
+      setAddress((prev) => ({
+        ...prev,
+        name: prev.name || user.name || "",
+        email: prev.email || user.email || "",
+        phone: prev.phone || user.phone || "",
+      }));
+    } catch {}
+  }, []);
+
+  // Fetch loyalty tier when email or phone is filled
+  useEffect(() => {
+    const email = address.email.trim();
+    const phone = address.phone.replace(/\D/g, '').slice(-10);
+    if (!email && phone.length < 10) {
+      setLoyaltyTier(null);
+      setAppliedCoupon(null);
+      return;
+    }
+    const timer = setTimeout(async () => {
+      setLoyaltyLoading(true);
+      try {
+        const loyaltyUrl = process.env.NEXT_PUBLIC_BACKEND_URL ? `${BACKEND_URL}/orders/loyalty-coupon` : "/api/orders/loyalty-coupon";
+        const res = await fetch(loyaltyUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email: email || undefined, phone: phone.length === 10 ? phone : undefined }),
+        });
+        const data = await res.json();
+        if (data.tiers) {
+          setLoyaltyTiers(data.tiers.map((tier: LoyaltyTier) => ({
+            ...LOYALTY_TIERS.find((localTier) => localTier.tier === tier.tier),
+            ...tier,
+            perks: tier.perks || LOYALTY_TIERS.find((localTier) => localTier.tier === tier.tier)?.perks || [],
+          })));
+        }
+        if (data.tier) {
+          setLoyaltyTier(data);
+          setCouponsOpen(true);
+        }
+      } catch {}
+      finally { setLoyaltyLoading(false); }
+    }, 800);
+    return () => clearTimeout(timer);
+  }, [address.email, address.phone]);
+
+  const [deliveryFee, setDeliveryFee] = useState<number | null>(null);
+  const [isLoadingDeliveryFee, setIsLoadingDeliveryFee] = useState(false);
+
   const discount = appliedCoupon ? Math.round((total * appliedCoupon.pct) / 100) : 0;
   const afterDiscount = total - discount;
-  const grandTotal = afterDiscount;
+  const grandTotal = afterDiscount + (deliveryFee || 0);
+  const activeTierDetails = loyaltyTier
+    ? {
+        ...loyaltyTiers.find((tier) => tier.tier === loyaltyTier.tier),
+        ...loyaltyTier,
+        perks: loyaltyTier.perks || loyaltyTiers.find((tier) => tier.tier === loyaltyTier.tier)?.perks || [],
+        range: loyaltyTier.range || loyaltyTiers.find((tier) => tier.tier === loyaltyTier.tier)?.range || "",
+        code: loyaltyTier.code || loyaltyTiers.find((tier) => tier.tier === loyaltyTier.tier)?.code || "",
+        pct: loyaltyTier.pct || loyaltyTiers.find((tier) => tier.tier === loyaltyTier.tier)?.pct || 0,
+      }
+    : null;
 
-  const applyCoupon = () => {
-    const pct = COUPONS[coupon.toUpperCase()];
-    if (pct) { setAppliedCoupon({ code: coupon.toUpperCase(), pct }); setCouponError(""); }
-    else { setCouponError("Invalid coupon code"); setAppliedCoupon(null); }
-  };
+  useEffect(() => {
+    if (address.pincode.length === 6) {
+      setIsLoadingDeliveryFee(true);
+      fetch(`${BACKEND_URL}/orders/shipping-fee`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ pincode: address.pincode, weight: 500, orderTotal: afterDiscount }),
+      })
+        .then((r) => r.json())
+        .then((data) => setDeliveryFee(data.fee !== undefined ? data.fee : 60))
+        .catch(() => setDeliveryFee(60))
+        .finally(() => setIsLoadingDeliveryFee(false));
+    } else {
+      setDeliveryFee(null);
+    }
+  }, [address.pincode, afterDiscount]);
 
   const isAddressValid = address.name && address.email && address.phone && address.line1 && address.city && address.pincode && (address.state !== "Other" || address.customState);
 
@@ -118,7 +205,7 @@ export default function CheckoutPage() {
               address: { ...address, state: address.state === "Other" ? address.customState : address.state },
               coupon: appliedCoupon?.code,
               discount,
-              deliveryFee: 0,
+              deliveryFee: deliveryFee || 0,
               total: grandTotal,
               paymentId: response.razorpay_payment_id,
               status: "paid",
@@ -203,28 +290,220 @@ export default function CheckoutPage() {
             </motion.div>
           )}
 
-          {/* ── Step 2: Coupon + Address ── */}
+          {/* ── Step 2: Rewards + Address ── */}
           {step === 2 && (
             <motion.div key="step2" initial={{ opacity: 0, x: 30 }} animate={{ opacity: 1, x: 0 }} exit={{ opacity: 0, x: -30 }} className="space-y-5">
-              {/* Coupon */}
+              {/* Enhanced Loyalty Rewards Section */}
               <div className="bg-white rounded-2xl border border-terracotta/10 p-6">
-                <h2 className="font-serif text-xl font-bold text-brown mb-4 flex items-center gap-2">
-                  <Tag className="w-5 h-5 text-terracotta" /> Coupon Code
-                </h2>
-                {appliedCoupon ? (
-                  <div className="flex items-center justify-between bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-                    <span className="text-green-700 font-bold font-sans">{appliedCoupon.code} — {appliedCoupon.pct}% OFF (−₹{discount})</span>
-                    <button onClick={() => setAppliedCoupon(null)} className="text-green-500 hover:text-green-700 text-sm font-sans">Remove</button>
+                <div className="flex items-start justify-between gap-4 mb-5">
+                  <div>
+                    <h2 className="font-serif text-xl font-bold text-brown flex items-center gap-2">
+                      <Gift className="w-5 h-5 text-terracotta" /> Loyalty Rewards
+                    </h2>
+                    <p className="text-sm text-brown-light/60 font-sans mt-1">
+                      We will check your saved customer details and show the coupon you can apply.
+                    </p>
                   </div>
-                ) : (
-                  <div className="flex gap-2">
-                    <input value={coupon} onChange={(e) => { setCoupon(e.target.value); setCouponError(""); }}
-                      placeholder="Enter coupon code"
-                      className="flex-1 px-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans focus:outline-none focus:border-terracotta/30" />
-                    <button onClick={applyCoupon} className="bg-terracotta text-white px-5 py-3 rounded-xl font-bold font-sans hover:bg-terracotta-dark transition-colors">Apply</button>
+                  <div className="hidden sm:flex w-11 h-11 rounded-xl bg-terracotta/10 text-terracotta items-center justify-center">
+                    <Crown className="w-5 h-5" />
+                  </div>
+                </div>
+
+                <div className="grid sm:grid-cols-2 gap-3 mb-4">
+                  <div>
+                    <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">Email for rewards</label>
+                    <div className="relative">
+                      <Mail className="w-4 h-4 text-brown-light/35 absolute left-4 top-1/2 -translate-y-1/2" />
+                      <input
+                        type="email"
+                        value={address.email}
+                        onChange={(e) => setAddress((p) => ({ ...p, email: e.target.value }))}
+                        placeholder="you@example.com"
+                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30"
+                      />
+                    </div>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">Phone for rewards</label>
+                    <div className="relative">
+                      <Phone className="w-4 h-4 text-brown-light/35 absolute left-4 top-1/2 -translate-y-1/2" />
+                      <input
+                        value={address.phone}
+                        onChange={(e) => setAddress((p) => ({ ...p, phone: e.target.value }))}
+                        placeholder="+91 XXXXX XXXXX"
+                        className="w-full pl-11 pr-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {loyaltyLoading && (
+                  <div className="flex items-center gap-2 text-brown-light/50 font-sans text-sm mb-4 animate-pulse">
+                    <div className="w-4 h-4 border-2 border-terracotta/30 border-t-terracotta rounded-full animate-spin" />
+                    Checking your order history...
                   </div>
                 )}
-                {couponError && <p className="text-red-500 text-xs font-sans mt-1">{couponError}</p>}
+
+                {activeTierDetails && !loyaltyLoading && (() => {
+                  const c = TIER_COLORS[activeTierDetails.tier];
+                  const progressMax = activeTierDetails.nextTier ? activeTierDetails.nextTier.minOrders : Math.max(activeTierDetails.orderCount, 1);
+                  const progressPct = activeTierDetails.nextTier ? Math.min((activeTierDetails.orderCount / progressMax) * 100, 100) : 100;
+                  return (
+                    <div className={`rounded-xl border-2 ${c.border} ${c.bg} p-5 mb-5 shadow-sm`}>
+                      <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 mb-4">
+                        <div>
+                          <div className="flex items-center gap-3">
+                            <div className={`p-2 rounded-lg ${c.badge}`}>
+                              {c.icon}
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2 mb-1">
+                                <span className={`font-bold font-serif text-xl ${c.text}`}>{activeTierDetails.tier}</span>
+                                <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${c.badge}`}>{activeTierDetails.pct}% OFF</span>
+                              </div>
+                              <p className="text-xs text-brown-light/60 font-sans">
+                                {activeTierDetails.orderCount} orders • {activeTierDetails.range}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                        {appliedCoupon?.code === activeTierDetails.code ? (
+                          <div className="flex items-center justify-between gap-3 bg-green-50 border border-green-300 rounded-lg px-4 py-2.5">
+                            <span className="text-green-700 font-bold font-sans text-sm flex items-center gap-2">
+                              <CheckCircle2 className="w-4 h-4" /> Save ₹{discount}
+                            </span>
+                            <button onClick={() => setAppliedCoupon(null)} className="text-green-600 hover:text-green-800 text-xs font-sans font-semibold">Remove</button>
+                          </div>
+                        ) : (
+                          <button
+                            onClick={() => setAppliedCoupon({ code: activeTierDetails.code, pct: activeTierDetails.pct })}
+                            className="sm:w-auto bg-terracotta text-white px-5 py-3 rounded-lg font-bold font-sans text-sm hover:bg-terracotta-dark transition-colors shadow-sm"
+                          >
+                            Apply {activeTierDetails.pct}% Discount
+                          </button>
+                        )}
+                      </div>
+
+                      <div className="mb-4">
+                        <div className="h-2 rounded-full bg-white/80 overflow-hidden">
+                          <div className="h-full rounded-full bg-terracotta transition-all" style={{ width: `${progressPct}%` }} />
+                        </div>
+                        <p className="text-xs text-brown-light/60 font-sans mt-2">
+                          {activeTierDetails.nextTier
+                            ? `${activeTierDetails.ordersToNextTier} more orders to reach ${activeTierDetails.nextTier.tier}`
+                            : "You are on the highest loyalty tier."}
+                        </p>
+                      </div>
+
+                      <ul className="grid sm:grid-cols-2 gap-2">
+                        {activeTierDetails.perks.map((p) => (
+                          <li key={p} className={`text-xs font-sans flex items-start gap-2 ${c.text}`}>
+                            <CheckCircle2 className="w-3.5 h-3.5 mt-0.5 flex-shrink-0" />
+                            <span>{p}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  );
+                })()}
+
+                {!loyaltyTier && !loyaltyLoading && (
+                  <div className="mb-5 rounded-xl bg-cream border border-terracotta/10 p-4">
+                    <p className="text-sm text-brown-light/70 font-sans">
+                      Enter your email or 10-digit phone number above to check coupon availability.
+                    </p>
+                  </div>
+                )}
+
+                <div className="rounded-xl border border-terracotta/10 bg-cream/60 overflow-hidden">
+                  <button
+                    type="button"
+                    onClick={() => setCouponsOpen((open) => !open)}
+                    className="w-full flex items-center justify-between gap-3 px-4 py-3.5 text-left hover:bg-white/60 transition-colors"
+                  >
+                    <div>
+                      <p className="font-serif text-lg font-bold text-brown">Available Coupons</p>
+                      <p className="text-xs text-brown-light/50 font-sans">
+                        {loyaltyTier ? `${loyaltyTier.tier} coupon ready. View all loyalty coupons.` : "Enter email or phone above to unlock your coupon."}
+                      </p>
+                    </div>
+                    <ChevronDown className={`w-5 h-5 text-terracotta transition-transform ${couponsOpen ? "rotate-180" : ""}`} />
+                  </button>
+
+                  <AnimatePresence initial={false}>
+                    {couponsOpen && (
+                      <motion.div
+                        initial={{ height: 0, opacity: 0 }}
+                        animate={{ height: "auto", opacity: 1 }}
+                        exit={{ height: 0, opacity: 0 }}
+                        className="overflow-hidden"
+                      >
+                        <div className="grid lg:grid-cols-2 gap-3 p-3 pt-0">
+                          {loyaltyTiers.map((tier) => {
+                            const tc = TIER_COLORS[tier.tier];
+                            const isCurrent = loyaltyTier?.tier === tier.tier;
+                            const isApplied = appliedCoupon?.code === tier.code;
+                            const canApply = Boolean(isCurrent);
+                            const lockedText = loyaltyTier
+                              ? `Reach ${tier.minOrders} orders to unlock`
+                              : "Enter email or phone to check";
+
+                            return (
+                              <div
+                                key={tier.tier}
+                                className={`rounded-xl border p-4 ${tc.border} ${tc.bg} ${isCurrent ? "ring-2 ring-terracotta/30" : "opacity-75"}`}
+                              >
+                                <div className="flex items-start justify-between gap-3 mb-3">
+                                  <div className="flex items-center gap-2 min-w-0">
+                                    <div className={`p-1.5 rounded-lg ${tc.badge}`}>{tc.icon}</div>
+                                    <div className="min-w-0">
+                                      <p className={`font-serif font-bold ${tc.text}`}>{tier.tier}</p>
+                                      <p className="text-xs text-brown-light/50 font-sans">{tier.range}</p>
+                                    </div>
+                                  </div>
+                                  <span className={`shrink-0 text-xs font-bold px-2 py-0.5 rounded-full ${tc.badge}`}>{tier.pct}% OFF</span>
+                                </div>
+
+                                <ul className="space-y-1 mb-3">
+                                  {tier.perks.map((perk) => (
+                                    <li key={perk} className={`text-xs font-sans flex items-start gap-1.5 ${tc.text}`}>
+                                      <CheckCircle2 className="w-3 h-3 mt-0.5 flex-shrink-0" />
+                                      <span>{perk}</span>
+                                    </li>
+                                  ))}
+                                </ul>
+
+                                {canApply ? (
+                                  isApplied ? (
+                                    <button
+                                      type="button"
+                                      onClick={() => setAppliedCoupon(null)}
+                                      className="w-full rounded-lg border border-green-200 bg-green-50 text-green-700 px-4 py-2 text-xs font-bold font-sans hover:bg-green-100 transition-colors"
+                                    >
+                                      Applied · Remove
+                                    </button>
+                                  ) : (
+                                    <button
+                                      type="button"
+                                      onClick={() => setAppliedCoupon({ code: tier.code, pct: tier.pct })}
+                                      className="w-full rounded-lg bg-terracotta text-white px-4 py-2 text-xs font-bold font-sans hover:bg-terracotta-dark transition-colors"
+                                    >
+                                      Apply Coupon
+                                    </button>
+                                  )
+                                ) : (
+                                  <div className="w-full rounded-lg border border-brown-light/10 bg-white/60 px-4 py-2 text-xs font-semibold font-sans text-brown-light/45 text-center">
+                                    {lockedText}
+                                  </div>
+                                )}
+                              </div>
+                            );
+                          })}
+                        </div>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
               </div>
 
               {/* Delivery Address */}
@@ -240,7 +519,6 @@ export default function CheckoutPage() {
                     { key: "line1", label: "Address Line 1", placeholder: "House/Flat No, Street", col: 2 },
                     { key: "line2", label: "Address Line 2 (optional)", placeholder: "Landmark, Area", col: 2 },
                     { key: "city", label: "City", placeholder: "Hyderabad", col: 1 },
-                    { key: "pincode", label: "Pincode", placeholder: "500001", col: 1 },
                   ].map((field) => (
                     <div key={field.key} className={field.col === 2 ? "sm:col-span-2" : ""}>
                       <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">{field.label}</label>
@@ -252,6 +530,27 @@ export default function CheckoutPage() {
                       />
                     </div>
                   ))}
+                  <div>
+                    <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">Pincode</label>
+                    <input
+                      value={address.pincode}
+                      onChange={(e) => setAddress((p) => ({ ...p, pincode: e.target.value }))}
+                      placeholder="500001"
+                      maxLength={6}
+                      className="w-full px-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30"
+                    />
+                    {address.pincode.length === 6 && (
+                      <p className="text-xs font-sans mt-1 font-semibold">
+                        {isLoadingDeliveryFee ? (
+                          <span className="text-brown-light/40 animate-pulse">Calculating delivery fee...</span>
+                        ) : deliveryFee === 0 ? (
+                          <span className="text-green-600">🎉 FREE Delivery on this order!</span>
+                        ) : deliveryFee !== null ? (
+                          <span className="text-terracotta">Delivery fee: ₹{deliveryFee}</span>
+                        ) : null}
+                      </p>
+                    )}
+                  </div>
                   <div>
                     <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">State</label>
                     <select value={address.state} onChange={(e) => setAddress((p) => ({ ...p, state: e.target.value, customState: "" }))}
@@ -295,8 +594,37 @@ export default function CheckoutPage() {
                 <h2 className="font-serif text-xl font-bold text-brown mb-4">Order Summary</h2>
                 <div className="space-y-2 text-sm font-sans">
                   <div className="flex justify-between text-brown-light/70"><span>Subtotal</span><span>₹{total}</span></div>
-                  {discount > 0 && <div className="flex justify-between text-green-600"><span>Coupon ({appliedCoupon?.code})</span><span>−₹{discount}</span></div>}
-                  <div className="flex justify-between text-brown-light/70"><span>Delivery</span><span><span className="text-green-600">FREE</span></span></div>
+                  {discount > 0 && appliedCoupon && (() => {
+                    const tierMatch = loyaltyTier && appliedCoupon.code === loyaltyTier.code;
+                    return (
+                      <div className="flex justify-between items-center">
+                        <span className="flex items-center gap-2">
+                          {tierMatch && (() => {
+                            const c = TIER_COLORS[loyaltyTier.tier];
+                            return <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${c.badge}`}>{loyaltyTier.tier}</span>;
+                          })()}
+                          <span className="text-green-600">Loyalty Discount ({appliedCoupon.code})</span>
+                        </span>
+                        <span className="text-green-600 font-semibold">−₹{discount}</span>
+                      </div>
+                    );
+                  })()}
+                  <div className="flex justify-between text-brown-light/70">
+                    <span>Delivery</span>
+                    <span>
+                      {isLoadingDeliveryFee ? (
+                        <span className="text-brown-light/40 animate-pulse">Calculating...</span>
+                      ) : deliveryFee !== null ? (
+                        deliveryFee > 0 ? (
+                          <span className="text-gold font-sans">₹{deliveryFee}</span>
+                        ) : (
+                          <span className="text-green-600 font-semibold">FREE</span>
+                        )
+                      ) : (
+                        <span className="text-brown-light/40">Enter pincode</span>
+                      )}
+                    </span>
+                  </div>
                   <div className="border-t border-terracotta/10 pt-2 flex justify-between font-bold text-brown text-base">
                     <span>Grand Total</span><span className="text-gold font-sans text-2xl">₹{grandTotal}</span>
                   </div>

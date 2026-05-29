@@ -7,6 +7,7 @@ import { useRouter, useSearchParams, usePathname } from "next/navigation";
 import { useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import TopAnnouncementBar from "@/components/TopAnnouncementBar";
+import Header from "@/components/Header";
 import {
   MessageCircle,
   Phone,
@@ -180,6 +181,26 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
   const dropdownRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const searchRef = useRef<HTMLInputElement>(null);
+  const [wishlistCount, setWishlistCount] = useState(0);
+
+  // Real-time wishlist count listener
+  useEffect(() => {
+    const updateWishlistCount = () => {
+      const stored = localStorage.getItem("snackzee_wishlist");
+      if (stored) {
+        try {
+          setWishlistCount(JSON.parse(stored).length);
+        } catch {
+          setWishlistCount(0);
+        }
+      } else {
+        setWishlistCount(0);
+      }
+    };
+    updateWishlistCount();
+    window.addEventListener("storage", updateWishlistCount);
+    return () => window.removeEventListener("storage", updateWishlistCount);
+  }, []);
 
   useEffect(() => {
     const stored = localStorage.getItem("snackzee_user");
@@ -370,6 +391,24 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
               </motion.button>
             </div>
 
+            {/* ♡ Wishlist Navigation Icon */}
+            <Link href="/wishlist">
+              <motion.div
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                className="relative w-10 h-10 rounded-full flex items-center justify-center text-brown hover:bg-terracotta/10 transition-colors cursor-pointer"
+                title="My Wishlist"
+              >
+                <Heart className="w-5 h-5" />
+                {wishlistCount > 0 && (
+                  <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
+                    className="absolute top-0.5 right-0.5 w-4 h-4 bg-terracotta text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-md">
+                    {wishlistCount}
+                  </motion.span>
+                )}
+              </motion.div>
+            </Link>
+
             <Link href="/cart">
               <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} className="relative flex items-center justify-center gap-2 px-4 py-2.5 bg-terracotta hover:bg-terracotta-dark text-white rounded-full transition-all shadow-lg hover:shadow-xl">
                 <ShoppingCart className="w-5 h-5" />
@@ -540,7 +579,7 @@ function HeroSection() {
   const slides = banners.length > 0 ? banners : fallbackImages;
 
   return (
-    <section className="relative w-full px-4 sm:px-6 lg:px-8 h-[35vh] sm:h-[40vh] md:h-[62vh] lg:h-[68vh] overflow-hidden py-4 md:py-0">
+    <section className="relative w-full px-4 sm:px-6 lg:px-8 h-[35vh] sm:h-[40vh] md:h-[62vh] lg:h-[58vh] xl:h-[60vh] overflow-hidden py-4 md:py-0">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentBanner}
@@ -550,7 +589,7 @@ function HeroSection() {
           transition={{ duration: 0.6 }}
           className="absolute inset-0 flex justify-center"
         >
-          <div className="relative h-full w-[90vw] sm:w-[85vw] md:w-[80vw] lg:w-[76vw] max-w-[1300px] mx-auto overflow-hidden rounded-[2rem] shadow-2xl bg-cream-dark">
+          <div className="relative h-full w-[90vw] sm:w-[85vw] md:w-[80vw] lg:w-[92vw] xl:w-[88vw] max-w-[1500px] mx-auto overflow-hidden rounded-[2rem] shadow-2xl bg-cream-dark">
             <Image
               src={slides[currentBanner].url}
               alt={slides[currentBanner].label || "Snakzee Banner"}
@@ -3743,7 +3782,7 @@ function HomeContent() {
     <div className="min-h-screen flex flex-col bg-cream" suppressHydrationWarning>
       <Preloader />
 
-      <StickyNav onCategorySelect={setActiveCategory} searchQuery={searchQuery} onSearchChange={setSearchQuery} />
+      <Header />
       <main className="flex-1">
         <HeroSection />
         <SectionReveal><CategoryGrid products={products} onCategorySelect={setActiveCategory} /></SectionReveal>

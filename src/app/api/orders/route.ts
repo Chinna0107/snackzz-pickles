@@ -1,16 +1,37 @@
 import { NextResponse } from "next/server";
+import { db } from "@/lib/db";
 
 export async function GET() {
-  return NextResponse.json({ message: "Orders are managed via WhatsApp. Contact us at +91 88975 86142." });
+  const orders = await db.order.findMany({
+    orderBy: { createdAt: "desc" },
+  });
+
+  return NextResponse.json({ orders });
 }
 
 export async function POST(request: Request) {
   try {
     const body = await request.json();
-    // In production, this would forward to a WhatsApp Business API or save to a sheet
-    console.log("Order received:", body);
+
+    const address = typeof body.address === "object" && body.address !== null ? body.address : {};
+    const addressText = typeof body.address === "string"
+      ? body.address
+      : [address.email, address.line1, address.line2, address.city, address.state, address.pincode].filter(Boolean).join(", ");
+
+    const order = await db.order.create({
+      data: {
+        customerName: body.customerName || address.name || "Website Customer",
+        phone: body.phone || address.phone || "",
+        address: addressText,
+        items: JSON.stringify(body.items || []),
+        totalAmount: Number(body.total ?? body.totalAmount ?? 0),
+        status: body.status || "pending",
+        source: "website",
+      },
+    });
+
     return NextResponse.json(
-      { success: true, message: "Order received! We'll contact you on WhatsApp shortly." },
+      { success: true, order, message: "Order received! We'll contact you on WhatsApp shortly." },
       { status: 201 }
     );
   } catch {

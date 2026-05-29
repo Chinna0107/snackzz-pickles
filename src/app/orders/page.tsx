@@ -33,6 +33,10 @@ const STATUS_CONFIG: Record<string, { color: string; bg: string; label: string; 
 
 const STEPS = ["Order Placed", "Processing", "Shipped", "Delivered"];
 
+function getDelhiveryTrackingUrl(order: Order) {
+  return order.tracking_link || (order.tracking_id ? `https://www.delhivery.com/track/package/${order.tracking_id}` : "");
+}
+
 function OrderCard({ order, index }: { order: Order; index: number }) {
   const [expanded, setExpanded] = useState(false);
   const [trackingData, setTrackingData] = useState<any>(null);
@@ -41,6 +45,12 @@ function OrderCard({ order, index }: { order: Order; index: number }) {
   const status = STATUS_CONFIG[order.status] || STATUS_CONFIG.paid;
 
   const handleTrack = async () => {
+    const trackingUrl = getDelhiveryTrackingUrl(order);
+    if (trackingUrl) {
+      window.open(trackingUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+
     if (trackingData) { setExpanded(true); return; }
     const token = localStorage.getItem("snackzee_token");
     setTrackingLoading(true);

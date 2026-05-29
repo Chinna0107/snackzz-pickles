@@ -3,11 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Leaf, Home as HomeIcon, Users, Heart, Award, ChefHat, MessageCircle } from "lucide-react";
+import { Leaf, Home as HomeIcon, Users, Heart, Award, ChefHat, MessageCircle, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { getWhatsAppLink, PROCESS_STEPS } from "@/lib/products";
+import { getWhatsAppLink, PROCESS_STEPS, VIDEO_TESTIMONIALS, REVIEWS } from "@/lib/products";
 
 const VALUES = [
   { icon: <HomeIcon className="w-6 h-6" />, title: "Made at Home", desc: "Every product is handcrafted in small batches using traditional kitchen methods — never in a factory." },
@@ -67,7 +67,7 @@ export default function AboutPage() {
         </section>
 
         {/* Our Story */}
-        <section className="py-16 sm:py-24 bg-cream">
+        <section id="our-story" className="py-16 sm:py-24 bg-cream scroll-mt-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="grid lg:grid-cols-2 gap-12 lg:gap-16 items-center">
               <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
@@ -109,7 +109,7 @@ export default function AboutPage() {
         </section>
 
         {/* Values */}
-        <section className="py-16 sm:py-20 bg-white border-y border-terracotta/10">
+        <section id="values" className="py-16 sm:py-20 bg-white border-y border-terracotta/10 scroll-mt-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
               <Badge className="bg-terracotta/10 text-terracotta border-terracotta/20 mb-4 font-sans">Why Snakzee</Badge>
@@ -127,30 +127,102 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* Process */}
-        <section className="py-16 sm:py-20 bg-cream">
+        {/* Why Snakzee is Different Section */}
+        <section id="why-different" className="py-16 sm:py-20 bg-cream border-b border-terracotta/10 scroll-mt-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
-              <Badge className="bg-terracotta/10 text-terracotta border-terracotta/20 mb-4 font-sans"><ChefHat className="w-3 h-3 mr-1 inline" />Our Process</Badge>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-brown mb-4">How It&apos;s <span className="text-terracotta">Made</span></h2>
+              <Badge className="bg-gold/10 text-gold border-gold/20 mb-4 font-sans">The Comparison</Badge>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-brown mb-4">Why Snakzee is Different</h2>
+              <p className="text-brown-light/60 font-sans max-w-lg mx-auto">See how our heirloom small-batch method stands up against conventional snacks.</p>
             </motion.div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-6">
-              {PROCESS_STEPS.map((step, i) => (
-                <motion.div key={step.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.15 }} className="bg-white rounded-2xl p-6 border border-terracotta/10 text-center hover:shadow-lg transition-all">
-                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-terracotta to-terracotta-dark text-white flex items-center justify-center text-3xl shadow-lg mx-auto mb-4 relative">
-                    {step.icon}
-                    <div className="absolute -top-1 -right-1 w-6 h-6 bg-gold text-brown rounded-full flex items-center justify-center text-xs font-bold font-sans shadow-md">{step.step}</div>
+
+            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
+              {[
+                {
+                  title: "100% Homemade",
+                  snakzee: "Handcrafted in small batches in domestic kitchens by local home chefs.",
+                  commercial: "Mass-manufactured on high-heat automated factory conveyors.",
+                  badge: "🏡 Domestic vs Factory"
+                },
+                {
+                  title: "Fresh Farm Ingredients",
+                  snakzee: "Directly sourced from partner farms in Jagtial and Warangal.",
+                  commercial: "Sourced from old wholesale storage stocks and synthetic substitutes.",
+                  badge: "🌱 Pure vs Processed"
+                },
+                {
+                  title: "Made to Order Fresh",
+                  snakzee: "Prepared only after you click order, cooled and dispatched in 24 hours.",
+                  commercial: "Sitting in distributor warehouses and retail shelves for 6-9 months.",
+                  badge: "📦 Hot vs Stale"
+                },
+                {
+                  title: "Heirloom Stone Mortar",
+                  snakzee: "Ground slowly on traditional stone grinders to preserve natural essential oils.",
+                  commercial: "Pulverized in high-heat steel crushers that oxidize nutrients.",
+                  badge: "🏺 Hand vs Machine"
+                }
+              ].map((item, idx) => (
+                <motion.div
+                  key={idx}
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: idx * 0.08 }}
+                  className="bg-white rounded-2xl border border-terracotta/10 p-6 flex flex-col justify-between hover:shadow-lg transition-all"
+                >
+                  <div>
+                    <span className="text-[10px] font-sans font-bold text-terracotta tracking-wider uppercase bg-terracotta/5 px-2.5 py-1 rounded-full">{item.badge}</span>
+                    <h3 className="font-serif text-lg font-bold text-brown mt-3 mb-4 border-b border-terracotta/5 pb-2">{item.title}</h3>
+                    
+                    <div className="space-y-3 font-sans text-xs">
+                      <div className="bg-green-50/50 border border-green-200/50 p-2.5 rounded-xl">
+                        <span className="font-bold text-green-700 block mb-0.5">Snakzee way:</span>
+                        <p className="text-green-600/90 leading-normal">{item.snakzee}</p>
+                      </div>
+                      <div className="bg-red-50/50 border border-red-150/40 p-2.5 rounded-xl">
+                        <span className="font-bold text-red-600 block mb-0.5">Others:</span>
+                        <p className="text-red-500/80 leading-normal">{item.commercial}</p>
+                      </div>
+                    </div>
                   </div>
-                  <h3 className="font-serif text-xl font-bold text-brown mb-2">{step.title}</h3>
-                  <p className="text-brown-light/60 text-sm font-sans leading-relaxed">{step.description}</p>
                 </motion.div>
               ))}
             </div>
           </div>
         </section>
 
+        {/* Process */}
+        <section id="process" className="py-16 sm:py-20 bg-white scroll-mt-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+              <Badge className="bg-terracotta/10 text-terracotta border-terracotta/20 mb-4 font-sans"><ChefHat className="w-3 h-3 mr-1 inline" />Our Process</Badge>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-brown mb-4">How It&apos;s <span className="text-terracotta">Made</span></h2>
+            </motion.div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-5">
+              {PROCESS_STEPS.map((step, i) => (
+                <motion.div key={step.step} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }} className="bg-cream rounded-2xl p-5 border border-terracotta/10 text-center hover:shadow-lg transition-all flex flex-col justify-between">
+                  <div>
+                    <div className="w-14 h-14 rounded-full bg-gradient-to-br from-terracotta to-terracotta-dark text-white flex items-center justify-center text-2xl shadow-lg mx-auto mb-4 relative">
+                      {step.icon}
+                      <div className="absolute -top-1 -right-1 w-5 h-5 bg-gold text-brown rounded-full flex items-center justify-center text-[10px] font-bold font-sans shadow-md">{step.step}</div>
+                    </div>
+                    <h3 className="font-serif text-base font-bold text-brown mb-1.5 leading-tight">{step.title.split(" (")[0]}</h3>
+                    <p className="text-brown-light/60 text-xs font-sans leading-normal">{step.description}</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+            <div className="text-center mt-10">
+              <Link href="/how-its-made" className="inline-flex items-center gap-2 bg-terracotta hover:bg-terracotta-dark text-white font-sans font-bold px-6 py-3 rounded-full transition-all hover:scale-105 shadow-md text-sm">
+                Explore Full Interactive Process <ArrowRight className="w-4 h-4" />
+              </Link>
+            </div>
+          </div>
+        </section>
+
         {/* Team */}
-        <section className="py-16 sm:py-20 bg-white border-y border-terracotta/10">
+        <section id="team" className="py-16 sm:py-20 bg-cream border-y border-terracotta/10 scroll-mt-20">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
               <Badge className="bg-gold/10 text-gold border-gold/20 mb-4 font-sans"><Users className="w-3 h-3 mr-1 inline" />The Team</Badge>
@@ -158,7 +230,7 @@ export default function AboutPage() {
             </motion.div>
             <div className="grid sm:grid-cols-3 gap-6">
               {TEAM.map((member, i) => (
-                <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="bg-cream rounded-2xl p-6 border border-terracotta/10 text-center hover:shadow-lg hover:border-terracotta/20 transition-all">
+                <motion.div key={i} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }} className="bg-white rounded-2xl p-6 border border-terracotta/10 text-center hover:shadow-lg hover:border-terracotta/20 transition-all">
                   <div className="text-5xl mb-4">{member.avatar}</div>
                   <h3 className="font-serif text-xl font-bold text-brown mb-1">{member.name}</h3>
                   <p className="text-terracotta text-sm font-sans font-semibold mb-3">{member.role}</p>
@@ -169,8 +241,70 @@ export default function AboutPage() {
           </div>
         </section>
 
+        {/* Customer Love / Testimonials Section */}
+        <section id="testimonials" className="py-16 sm:py-20 bg-white scroll-mt-20">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} className="text-center mb-12">
+              <Badge className="bg-terracotta/10 text-terracotta border-terracotta/20 mb-4 font-sans">♡ Customer Love</Badge>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-brown">What Our Family Says</h2>
+              <p className="text-brown-light/60 font-sans max-w-md mx-auto mt-2">True stories of nostalgic delight from households across India.</p>
+            </motion.div>
+
+            <div className="grid md:grid-cols-3 gap-6 mb-12">
+              {REVIEWS.map((review, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, y: 15 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.08 }}
+                  className="bg-cream rounded-2xl border border-terracotta/10 p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
+                >
+                  <div>
+                    {/* Stars */}
+                    <div className="flex gap-0.5 text-gold text-sm mb-3">
+                      {"★".repeat(review.rating)}{"☆".repeat(5 - review.rating)}
+                    </div>
+                    <p className="font-sans text-sm text-brown-light/80 leading-relaxed italic mb-4">
+                      &ldquo;{review.text}&rdquo;
+                    </p>
+                  </div>
+                  
+                  <div className="flex items-center gap-3 border-t border-terracotta/5 pt-3 mt-4">
+                    <div className="w-10 h-10 bg-terracotta text-white rounded-full flex items-center justify-center font-bold font-sans text-sm shadow">
+                      {review.avatar}
+                    </div>
+                    <div>
+                      <h4 className="font-sans font-bold text-sm text-brown">{review.name}</h4>
+                      <p className="text-[10px] text-brown-light/50 font-sans">{review.location} • Loved {review.product}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+
+            {/* Video Testimonials quotes formatted beautifully */}
+            <div className="bg-cream rounded-3xl p-6 sm:p-10 border border-terracotta/10">
+              <h3 className="font-serif text-xl font-bold text-brown text-center mb-6">Nostalgia Shared from Heart to Heart</h3>
+              <div className="grid md:grid-cols-3 gap-6">
+                {VIDEO_TESTIMONIALS.map((t, idx) => (
+                  <div key={idx} className="bg-white/80 backdrop-blur rounded-2xl p-5 border border-terracotta/5">
+                    <p className="font-sans text-xs text-brown-light/70 italic leading-relaxed mb-3">
+                      &ldquo;{t.quote}&rdquo;
+                    </p>
+                    <div className="flex items-center justify-between border-t border-terracotta/5 pt-2 mt-2">
+                      <span className="font-sans font-bold text-xs text-brown">{t.name} ({t.location})</span>
+                      <span className="text-[9px] font-sans font-semibold text-terracotta uppercase tracking-wider bg-terracotta/10 px-2 py-0.5 rounded-full">{t.product}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+
         {/* Loyalty Rewards */}
-        <section className="py-16 sm:py-20 bg-cream">
+        <section id="rewards" className="py-16 sm:py-20 bg-cream border-t border-terracotta/10 scroll-mt-20">
           <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10">
               <Badge className="bg-gold/10 text-gold border-gold/20 mb-4 font-sans">Snakzee Rewards</Badge>
@@ -204,7 +338,7 @@ export default function AboutPage() {
         </section>
 
         {/* Festival Calendar */}
-        <section className="py-16 sm:py-20 bg-white border-y border-terracotta/10">
+        <section id="festival-calendar" className="py-16 sm:py-20 bg-white border-y border-terracotta/10 scroll-mt-20">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-10">
               <Badge className="bg-terracotta/10 text-terracotta border-terracotta/20 mb-4 font-sans">🪔 Festival Calendar</Badge>
@@ -242,7 +376,7 @@ export default function AboutPage() {
               <a href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-terracotta px-8 py-4 rounded-full font-bold text-base transition-all hover:scale-105 shadow-xl font-sans">
                 <MessageCircle className="w-5 h-5" />Order on WhatsApp
               </a>
-              <Link href="/products" className="inline-flex items-center gap-2 border-2 border-white/40 text-cream hover:bg-white/10 px-8 py-4 rounded-full font-bold text-base transition-all font-sans">
+              <Link href="/shop" className="inline-flex items-center gap-2 border-2 border-white/40 text-cream hover:bg-white/10 px-8 py-4 rounded-full font-bold text-base transition-all font-sans">
                 Browse Products
               </Link>
             </div>

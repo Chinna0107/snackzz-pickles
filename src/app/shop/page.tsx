@@ -123,12 +123,28 @@ function ShopContent() {
   const searchParams = useSearchParams();
   const { products, loading } = useProducts();
   const [activeCategory, setActiveCategory] = useState<string>(searchParams.get("category") || "all");
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(searchParams.get("search") || searchParams.get("q") || "");
+
+  useEffect(() => {
+    const q = searchParams.get("search") || searchParams.get("q");
+    if (q) setSearchQuery(q);
+  }, [searchParams]);
+
+  const [wishlist, setWishlist] = useState<string[]>([]);
+
+  useEffect(() => {
+    const stored = localStorage.getItem("snackzee_wishlist");
+    if (stored) {
+      try { setWishlist(JSON.parse(stored)); } catch {}
+    }
+  }, []);
 
   useEffect(() => {
     const cat = searchParams.get("category");
     if (cat) setActiveCategory(cat);
   }, [searchParams]);
+
+  const filterParam = searchParams.get("filter");
 
   const filteredProducts = products.filter((p) => {
     const matchesCategory = activeCategory === "all" || p.category === activeCategory;
@@ -136,8 +152,12 @@ function ShopContent() {
       p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.nameEnglish.toLowerCase().includes(searchQuery.toLowerCase()) ||
       p.description.toLowerCase().includes(searchQuery.toLowerCase());
-    return matchesCategory && matchesSearch;
+    const matchesFilter = !filterParam || 
+      (filterParam === "best-sellers" && p.popular) ||
+      (filterParam === "wishlist" && wishlist.includes(p.id));
+    return matchesCategory && matchesSearch && matchesFilter;
   });
+
 
   return (
     <div className="min-h-screen bg-cream">

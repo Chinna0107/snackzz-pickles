@@ -15,7 +15,7 @@ export default function TopAnnouncementBar({ hidden }: { hidden?: boolean }) {
 
   return (
     <div className={`bg-terracotta text-white overflow-hidden whitespace-nowrap relative flex items-center z-50 font-sans transition-all duration-300 ${hidden ? "h-0 opacity-0" : "h-10 opacity-100"}`}>
-      <div className="animate-marquee flex items-center h-full">
+      <div className="animate-marquee-slow flex items-center h-full">
         {scrollItems.map((item, i) => (
           <span
             key={i}
