@@ -42,6 +42,42 @@ function ProductCard({ product }: { product: Product }) {
   const router = useRouter();
   const [isFav, setIsFav] = useState(false);
 
+  useEffect(() => {
+    const stored = localStorage.getItem("snackzee_wishlist");
+    if (stored) {
+      try {
+        const wishlist = JSON.parse(stored);
+        setIsFav(wishlist.includes(product.id));
+      } catch {}
+    }
+  }, [product.id]);
+
+  const handleToggleFavorite = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    const stored = localStorage.getItem("snackzee_wishlist");
+    let wishlist: string[] = [];
+    if (stored) {
+      try {
+        wishlist = JSON.parse(stored);
+      } catch {}
+    }
+
+    const nextFav = !isFav;
+    if (nextFav) {
+      if (!wishlist.includes(product.id)) {
+        wishlist.push(product.id);
+      }
+      toast({ title: "Added to Wishlist ❤️", description: product.nameEnglish });
+    } else {
+      wishlist = wishlist.filter((id) => id !== product.id);
+      toast({ title: "Removed from Wishlist 💔", description: product.nameEnglish });
+    }
+
+    setIsFav(nextFav);
+    localStorage.setItem("snackzee_wishlist", JSON.stringify(wishlist));
+    window.dispatchEvent(new Event("storage"));
+  };
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     addItem(product);
@@ -77,7 +113,7 @@ function ProductCard({ product }: { product: Product }) {
           </div>
         )}
         <button
-          onClick={(e) => { e.stopPropagation(); setIsFav(!isFav); }}
+          onClick={handleToggleFavorite}
           className={`absolute top-3 left-3 z-10 w-8 h-8 rounded-full flex items-center justify-center transition-all hover:scale-110 ${isFav ? "bg-terracotta text-white" : "bg-white/80 text-brown-light/50 hover:text-terracotta"}`}
         >
           <Heart className={`w-4 h-4 ${isFav ? "fill-current" : ""}`} />

@@ -3,7 +3,8 @@
 import { useEffect, useState } from "react";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { products, type Product } from "@/lib/products";
+import { type Product } from "@/lib/products";
+import { useProducts } from "@/hooks/useProducts";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -18,6 +19,7 @@ export default function WishlistPage() {
   const { addItem, items: cartItems } = useCart();
   const { toast } = useToast();
   const router = useRouter();
+  const { products, loading } = useProducts();
 
   // Load wishlist from local storage
   useEffect(() => {
@@ -53,6 +55,14 @@ export default function WishlistPage() {
 
   // Map wishlist IDs to full product objects
   const wishlistedProducts = products.filter((p) => wishlistIds.includes(p.id));
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-terracotta/20 border-t-terracotta rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-cream">

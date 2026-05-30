@@ -53,6 +53,52 @@ export default function ProductDetailPage() {
   const [selectedQuantity, setSelectedQuantity] = useState<number | null>(null);
   const [loading, setLoading] = useState(true);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
+  const [isWishlisted, setIsWishlisted] = useState(false);
+
+  useEffect(() => {
+    if (product) {
+      const stored = localStorage.getItem("snackzee_wishlist");
+      if (stored) {
+        try {
+          const wishlist = JSON.parse(stored);
+          setIsWishlisted(wishlist.includes(String(product.id)));
+        } catch {}
+      }
+    }
+  }, [product]);
+
+  const toggleWishlist = () => {
+    if (!product) return;
+    const stored = localStorage.getItem("snackzee_wishlist");
+    let wishlist: string[] = [];
+    if (stored) {
+      try {
+        wishlist = JSON.parse(stored);
+      } catch {}
+    }
+
+    const productIdStr = String(product.id);
+    const isCurrentlyWishlisted = wishlist.includes(productIdStr);
+    
+    if (isCurrentlyWishlisted) {
+      wishlist = wishlist.filter((id) => id !== productIdStr);
+      setIsWishlisted(false);
+      toast({
+        title: "Removed from Wishlist 💔",
+        description: `${product.name_english || product.name} removed successfully`,
+      });
+    } else {
+      wishlist.push(productIdStr);
+      setIsWishlisted(true);
+      toast({
+        title: "Added to Wishlist ❤️",
+        description: `${product.name_english || product.name} added successfully`,
+      });
+    }
+
+    localStorage.setItem("snackzee_wishlist", JSON.stringify(wishlist));
+    window.dispatchEvent(new Event("storage"));
+  };
 
   useEffect(() => {
     if (params.slug) fetchProduct();
@@ -97,7 +143,7 @@ export default function ProductDetailPage() {
       id: String(product.id),
       name: product.name,
       nameEnglish: product.name_english,
-      category: product.category,
+      category: product.category as any,
       description: product.description || "",
       price,
       priceUnit,
@@ -247,8 +293,14 @@ export default function ProductDetailPage() {
                 className="flex-1 bg-terracotta hover:bg-terracotta-dark text-white px-6 py-4 rounded-xl font-bold font-sans text-lg transition-all hover:scale-[1.02] shadow-lg shadow-terracotta/20 flex items-center justify-center gap-2">
                 <ShoppingCart className="w-5 h-5" /> Add to Cart
               </button>
-              <button className="w-14 h-14 bg-white hover:bg-cream border border-terracotta/10 rounded-xl flex items-center justify-center transition-colors">
-                <Heart className="w-5 h-5 text-brown-light" />
+              <button onClick={toggleWishlist}
+                className={`w-14 h-14 border rounded-xl flex items-center justify-center transition-all hover:scale-105 ${
+                  isWishlisted 
+                    ? "bg-terracotta/10 border-terracotta text-terracotta" 
+                    : "bg-white hover:bg-cream border-terracotta/10 text-brown-light hover:text-brown"
+                }`}
+                title={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}>
+                <Heart className={`w-5 h-5 ${isWishlisted ? "fill-current" : ""}`} />
               </button>
               <button className="w-14 h-14 bg-white hover:bg-cream border border-terracotta/10 rounded-xl flex items-center justify-center transition-colors">
                 <Share2 className="w-5 h-5 text-brown-light" />

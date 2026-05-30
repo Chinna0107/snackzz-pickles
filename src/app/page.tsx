@@ -1681,10 +1681,10 @@ function CustomerReviews() {
           className="text-center mb-8 sm:mb-12"
         >
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-brown mb-3 sm:mb-4">
-            What Our Customers Say
+            What Our Family Says
           </h2>
           <p className="text-brown-light/70 text-base sm:text-lg max-w-2xl mx-auto">
-            Real people, real reviews — from the heart of Telangana
+            True stories of nostalgic delight from households across India.
           </p>
         </motion.div>
 
@@ -1763,10 +1763,10 @@ function VideoTestimonialsSection() {
             🎥 Video Stories
           </Badge>
           <h2 className="font-serif text-3xl sm:text-4xl lg:text-5xl font-bold text-brown mb-3 sm:mb-4">
-            Hear It From <span className="text-terracotta">Our Family</span>
+            Nostalgia Shared from Heart to Heart
           </h2>
           <p className="text-brown-light/70 text-base sm:text-lg max-w-2xl mx-auto font-sans">
-            Real customers sharing their Snakzee experience — straight from the heart of Telangana
+            Hear it straight from the families who love Snakzee
           </p>
         </motion.div>
 
@@ -3597,6 +3597,8 @@ function HomeContent() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
         />
+        <SectionReveal><VideoTestimonialsSection /></SectionReveal>
+        <SectionReveal><CustomerReviews /></SectionReveal>
         {/* Sections moved to /about page
         <TestimonialHighlightStrip />
         <TrustStrip />
