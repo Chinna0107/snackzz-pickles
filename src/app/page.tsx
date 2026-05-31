@@ -84,6 +84,7 @@ import BulkOrderSection from "@/components/BulkOrderSection";
 import {
   products as staticProducts,
   categories,
+  GRAM_OPTIONS,
   MARQUEE_ITEMS,
   REVIEWS,
   COMBOS,
@@ -100,6 +101,8 @@ import {
   getComboWhatsAppLink,
   getShareLink,
   getBulkOrderLink,
+  priceForGramOption,
+  productForGramOption,
   SPICE_LABELS,
   PROCESS_STEPS,
   type Category,
@@ -109,9 +112,14 @@ import {
   type GiftWrapOption,
   type GiftCardOption,
   type IngredientInfo,
+  type GramOption,
 } from "@/lib/products";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+
+function getProductRenderKey(product: Product & { slug?: string }, index: number): string {
+  return `${product.id}:${product.slug || product.nameEnglish || product.name}:${index}`;
+}
 
 // ─── Seasonal Banner ────────────────────────────────────────
 function SeasonalBanner() {
@@ -692,8 +700,8 @@ function BestSellers({ products, onCategorySelect }: { products: Product[]; onCa
         </div>
 
         <div ref={scrollRef} className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 sm:pb-3 scrollbar-hide snap-x snap-mandatory touch-scroll">
-          {bestsellers.map((product) => (
-            <div key={product.id}
+          {bestsellers.map((product, index) => (
+            <div key={getProductRenderKey(product, index)}
               onClick={() => router.push(`/products/${(product as any).slug || product.id}`)}
               className="flex-shrink-0 w-40 sm:w-48 md:w-56 bg-cream rounded-xl sm:rounded-2xl border border-terracotta/10 overflow-hidden cursor-pointer hover:shadow-lg hover:border-terracotta/20 transition-all snap-start group active:scale-95">
               <div className="relative h-32 sm:h-40 md:h-48 overflow-hidden bg-cream-dark">
@@ -1106,12 +1114,37 @@ function ProductCard({
   const { toast } = useToast();
   const router = useRouter();
 
+  // Admin-defined quantity variants (from backend)
+  const variants = (product as any).quantity_prices as { quantity: string; price: number; mrp?: number }[] | undefined;
+  const hasVariants = variants && variants.length > 0;
+
+  // Build a unified options list: value="base" or "v-{i}"
+  const [selectedOption, setSelectedOption] = useState<string>("base");
+  const [quantity, setQuantity] = useState(1);
+  // Fallback gram state
+  const [selectedGram, setSelectedGram] = useState<GramOption>("500g");
+
+  const selectedPrice = hasVariants
+    ? (selectedOption === "base"
+        ? product.price
+        : variants![Number(selectedOption.replace("v-", ""))].price)
+    : priceForGramOption(product, selectedGram);
+
+  const selectedUnit = hasVariants
+    ? (selectedOption === "base"
+        ? product.priceUnit
+        : variants![Number(selectedOption.replace("v-", ""))].quantity)
+    : selectedGram;
+
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addItem(product);
+    const cartProduct = hasVariants
+      ? { ...product, price: selectedPrice, priceUnit: selectedUnit }
+      : productForGramOption(product, selectedGram);
+    addItem(cartProduct, quantity);
     toast({
       title: "Added to cart! 🛒",
-      description: `${product.name} has been added to your cart.`,
+      description: `${quantity} × ${selectedUnit} ${product.nameEnglish} added to your cart.`,
     });
   };
 
@@ -1201,10 +1234,10 @@ function ProductCard({
         <div className="flex items-center justify-between gap-2 mb-3">
           <div>
             <span className="text-2xl font-normal text-gold font-sans">
-              ₹{product.price}
+              ₹{selectedPrice}
             </span>
             <span className="text-brown-light/40 text-xs ml-1 font-sans">
-              {' '}{product.priceUnit}
+              / {selectedUnit}
             </span>
           </div>
           <div className="flex items-center gap-1.5">
@@ -1228,14 +1261,52 @@ function ProductCard({
           </div>
         </div>
 
-        {/* Add to Cart Button */}
-        <button
-          onClick={handleAddToCart}
-          className="w-full inline-flex items-center justify-center gap-2 bg-terracotta hover:bg-terracotta-dark text-white px-4 py-2.5 rounded-full font-semibold text-sm transition-all hover:scale-[1.02] shadow-md shadow-terracotta/20 font-sans"
-        >
-          <ShoppingCart className="w-4 h-4" />
-          Add to Cart
-        </button>
+        {/* Quantity Dropdown + Count + Add to Cart */}
+        <div onClick={(e) => e.stopPropagation()} className="space-y-2">
+          <div className="grid grid-cols-[1fr_auto] gap-2">
+            {hasVariants ? (
+              // Admin-defined quantity variants as a dropdown
+              <select
+                value={selectedOption}
+                onChange={(e) => setSelectedOption(e.target.value)}
+                className="min-w-0 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+                aria-label="Select quantity"
+              >
+                <option value="base">{product.priceUnit} — ₹{product.price}</option>
+                {variants!.map((v, i) => (
+                  <option key={`${product.id}-v-${i}-${v.quantity}`} value={`v-${i}`}>
+                    {v.quantity} — ₹{v.price}{v.mrp && v.mrp > v.price ? ` (MRP ₹${v.mrp})` : ""}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              // Fallback: static gram options
+              <select
+                value={selectedGram}
+                onChange={(e) => setSelectedGram(e.target.value as GramOption)}
+                className="min-w-0 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+                aria-label="Select weight"
+              >
+                {GRAM_OPTIONS.map((option) => (
+                  <option key={option} value={option}>{option}</option>
+                ))}
+              </select>
+            )}
+            <input
+              type="number" min={1} max={10} value={quantity}
+              onChange={(e) => setQuantity(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
+              className="w-16 rounded-xl border border-terracotta/10 bg-cream px-2 py-2 text-center text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+              aria-label="Quantity"
+            />
+          </div>
+          <button
+            onClick={handleAddToCart}
+            className="w-full inline-flex items-center justify-center gap-2 bg-terracotta hover:bg-terracotta-dark text-white px-4 py-2.5 rounded-full font-semibold text-sm transition-all hover:scale-[1.02] shadow-md shadow-terracotta/20 font-sans"
+          >
+            <ShoppingCart className="w-4 h-4" />
+            Add to Cart
+          </button>
+        </div>
       </div>
     </motion.div>
   );
@@ -1395,9 +1466,9 @@ function FeaturedProducts({
         ) : (
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
             <AnimatePresence mode="popLayout">
-              {filteredProducts.map((product) => (
+              {filteredProducts.map((product, index) => (
                 <ProductCard
-                  key={product.id}
+                  key={getProductRenderKey(product, index)}
                   product={product}
 
                   isCompareSelected={compareIds.has(product.id)}
@@ -2844,7 +2915,7 @@ function FloatingWhatsApp() {
       href={getWhatsAppLink()}
       target="_blank"
       rel="noopener noreferrer"
-      className="whatsapp-tooltip fixed bottom-4 right-4 sm:bottom-5 sm:right-5 z-50 w-12 h-12 sm:w-14 sm:h-14 md:w-16 md:h-16 bg-whatsapp hover:bg-whatsapp-dark text-white rounded-full flex items-center justify-center shadow-2xl shadow-whatsapp/30 transition-all hover:scale-110 animate-pulse-whatsapp wa-ripple"
+      className="floating-whatsapp whatsapp-tooltip bg-whatsapp hover:bg-whatsapp-dark text-white rounded-full flex items-center justify-center shadow-2xl shadow-whatsapp/30 transition-all hover:scale-110 animate-pulse-whatsapp wa-ripple"
       aria-label="Order on WhatsApp"
     >
       <MessageCircle className="w-5 h-5 sm:w-6 sm:h-6 md:w-7 md:h-7" />
@@ -3479,43 +3550,6 @@ function SectionReveal({ children, className = "" }: { children: React.ReactNode
   );
 }
 
-// ─── Mobile Bottom CTA Bar ───────────────────────────────────
-function MobileBottomCTA() {
-  const [visible, setVisible] = useState(false);
-
-  useEffect(() => {
-    const handleScroll = () => {
-      setVisible(window.scrollY > 400);
-    };
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  return (
-    <AnimatePresence>
-      {visible && (
-        <motion.div
-          initial={{ y: 80, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 80, opacity: 0 }}
-          transition={{ type: "spring", damping: 25, stiffness: 300 }}
-          className="fixed bottom-0 left-0 right-0 z-40 md:hidden bg-white/95 backdrop-blur-md border-t border-terracotta/10 px-4 py-3 footer-safe-area"
-        >
-          <a
-            href={getWhatsAppLink()}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="flex items-center justify-center gap-2 w-full bg-whatsapp hover:bg-whatsapp-dark text-white py-3 rounded-full font-bold text-sm shadow-lg shadow-whatsapp/20 font-sans wa-ripple"
-          >
-            <MessageCircle className="w-4 h-4" />
-            Order on WhatsApp — Free Delivery above ₹1000
-          </a>
-        </motion.div>
-      )}
-    </AnimatePresence>
-  );
-}
-
 // ─── Main Page ───────────────────────────────────────────────
 function HomeContent() {
   const { products, loading: productsLoading } = useProducts();
@@ -3582,7 +3616,7 @@ function HomeContent() {
       <Preloader />
 
       <Header />
-      <main className="flex-1">
+      <main className="flex-1 pt-20 sm:pt-24">
         <HeroSection />
         <SectionReveal><CategoryGrid products={products} onCategorySelect={setActiveCategory} /></SectionReveal>
         <BestSellers products={products} onCategorySelect={setActiveCategory} />
@@ -3597,7 +3631,6 @@ function HomeContent() {
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
         />
-        <SectionReveal><VideoTestimonialsSection /></SectionReveal>
         <SectionReveal><CustomerReviews /></SectionReveal>
         {/* Sections moved to /about page
         <TestimonialHighlightStrip />
@@ -3621,8 +3654,8 @@ function HomeContent() {
       <Footer />
 
       <ChatbotWidget />
+      <FloatingWhatsApp />
       <SocialProofNotification products={products} />
-      <MobileBottomCTA />
       {compareIds.length >= 2 && (
         <button
           onClick={() => setCompareOpen(true)}

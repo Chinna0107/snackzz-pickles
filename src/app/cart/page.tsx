@@ -2,7 +2,7 @@
 
 import Footer from "@/components/Footer";
 
-import { useCart } from "@/context/CartContext";
+import { getCartItemKey, useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
@@ -40,9 +40,11 @@ export default function CartPage() {
           {/* Items */}
           <div className="lg:col-span-2 space-y-4">
             <AnimatePresence>
-              {items.map((item) => (
+              {items.map((item) => {
+                const itemKey = getCartItemKey(item);
+                return (
                 <motion.div
-                  key={item.product.id}
+                  key={itemKey}
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20, height: 0 }}
@@ -57,19 +59,20 @@ export default function CartPage() {
                     <p className="text-gold font-sans font-bold text-lg mt-1">₹{item.product.price * item.quantity}</p>
                   </div>
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    <button onClick={() => updateQty(item.product.id, item.quantity - 1)} className="w-8 h-8 rounded-full border border-terracotta/20 flex items-center justify-center hover:bg-terracotta/10 transition-colors">
+                    <button onClick={() => updateQty(itemKey, item.quantity - 1)} className="w-8 h-8 rounded-full border border-terracotta/20 flex items-center justify-center hover:bg-terracotta/10 transition-colors">
                       <Minus className="w-3 h-3" />
                     </button>
                     <span className="w-8 text-center font-bold text-brown font-sans">{item.quantity}</span>
-                    <button onClick={() => updateQty(item.product.id, item.quantity + 1)} className="w-8 h-8 rounded-full border border-terracotta/20 flex items-center justify-center hover:bg-terracotta/10 transition-colors">
+                    <button onClick={() => updateQty(itemKey, item.quantity + 1)} className="w-8 h-8 rounded-full border border-terracotta/20 flex items-center justify-center hover:bg-terracotta/10 transition-colors">
                       <Plus className="w-3 h-3" />
                     </button>
-                    <button onClick={() => removeItem(item.product.id)} className="w-8 h-8 rounded-full hover:bg-red-50 flex items-center justify-center transition-colors ml-1">
+                    <button onClick={() => removeItem(itemKey)} className="w-8 h-8 rounded-full hover:bg-red-50 flex items-center justify-center transition-colors ml-1">
                       <Trash2 className="w-4 h-4 text-red-400" />
                     </button>
                   </div>
                 </motion.div>
-              ))}
+                );
+              })}
             </AnimatePresence>
           </div>
 

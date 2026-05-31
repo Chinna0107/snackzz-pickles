@@ -6,6 +6,7 @@ import { Product } from "@/lib/products";
 export interface CartItem {
   product: Product;
   quantity: number;
+  variantKey?: string;
 }
 
 interface CartContextType {
@@ -19,6 +20,10 @@ interface CartContextType {
 }
 
 const CartContext = createContext<CartContextType | null>(null);
+
+export function getCartItemKey(item: CartItem): string {
+  return item.variantKey || `${item.product.id}:${item.product.priceUnit}`;
+}
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
@@ -38,26 +43,27 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
   const addItem = useCallback((product: Product, qty = 1) => {
     setItems((prev) => {
-      const existing = prev.find((i) => i.product.id === product.id);
+      const variantKey = `${product.id}:${product.priceUnit}`;
+      const existing = prev.find((i) => getCartItemKey(i) === variantKey);
       if (existing) {
         return prev.map((i) =>
-          i.product.id === product.id ? { ...i, quantity: i.quantity + qty } : i
+          getCartItemKey(i) === variantKey ? { ...i, quantity: i.quantity + qty, product, variantKey } : i
         );
       }
-      return [...prev, { product, quantity: qty }];
+      return [...prev, { product, quantity: qty, variantKey }];
     });
   }, []);
 
   const removeItem = useCallback((id: string) => {
-    setItems((prev) => prev.filter((i) => i.product.id !== id));
+    setItems((prev) => prev.filter((i) => getCartItemKey(i) !== id && i.product.id !== id));
   }, []);
 
   const updateQty = useCallback((id: string, qty: number) => {
     if (qty <= 0) {
-      setItems((prev) => prev.filter((i) => i.product.id !== id));
+      setItems((prev) => prev.filter((i) => getCartItemKey(i) !== id && i.product.id !== id));
     } else {
       setItems((prev) =>
-        prev.map((i) => (i.product.id === id ? { ...i, quantity: qty } : i))
+        prev.map((i) => (getCartItemKey(i) === id || i.product.id === id ? { ...i, quantity: qty } : i))
       );
     }
   }, []);

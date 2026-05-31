@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
-import { Printer, MessageCircle, ExternalLink, ChevronDown, Plus, Instagram } from "lucide-react";
+import { Printer, MessageCircle, ExternalLink, ChevronDown, Plus, Instagram, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import Link from "next/link";
 
@@ -113,6 +113,114 @@ export default function AdminOrdersPage() {
     const trackMsg = t?.id ? ` Your tracking ID is ${t.id}.${t.link ? ` Track here: ${t.link}` : ""}` : "";
     const msg = encodeURIComponent(`Hi ${order.address?.name}! 🙏 Your Snakzee order #${order.id} status: *${order.status}*.${trackMsg} Thank you! 🍿`);
     window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
+  };
+
+  const escapeHtml = (value: unknown) =>
+    String(value ?? "")
+      .replace(/&/g, "&amp;")
+      .replace(/</g, "&lt;")
+      .replace(/>/g, "&gt;")
+      .replace(/"/g, "&quot;")
+      .replace(/'/g, "&#039;");
+
+  const invoiceHtml = (order: Order) => {
+    const subtotal = (order.items || []).reduce((sum, item) => sum + item.price * item.qty, 0);
+    const rows = (order.items || []).map((item) => `
+      <tr>
+        <td>${escapeHtml(item.name)}</td>
+        <td>${item.qty}</td>
+        <td>₹${item.price}</td>
+        <td>₹${item.price * item.qty}</td>
+      </tr>
+    `).join("");
+
+    return `<!doctype html>
+      <html>
+        <head>
+          <title>Snakzee Invoice #${order.id}</title>
+          <style>
+            body { font-family: Arial, sans-serif; color: #3D1A08; margin: 32px; }
+            .top { display: flex; justify-content: space-between; gap: 24px; border-bottom: 2px solid #C8401A; padding-bottom: 16px; margin-bottom: 24px; }
+            h1 { margin: 0; color: #C8401A; }
+            h2 { font-size: 16px; margin: 0 0 8px; }
+            p { margin: 4px 0; font-size: 13px; }
+            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+            th, td { text-align: left; border-bottom: 1px solid #E8D5BC; padding: 10px 8px; font-size: 13px; }
+            th { background: #FDF6EC; }
+            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+            .totals { margin-left: auto; margin-top: 20px; width: 280px; }
+            .totals div { display: flex; justify-content: space-between; padding: 6px 0; }
+            .grand { font-weight: 700; color: #C8401A; border-top: 2px solid #E8D5BC; margin-top: 6px; padding-top: 10px !important; }
+            .print { margin-top: 28px; padding: 10px 16px; border: 0; background: #C8401A; color: white; border-radius: 8px; cursor: pointer; }
+            @media print { .print { display: none; } body { margin: 20px; } }
+          </style>
+        </head>
+        <body>
+          <div class="top">
+            <div>
+              <h1>Snakzee</h1>
+              <p>Invoice #${order.id}</p>
+              <p>Date: ${new Date(order.created_at).toLocaleDateString("en-IN")}</p>
+            </div>
+            <div>
+              <p><strong>Status:</strong> ${escapeHtml(order.status)}</p>
+              ${order.payment_id ? `<p><strong>Payment:</strong> ${escapeHtml(order.payment_id)}</p>` : ""}
+            </div>
+          </div>
+          <div class="grid">
+            <div>
+              <h2>From</h2>
+              <p><strong>${escapeHtml(FROM_ADDRESS.name)}</strong></p>
+              <p>${escapeHtml(FROM_ADDRESS.line1)}</p>
+              <p>${escapeHtml(FROM_ADDRESS.city)}, ${escapeHtml(FROM_ADDRESS.state)} - ${escapeHtml(FROM_ADDRESS.pincode)}</p>
+              <p>${escapeHtml(FROM_ADDRESS.phone)}</p>
+            </div>
+            <div>
+              <h2>Bill To</h2>
+              <p><strong>${escapeHtml(order.address?.name)}</strong></p>
+              <p>${escapeHtml(order.address?.line1)}${order.address?.line2 ? `, ${escapeHtml(order.address.line2)}` : ""}</p>
+              <p>${escapeHtml(order.address?.city)}, ${escapeHtml(order.address?.state)} - ${escapeHtml(order.address?.pincode)}</p>
+              ${order.address?.phone ? `<p>${escapeHtml(order.address.phone)}</p>` : ""}
+            </div>
+          </div>
+          <table>
+            <thead><tr><th>Item</th><th>Qty</th><th>Rate</th><th>Total</th></tr></thead>
+            <tbody>${rows}</tbody>
+          </table>
+          <div class="totals">
+            <div><span>Subtotal</span><span>₹${subtotal}</span></div>
+            ${order.discount ? `<div><span>Discount ${order.coupon ? `(${escapeHtml(order.coupon)})` : ""}</span><span>-₹${order.discount}</span></div>` : ""}
+            ${order.delivery_fee ? `<div><span>Delivery</span><span>₹${order.delivery_fee}</span></div>` : ""}
+            <div class="grand"><span>Total</span><span>₹${order.total}</span></div>
+          </div>
+          <button class="print" onclick="window.print()">Save / Print PDF</button>
+        </body>
+      </html>`;
+  };
+
+  const openInvoice = (order: Order) => {
+    const invoiceWindow = window.open("", "_blank");
+    if (invoiceWindow) {
+      invoiceWindow.document.open();
+      invoiceWindow.document.write(invoiceHtml(order));
+      invoiceWindow.document.close();
+    }
+    toast({ title: "Invoice opened", description: `Invoice #${order.id} opened in a new tab — use browser Print to save as PDF.` });
+  };
+
+  const sendInvoiceWhatsApp = (order: Order) => {
+    const phone = (order.address?.phone || "").replace(/\D/g, "") || "918897586142";
+    const items = (order.items || []).map((i) => `• ${i.name} ×${i.qty} — ₹${i.price * i.qty}`).join("\n");
+    const msg = encodeURIComponent(
+      `Hi ${order.address?.name}! 🙏 Please find your *Snakzee Invoice* for Order *#${order.id}* below:\n\n` +
+      `*Items:*\n${items}\n\n` +
+      `${order.discount ? `*Discount (${order.coupon || ""})* : -₹${order.discount}\n` : ""}` +
+      `${order.delivery_fee ? `*Delivery* : ₹${order.delivery_fee}\n` : ""}` +
+      `*Total: ₹${order.total}*\n\n` +
+      `Thank you for shopping with Snakzee! 🍿`
+    );
+    window.open(`https://wa.me/${phone}?text=${msg}`, "_blank");
+    toast({ title: "WhatsApp opened", description: "Invoice message pre-filled on WhatsApp." });
   };
 
 
@@ -261,6 +369,14 @@ export default function AdminOrdersPage() {
                     <button onClick={() => notifyWhatsApp(order)}
                       className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold font-sans transition-colors">
                       <MessageCircle className="w-4 h-4" /> Notify on WhatsApp
+                    </button>
+                    <button onClick={() => openInvoice(order)}
+                      className="flex items-center justify-center gap-2 bg-gold hover:bg-amber-500 text-brown px-4 py-2.5 rounded-xl text-sm font-semibold font-sans transition-colors">
+                      <FileText className="w-4 h-4" /> Open Invoice
+                    </button>
+                    <button onClick={() => sendInvoiceWhatsApp(order)}
+                      className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold font-sans transition-colors">
+                      <MessageCircle className="w-4 h-4" /> Send Invoice via WhatsApp
                     </button>
                   </div>
                   {/* Notes */}

@@ -6,7 +6,7 @@ import TopAnnouncementBar from "@/components/TopAnnouncementBar";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { ShoppingCart, Menu, X, ChevronDown, Home as HomeIcon, Info, Phone, ShoppingBag, LogOut, User, Search, Heart, Sparkles, HelpCircle } from "lucide-react";
+import { ShoppingCart, Menu, X, ChevronDown, Home as HomeIcon, Info, Phone, ShoppingBag, LogOut, User, Search, Heart, Sparkles } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { prefetchProducts } from "@/hooks/useProducts";
 import { categories } from "@/lib/products";
@@ -38,10 +38,13 @@ export default function Header() {
   const aboutDropdownRef = useRef<HTMLDivElement>(null);
   const moreDropdownRef = useRef<HTMLDivElement>(null);
   const userMenuRef = useRef<HTMLDivElement>(null);
+  const headerRootRef = useRef<HTMLDivElement>(null);
 
   // Scrolled effect
   useEffect(() => {
-    const handleScroll = () => setScrolled(window.scrollY > 20);
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 20);
+    };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
@@ -82,10 +85,11 @@ export default function Header() {
       if (aboutDropdownRef.current && !aboutDropdownRef.current.contains(e.target as Node)) setAboutOpen(false);
       if (moreDropdownRef.current && !moreDropdownRef.current.contains(e.target as Node)) setMoreOpen(false);
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setUserMenuOpen(false);
+      if (mobileMenuOpen && headerRootRef.current && !headerRootRef.current.contains(e.target as Node)) setMobileMenuOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, []);
+  }, [mobileMenuOpen]);
 
   const handleCategoryClick = (catId: string) => {
     setMobileMenuOpen(false);
@@ -113,7 +117,7 @@ export default function Header() {
   };
 
   return (
-    <div className="sticky top-0 z-[100] w-full">
+    <div ref={headerRootRef} className="fixed top-0 left-0 right-0 z-[100] w-full">
       <TopAnnouncementBar hidden={false} />
       
       <nav className={`w-full transition-all duration-300 ${
@@ -265,8 +269,8 @@ export default function Header() {
 
                         {[
                           { href: "/cook-with-snakzee", label: "Cook with Snakzee (Recipes)", icon: "🍳" },
-                          { href: "/about#festival-calendar", label: "Festival Specials", icon: "🪔" },
-                          { href: "/about#rewards", label: "Snakzee Rewards", icon: "🎁" }
+                          { href: "/cook-with-snakzee#festival-calendar", label: "Festival Specials", icon: "🪔" },
+                          { href: "/cook-with-snakzee#rewards", label: "Snakzee Rewards", icon: "🎁" }
                         ].map((item) => (
                           <Link key={item.href} href={item.href} onClick={() => setMoreOpen(false)}>
                             <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-terracotta/5 transition-colors cursor-pointer group text-left">
@@ -363,9 +367,8 @@ export default function Header() {
                             { href: "/orders", label: "My Orders", icon: <ShoppingBag className="w-4 h-4 text-terracotta" /> },
                             { href: "/orders", label: "Orders Tracking", icon: <Sparkles className="w-4 h-4 text-gold" /> },
                             { href: "/wishlist", label: "Wishlist", icon: <Heart className="w-4 h-4 text-red-400" /> },
-                            { href: "/about#rewards", label: "Rewards", icon: <Sparkles className="w-4 h-4 text-yellow-600" /> },
-                            { href: "/profile", label: "Profile", icon: <User className="w-4 h-4 text-blue-400" /> },
-                            { href: "/contact", label: "Support", icon: <HelpCircle className="w-4 h-4 text-teal-400" /> }
+                            { href: "/cook-with-snakzee#rewards", label: "Rewards", icon: <Sparkles className="w-4 h-4 text-yellow-600" /> },
+                            { href: "/profile", label: "Profile", icon: <User className="w-4 h-4 text-blue-400" /> }
                           ].map((option, key) => (
                             <Link key={key} href={option.href} onClick={() => setUserMenuOpen(false)}>
                               <div className="flex items-center gap-2.5 px-3 py-2 hover:bg-terracotta/5 rounded-xl text-brown font-sans text-xs cursor-pointer transition-colors font-medium">
@@ -378,7 +381,7 @@ export default function Header() {
                           
                           <button onClick={handleLogout}
                             className="flex items-center gap-2.5 px-3 py-2 hover:bg-red-50 text-red-500 font-sans text-xs w-full transition-colors rounded-xl font-medium">
-                            <LogOut className="w-4 h-4" /> Support & Logout
+                            <LogOut className="w-4 h-4" /> Logout
                           </button>
                         </div>
                       </motion.div>
@@ -508,8 +511,8 @@ export default function Header() {
 
                         {[
                           { href: "/cook-with-snakzee", label: "Cook with Snakzee (Recipes)" },
-                          { href: "/about#festival-calendar", label: "Festival Specials" },
-                          { href: "/about#rewards", label: "Snakzee Rewards" }
+                          { href: "/cook-with-snakzee#festival-calendar", label: "Festival Specials" },
+                          { href: "/cook-with-snakzee#rewards", label: "Snakzee Rewards" }
                         ].map((sub) => (
                           <Link key={sub.href} href={sub.href} onClick={() => setMobileMenuOpen(false)}>
                             <div className="px-3 py-2 text-xs text-brown-light font-sans font-semibold hover:text-terracotta">{sub.label}</div>
@@ -535,15 +538,15 @@ export default function Header() {
                       { href: "/orders", label: "My Orders" },
                       { href: "/orders", label: "Orders Tracking" },
                       { href: "/wishlist", label: "My Wishlist" },
-                      { href: "/about#rewards", label: "My Rewards" },
+                      { href: "/cook-with-snakzee#rewards", label: "My Rewards" },
                       { href: "/profile", label: "My Profile" }
                     ].map((opt) => (
-                      <Link key={opt.href} href={opt.href} onClick={() => setMobileMenuOpen(false)}>
+                      <Link key={`${opt.href}:${opt.label}`} href={opt.href} onClick={() => setMobileMenuOpen(false)}>
                         <div className="px-4 py-2 text-xs font-sans font-medium text-brown hover:text-terracotta transition-colors">{opt.label}</div>
                       </Link>
                     ))}
                     <button onClick={handleLogout} className="px-4 py-2 text-xs font-sans font-semibold text-red-500 hover:bg-red-50 transition-colors w-full text-left rounded-xl mt-1">
-                      Support & Logout
+                      Logout
                     </button>
                   </div>
                 ) : (

@@ -112,12 +112,12 @@ export default function WishlistPage() {
                 exit={{ opacity: 0 }}
                 className="grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
               >
-                {wishlistedProducts.map((product) => {
+                {wishlistedProducts.map((product, index) => {
                   const inCart = cartItems.some((i) => i.product.id === product.id);
                   return (
                     <motion.div
                       layout
-                      key={product.id}
+                      key={`${product.id}:${product.nameEnglish || product.name}:${index}`}
                       initial={{ opacity: 0, scale: 0.95 }}
                       animate={{ opacity: 1, scale: 1 }}
                       exit={{ opacity: 0, scale: 0.95 }}

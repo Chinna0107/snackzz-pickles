@@ -5,7 +5,10 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:500
 const CACHE_KEY = "snackzee_products_cache";
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 
-export type MappedProduct = Product & { slug: string };
+export type MappedProduct = Product & {
+  slug: string;
+  quantity_prices: { quantity: string; price: number; mrp?: number }[];
+};
 
 // Module-level cache — persists across navigations in same session
 let memoryCache: { data: MappedProduct[]; ts: number } | null = null;
@@ -26,7 +29,7 @@ function mapProduct(p: any): MappedProduct {
     })(),
     description: p.description || "",
     price: p.price,
-    priceUnit: p.price_unit || "per pack",
+    priceUnit: p.price_unit && p.price_unit !== "per pack" ? p.price_unit : "500g",
     image: p.image || "/placeholder.jpg",
     badge: p.badge,
     popular: p.popular || false,
@@ -37,6 +40,8 @@ function mapProduct(p: any): MappedProduct {
     nutrition: p.nutrition || { calories: "0", protein: "0g", carbs: "0g", fat: "0g", fiber: "0g" },
     tags: Array.isArray(p.tags) ? p.tags : [],
     slug: p.slug || String(p.id),
+    couponApplicable: p.coupon_applicable !== false,
+    quantity_prices: Array.isArray(p.quantity_prices) ? p.quantity_prices : [],
   };
 }
 

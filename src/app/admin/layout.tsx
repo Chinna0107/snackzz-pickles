@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
-import { LayoutDashboard, ShoppingBag, Package, BarChart3, LogOut, Shield, Users, Menu, X, ImageIcon } from "lucide-react";
+import { LayoutDashboard, ShoppingBag, Package, BarChart3, LogOut, Shield, Users, Menu, X, ImageIcon, Tag } from "lucide-react";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
@@ -14,6 +14,7 @@ const NAV = [
   { href: "/admin/customers", label: "Customers", icon: <Users className="w-4 h-4" /> },
   { href: "/admin/products", label: "Products", icon: <Package className="w-4 h-4" /> },
   { href: "/admin/banners", label: "Banners", icon: <ImageIcon className="w-4 h-4" /> },
+  { href: "/admin/coupons", label: "Coupons", icon: <Tag className="w-4 h-4" /> },
   { href: "/admin/reports", label: "Reports", icon: <BarChart3 className="w-4 h-4" /> },
 ];
 

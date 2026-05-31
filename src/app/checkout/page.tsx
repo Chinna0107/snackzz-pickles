@@ -4,7 +4,7 @@ import Footer from "@/components/Footer";
 
 import { useState, useEffect } from "react";
 import type { ReactNode } from "react";
-import { useCart } from "@/context/CartContext";
+import { getCartItemKey, useCart } from "@/context/CartContext";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
@@ -59,7 +59,9 @@ export default function CheckoutPage() {
   const [step, setStep] = useState(1);
 
   // Step 2 state
-  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; pct: number } | null>(null);
+  const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; pct?: number; discountAmount?: number; type?: 'percentage' | 'fixed' } | null>(null);
+  const [customCouponCode, setCustomCouponCode] = useState("");
+  const [couponValidating, setCouponValidating] = useState(false);
   const [loyaltyTier, setLoyaltyTier] = useState<LoyaltyTierResponse | null>(null);
   const [loyaltyTiers, setLoyaltyTiers] = useState<LoyaltyTier[]>(LOYALTY_TIERS);
   const [loyaltyLoading, setLoyaltyLoading] = useState(false);
@@ -122,7 +124,57 @@ export default function CheckoutPage() {
   const [deliveryFee, setDeliveryFee] = useState<number | null>(null);
   const [isLoadingDeliveryFee, setIsLoadingDeliveryFee] = useState(false);
 
-  const discount = appliedCoupon ? Math.round((total * appliedCoupon.pct) / 100) : 0;
+  const handleApplyCustomCoupon = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!customCouponCode.trim()) return;
+
+    setCouponValidating(true);
+    try {
+      const res = await fetch(`${BACKEND_URL}/coupons/validate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          code: customCouponCode.trim().toUpperCase(),
+          items: items.map(i => ({
+            id: i.product.id,
+            productId: i.product.id,
+            quantity: i.quantity,
+            price: i.product.price,
+            quantityPriceSelected: i.product.priceUnit
+          }))
+        })
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast({ title: "Coupon Error", description: data.error || "Invalid coupon", variant: "destructive" });
+        return;
+      }
+
+      setAppliedCoupon({
+        code: data.code,
+        discountAmount: data.discount,
+        type: data.discount_type
+      });
+
+      toast({
+        title: "Coupon Applied! 🎟️",
+        description: `Successfully applied code ${data.code} for ₹${data.discount} discount.`
+      });
+    } catch {
+      toast({ title: "Network error", description: "Failed to validate coupon.", variant: "destructive" });
+    } finally {
+      setCouponValidating(false);
+    }
+  };
+
+  const discount = appliedCoupon
+    ? (appliedCoupon.discountAmount !== undefined
+        ? appliedCoupon.discountAmount
+        : Math.round((total * (appliedCoupon.pct || 0)) / 100)
+      )
+    : 0;
   const afterDiscount = total - discount;
   const grandTotal = afterDiscount + (deliveryFee || 0);
   const activeTierDetails = loyaltyTier
@@ -266,7 +318,7 @@ export default function CheckoutPage() {
                 <h2 className="font-serif text-xl font-bold text-brown mb-4">Review Your Order</h2>
                 <div className="space-y-4">
                   {items.map((item) => (
-                    <div key={item.product.id} className="flex items-center gap-4 py-3 border-b border-terracotta/5 last:border-0">
+                    <div key={getCartItemKey(item)} className="flex items-center gap-4 py-3 border-b border-terracotta/5 last:border-0">
                       <div className="w-14 h-14 rounded-xl overflow-hidden flex-shrink-0 relative bg-cream-dark">
                         <Image src={item.product.image} alt={item.product.name} fill className="object-cover" sizes="56px" />
                       </div>
@@ -503,6 +555,49 @@ export default function CheckoutPage() {
                       </motion.div>
                     )}
                   </AnimatePresence>
+
+                  {/* Custom Coupon Input */}
+                  <div className="mt-5 pt-5 border-t border-terracotta/10">
+                    <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1.5">Have a Coupon Code?</label>
+                    <form onSubmit={handleApplyCustomCoupon} className="flex gap-2">
+                      <input
+                        type="text"
+                        value={customCouponCode}
+                        onChange={(e) => setCustomCouponCode(e.target.value.toUpperCase())}
+                        placeholder="e.g. SNACKTIME20"
+                        disabled={couponValidating}
+                        className="flex-1 px-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-bold tracking-wider placeholder:font-normal font-sans text-sm focus:outline-none focus:border-terracotta/30"
+                      />
+                      <button
+                        type="submit"
+                        disabled={couponValidating || !customCouponCode.trim()}
+                        className="bg-terracotta hover:bg-terracotta-dark disabled:opacity-40 disabled:cursor-not-allowed text-white px-5 py-3 rounded-xl font-bold font-sans text-sm transition-colors flex items-center justify-center shrink-0"
+                      >
+                        {couponValidating ? "Checking..." : "Apply"}
+                      </button>
+                    </form>
+
+                    {appliedCoupon && appliedCoupon.type && (
+                      <div className="mt-3 flex items-center justify-between p-3 rounded-xl bg-green-50 border border-green-200 text-xs font-sans text-green-700">
+                        <div className="flex items-center gap-2">
+                          <CheckCircle2 className="w-4 h-4 text-green-600 shrink-0" />
+                          <div>
+                            <p className="font-bold font-serif text-sm">Coupon {appliedCoupon.code} Applied!</p>
+                            <p className="text-[10px] text-green-600/80 font-sans mt-0.5">
+                              Saved ₹{discount} on coupon-eligible items.
+                            </p>
+                          </div>
+                        </div>
+                        <button
+                          type="button"
+                          onClick={() => { setAppliedCoupon(null); setCustomCouponCode(""); }}
+                          className="text-green-700 hover:text-green-955 font-bold font-sans text-xs font-semibold"
+                        >
+                          Remove
+                        </button>
+                      </div>
+                    )}
+                  </div>
                 </div>
               </div>
 
@@ -594,8 +689,9 @@ export default function CheckoutPage() {
                 <h2 className="font-serif text-xl font-bold text-brown mb-4">Order Summary</h2>
                 <div className="space-y-2 text-sm font-sans">
                   <div className="flex justify-between text-brown-light/70"><span>Subtotal</span><span>₹{total}</span></div>
-                  {discount > 0 && appliedCoupon && (() => {
+                   {discount > 0 && appliedCoupon && (() => {
                     const tierMatch = loyaltyTier && appliedCoupon.code === loyaltyTier.code;
+                    const isCustom = appliedCoupon.type !== undefined;
                     return (
                       <div className="flex justify-between items-center">
                         <span className="flex items-center gap-2">
@@ -603,7 +699,10 @@ export default function CheckoutPage() {
                             const c = TIER_COLORS[loyaltyTier.tier];
                             return <span className={`text-xs font-bold px-2 py-0.5 rounded-full ${c.badge}`}>{loyaltyTier.tier}</span>;
                           })()}
-                          <span className="text-green-600">Loyalty Discount ({appliedCoupon.code})</span>
+                          {isCustom && (
+                            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-green-100 text-green-700">Coupon Code</span>
+                          )}
+                          <span className="text-green-600">{isCustom ? `Coupon Discount (${appliedCoupon.code})` : `Loyalty Discount (${appliedCoupon.code})`}</span>
                         </span>
                         <span className="text-green-600 font-semibold">−₹{discount}</span>
                       </div>

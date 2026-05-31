@@ -11,7 +11,7 @@ import { ShoppingCart, Check, Search, XCircle, Crown } from "lucide-react";
 import { useCart } from "@/context/CartContext";
 import { useToast } from "@/hooks/use-toast";
 import { useProducts } from "@/hooks/useProducts";
-import { categories, SPICE_LABELS, type Product, type SpiceLevel } from "@/lib/products";
+import { categories, GRAM_OPTIONS, priceForGramOption, productForGramOption, SPICE_LABELS, type GramOption, type Product, type SpiceLevel } from "@/lib/products";
 import Header from "@/components/Header";
 
 function SpiceBadge({ level }: { level: SpiceLevel }) {
@@ -30,13 +30,16 @@ function ProductCard({ product }: {
   const { toast } = useToast();
   const router = useRouter();
   const [added, setAdded] = useState(false);
+  const [selectedGram, setSelectedGram] = useState<GramOption>("500g");
+  const [quantity, setQuantity] = useState(1);
   const inCart = items.some((i) => i.product.id === product.id);
+  const selectedPrice = priceForGramOption(product, selectedGram);
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addItem(product);
+    addItem(productForGramOption(product, selectedGram), quantity);
     setAdded(true);
-    toast({ title: "Added to cart! 🛒", description: product.nameEnglish });
+    toast({ title: "Added to cart! 🛒", description: `${quantity} × ${selectedGram} ${product.nameEnglish}` });
     setTimeout(() => setAdded(false), 2000);
   };
 
@@ -86,8 +89,8 @@ function ProductCard({ product }: {
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mt-3 gap-3">
           <div>
-            <span className="font-sans text-2xl font-normal text-gold">₹{product.price}</span>
-            <span className="text-brown-light/40 text-xs ml-1 font-sans">/ {product.priceUnit}</span>
+            <span className="font-sans text-2xl font-normal text-gold">₹{selectedPrice}</span>
+            <span className="text-brown-light/40 text-xs ml-1 font-sans">/ {selectedGram}</span>
           </div>
 
           <motion.button
@@ -113,6 +116,27 @@ function ProductCard({ product }: {
               )}
             </AnimatePresence>
           </motion.button>
+        </div>
+        <div className="grid grid-cols-[1fr_auto] gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
+          <select
+            value={selectedGram}
+            onChange={(e) => setSelectedGram(e.target.value as GramOption)}
+            className="min-w-0 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+            aria-label="Select weight"
+          >
+            {GRAM_OPTIONS.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+          <input
+            type="number"
+            min={1}
+            max={10}
+            value={quantity}
+            onChange={(e) => setQuantity(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
+            className="w-20 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-center text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+            aria-label="Quantity"
+          />
         </div>
       </div>
     </motion.div>
@@ -254,8 +278,8 @@ function ShopContent() {
           ) : (
             <div className="space-y-4">
               <AnimatePresence>
-                {filteredProducts.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                {filteredProducts.map((product, index) => (
+                  <ProductCard key={`${product.id}:${product.slug || product.nameEnglish}:${index}`} product={product} />
                 ))}
               </AnimatePresence>
             </div>

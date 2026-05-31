@@ -26,6 +26,38 @@ export interface Product {
   ingredients: string[];
   nutrition: NutritionInfo;
   tags: string[];
+  couponApplicable?: boolean;
+}
+
+export const GRAM_OPTIONS = ["250g", "500g", "1kg"] as const;
+export type GramOption = (typeof GRAM_OPTIONS)[number];
+
+export function normalizeGramUnit(unit?: string): GramOption {
+  const clean = (unit || "").toLowerCase().replace(/\s+/g, "");
+  if (clean === "250g") return "250g";
+  if (clean === "1kg" || clean === "1000g") return "1kg";
+  return "500g";
+}
+
+export function gramsFromUnit(unit?: string): number {
+  const clean = normalizeGramUnit(unit);
+  if (clean === "250g") return 250;
+  if (clean === "1kg") return 1000;
+  return 500;
+}
+
+export function priceForGramOption(product: Product, option: GramOption): number {
+  const baseGrams = gramsFromUnit(product.priceUnit);
+  const selectedGrams = gramsFromUnit(option);
+  return Math.round((product.price / baseGrams) * selectedGrams);
+}
+
+export function productForGramOption(product: Product, option: GramOption): Product {
+  return {
+    ...product,
+    price: priceForGramOption(product, option),
+    priceUnit: option,
+  };
 }
 
 export interface CategoryInfo {
@@ -1283,4 +1315,3 @@ export const PROCESS_STEPS = [
     icon: "🚚",
   },
 ];
-

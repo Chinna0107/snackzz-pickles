@@ -17,9 +17,13 @@ import Footer from "@/components/Footer";
 import {
   products as staticProducts,
   categories,
+  GRAM_OPTIONS,
   SPICE_LABELS,
   getWhatsAppLink,
   getShareLink,
+  priceForGramOption,
+  productForGramOption,
+  type GramOption,
   type Product,
   type SpiceLevel,
 } from "@/lib/products";
@@ -41,6 +45,9 @@ function ProductCard({ product }: { product: Product }) {
   const { toast } = useToast();
   const router = useRouter();
   const [isFav, setIsFav] = useState(false);
+  const [selectedGram, setSelectedGram] = useState<GramOption>("500g");
+  const [quantity, setQuantity] = useState(1);
+  const selectedPrice = priceForGramOption(product, selectedGram);
 
   useEffect(() => {
     const stored = localStorage.getItem("snackzee_wishlist");
@@ -80,8 +87,8 @@ function ProductCard({ product }: { product: Product }) {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addItem(product);
-    toast({ title: "Added to cart! 🛒", description: `${product.name} added.` });
+    addItem(productForGramOption(product, selectedGram), quantity);
+    toast({ title: "Added to cart! 🛒", description: `${quantity} × ${selectedGram} ${product.name} added.` });
   };
 
   return (
@@ -140,8 +147,8 @@ function ProductCard({ product }: { product: Product }) {
         </div>
         <div className="flex items-center justify-between mb-3">
           <div>
-            <span className="text-2xl font-bold text-gold font-sans">₹{product.price}</span>
-            <span className="text-brown-light/40 text-xs ml-1 font-sans">/ {product.priceUnit}</span>
+            <span className="text-2xl font-bold text-gold font-sans">₹{selectedPrice}</span>
+            <span className="text-brown-light/40 text-xs ml-1 font-sans">/ {selectedGram}</span>
           </div>
           <a
             href={getShareLink(product)}
@@ -152,6 +159,27 @@ function ProductCard({ product }: { product: Product }) {
           >
             <Share2 className="w-3.5 h-3.5" />
           </a>
+        </div>
+        <div className="grid grid-cols-[1fr_auto] gap-2 mb-3" onClick={(e) => e.stopPropagation()}>
+          <select
+            value={selectedGram}
+            onChange={(e) => setSelectedGram(e.target.value as GramOption)}
+            className="min-w-0 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+            aria-label="Select weight"
+          >
+            {GRAM_OPTIONS.map((option) => (
+              <option key={option} value={option}>{option}</option>
+            ))}
+          </select>
+          <input
+            type="number"
+            min={1}
+            max={10}
+            value={quantity}
+            onChange={(e) => setQuantity(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
+            className="w-20 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-center text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+            aria-label="Quantity"
+          />
         </div>
         <button
           onClick={handleAddToCart}
@@ -194,7 +222,7 @@ function ProductsContent() {
             })(),
             description: p.description || "",
             price: p.price,
-            priceUnit: p.price_unit || "per pack",
+            priceUnit: p.price_unit && p.price_unit !== "per pack" ? p.price_unit : "500g",
             image: p.image || "/placeholder.jpg",
             badge: p.badge,
             popular: p.popular || false,
@@ -366,8 +394,8 @@ function ProductsContent() {
           ) : (
             <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 sm:gap-6">
               <AnimatePresence mode="popLayout">
-                {filtered.map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                {filtered.map((product, index) => (
+                  <ProductCard key={`${product.id}:${product.nameEnglish}:${index}`} product={product} />
                 ))}
               </AnimatePresence>
             </div>

@@ -62,12 +62,12 @@ export default function BulkOrderSection({ products }: { products: Product[] }) 
 
         {/* Product Selection Grid */}
         <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4 mb-8 max-h-96 overflow-y-auto custom-scrollbar pr-2">
-          {products.map((product) => {
+          {products.map((product, index) => {
             const isSelected = selectedItems.has(product.id);
             const qty = selectedItems.get(product.id) || 0;
             return (
               <motion.div
-                key={product.id}
+                key={`${product.id}:${product.nameEnglish || product.name}:${index}`}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => toggleItem(product.id)}
                 className={`bulk-card rounded-xl p-3 sm:p-4 ${isSelected ? "selected" : ""}`}
@@ -171,5 +171,3 @@ export default function BulkOrderSection({ products }: { products: Product[] }) 
     </section>
   );
 }
-
-

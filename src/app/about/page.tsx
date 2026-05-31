@@ -3,11 +3,11 @@
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { Leaf, Home as HomeIcon, Users, Heart, Award, ChefHat, MessageCircle, ArrowRight } from "lucide-react";
+import { Leaf, Home as HomeIcon, Users, Heart, Award, ChefHat, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { getWhatsAppLink, PROCESS_STEPS, VIDEO_TESTIMONIALS, REVIEWS } from "@/lib/products";
+import { PROCESS_STEPS, VIDEO_TESTIMONIALS, REVIEWS } from "@/lib/products";
 
 const VALUES = [
   { icon: <HomeIcon className="w-6 h-6" />, title: "Made at Home", desc: "Every product is handcrafted in small batches using traditional kitchen methods — never in a factory." },
@@ -299,86 +299,6 @@ export default function AboutPage() {
                   </div>
                 ))}
               </div>
-            </div>
-          </div>
-        </section>
-
-        {/* Loyalty Rewards */}
-        <section id="rewards" className="py-16 sm:py-20 bg-cream border-t border-terracotta/10 scroll-mt-20">
-          <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-10">
-              <Badge className="bg-gold/10 text-gold border-gold/20 mb-4 font-sans">Snakzee Rewards</Badge>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-brown mb-3">Earn Rewards with Every Order</h2>
-              <p className="text-brown-light/60 font-sans">The more you order, the more you save.</p>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
-              {[
-                { tier: "Bronze", orders: "0-4 orders", discount: "5% OFF", perks: ["5% off all orders"], color: "bg-amber-100 border-amber-200", badge: "text-amber-700" },
-                { tier: "Silver", orders: "5-9 orders", discount: "10% OFF", perks: ["10% off all orders", "Free delivery"], color: "bg-slate-100 border-slate-200", badge: "text-slate-600" },
-                { tier: "Gold", orders: "10-19 orders", discount: "15% OFF", perks: ["15% off all orders", "Priority delivery", "Free gift wrap"], color: "bg-yellow-50 border-yellow-200", badge: "text-yellow-700" },
-                { tier: "Platinum", orders: "20+ orders", discount: "20% OFF", perks: ["20% off all orders", "All Gold perks", "Exclusive products", "First access"], color: "bg-purple-50 border-purple-200", badge: "text-purple-700", popular: true },
-              ].map((tier, i) => (
-                <motion.div key={tier.tier} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.1 }}
-                  className={`rounded-2xl border-2 p-5 text-center relative ${tier.color} ${(tier as any).popular ? "ring-2 ring-purple-400" : ""}`}>
-                  {(tier as any).popular && <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-purple-500 text-white text-[10px] font-bold px-3 py-1 rounded-full font-sans">POPULAR</span>}
-                  <p className={`font-serif text-xl font-bold mb-1 ${tier.badge}`}>{tier.tier}</p>
-                  <p className="text-brown-light/50 text-xs font-sans mb-3">{tier.orders}</p>
-                  <p className={`font-serif text-3xl font-bold mb-4 ${tier.badge}`}>{tier.discount}</p>
-                  <ul className="space-y-1">{tier.perks.map((p) => <li key={p} className="text-brown-light/70 text-xs font-sans">{p}</li>)}</ul>
-                </motion.div>
-              ))}
-            </div>
-            <div className="text-center mt-8">
-              <a href="https://wa.me/918897586142?text=I want to join Snakzee Rewards!" target="_blank" rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full font-bold font-sans transition-all hover:scale-105">
-                <MessageCircle className="w-5 h-5" /> Join Rewards on WhatsApp
-              </a>
-            </div>
-          </div>
-        </section>
-
-        {/* Festival Calendar */}
-        <section id="festival-calendar" className="py-16 sm:py-20 bg-white border-y border-terracotta/10 scroll-mt-20">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div className="text-center mb-10">
-              <Badge className="bg-terracotta/10 text-terracotta border-terracotta/20 mb-4 font-sans">🪔 Festival Calendar</Badge>
-              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-brown mb-3">Celebrate Every Festival 🎉</h2>
-              <p className="text-brown-light/60 font-sans max-w-xl mx-auto">From Sankranti to Diwali — every Telangana festival deserves authentic homemade flavors.</p>
-            </div>
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
-              {[
-                { icon: "🪁", name: "Sankranti", telugu: "సంక్రాంతి", month: "January", desc: "The harvest festival — a time for Athrasalu, sweets and snacks." },
-                { icon: "🥭", name: "Ugadi", telugu: "ఉగాది", month: "March/April", desc: "Telugu New Year! A time for new beginnings and homemade sweets." },
-                { icon: "🪔", name: "Bonalu", telugu: "బోనాలు", month: "July/August", desc: "Honoring Goddess Mahankali with special homemade snacks." },
-                { icon: "🌸", name: "Bathukamma", telugu: "బతుకమ్మ", month: "September/October", desc: "Telangana's floral festival with folk songs and traditional foods." },
-                { icon: "🏹", name: "Dasara", telugu: "దసరా", month: "October", desc: "Families exchange sweets and celebrate with grand feasts." },
-                { icon: "🪔", name: "Diwali", telugu: "దీపావళి", month: "October/November", desc: "Perfect time for Snakzee hampers and traditional sweets." },
-              ].map((fest, i) => (
-                <motion.div key={fest.name} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ delay: i * 0.08 }}
-                  className="bg-cream rounded-2xl border border-terracotta/10 p-5 hover:shadow-lg hover:border-terracotta/20 transition-all">
-                  <div className="text-4xl mb-3">{fest.icon}</div>
-                  <h3 className="font-serif text-xl font-bold text-brown">{fest.name}</h3>
-                  <p className="text-terracotta text-xs font-sans mb-1">{fest.telugu} • {fest.month}</p>
-                  <p className="text-brown-light/60 text-sm font-sans leading-relaxed mb-3">{fest.desc}</p>
-                  <Link href="/shop" className="text-terracotta font-sans font-semibold text-sm hover:underline">Shop for {fest.name} →</Link>
-                </motion.div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* CTA */}
-        <section className="py-16 bg-gradient-to-br from-terracotta to-terracotta-dark">
-          <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
-            <h2 className="font-serif text-3xl sm:text-4xl font-bold text-cream mb-4">Taste the Tradition Today</h2>
-            <p className="text-cream/70 text-lg font-sans mb-8">Order fresh, authentic Telangana snacks delivered to your doorstep.</p>
-            <div className="flex flex-wrap gap-4 justify-center">
-              <a href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-terracotta px-8 py-4 rounded-full font-bold text-base transition-all hover:scale-105 shadow-xl font-sans">
-                <MessageCircle className="w-5 h-5" />Order on WhatsApp
-              </a>
-              <Link href="/shop" className="inline-flex items-center gap-2 border-2 border-white/40 text-cream hover:bg-white/10 px-8 py-4 rounded-full font-bold text-base transition-all font-sans">
-                Browse Products
-              </Link>
             </div>
           </div>
         </section>

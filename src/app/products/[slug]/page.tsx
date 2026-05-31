@@ -51,6 +51,7 @@ export default function ProductDetailPage() {
   const [product, setProduct] = useState<Product | null>(null);
   const [selectedImage, setSelectedImage] = useState(0);
   const [selectedQuantity, setSelectedQuantity] = useState<number | null>(null);
+  const [cartQuantity, setCartQuantity] = useState(1);
   const [loading, setLoading] = useState(true);
   const [similarProducts, setSimilarProducts] = useState<Product[]>([]);
   const [isWishlisted, setIsWishlisted] = useState(false);
@@ -138,9 +139,9 @@ export default function ProductDetailPage() {
   const addToCart = () => {
     if (!product) return;
     const price = selectedQuantity !== null ? product.quantity_prices[selectedQuantity].price : product.price;
-    const priceUnit = selectedQuantity !== null ? product.quantity_prices[selectedQuantity].quantity : product.price_unit;
+    const priceUnit = selectedQuantity !== null ? product.quantity_prices[selectedQuantity].quantity : (product.price_unit === "per pack" ? "500g" : product.price_unit);
     addItem({
-      id: String(product.id),
+      id: `${product.id}-${priceUnit}`,
       name: product.name,
       nameEnglish: product.name_english,
       category: product.category as any,
@@ -156,8 +157,8 @@ export default function ProductDetailPage() {
       ingredients: product.ingredients || [],
       nutrition: product.nutrition || { calories: "0", protein: "0g", carbs: "0g", fat: "0g", fiber: "0g" },
       tags: product.tags || [],
-    });
-    toast({ title: "Added to cart! 🛒", description: `${product.name_english} added successfully` });
+    }, cartQuantity);
+    toast({ title: "Added to cart! 🛒", description: `${cartQuantity} × ${priceUnit} ${product.name_english} added successfully` });
   };
 
   if (loading) return (
@@ -268,7 +269,7 @@ export default function ProductDetailPage() {
                     className={`p-3 rounded-xl border-2 transition-all ${
                       selectedQuantity === null ? "border-terracotta bg-terracotta/5" : "border-terracotta/10 hover:border-terracotta/30"
                     }`}>
-                    <p className="font-sans font-bold text-brown text-sm">{product.price_unit}</p>
+                    <p className="font-sans font-bold text-brown text-sm">{product.price_unit === "per pack" ? "500g" : product.price_unit}</p>
                     <p className="font-sans font-bold text-terracotta">₹{product.price}</p>
                   </button>
                   {product.quantity_prices.map((qp, i) => (
@@ -288,6 +289,18 @@ export default function ProductDetailPage() {
             )}
 
             {/* Action Buttons */}
+            <div>
+              <label htmlFor="product-cart-quantity" className="block font-sans font-bold text-brown mb-2">Quantity</label>
+              <input
+                id="product-cart-quantity"
+                type="number"
+                min={1}
+                max={10}
+                value={cartQuantity}
+                onChange={(e) => setCartQuantity(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
+                className="w-28 rounded-xl border border-terracotta/10 bg-white px-4 py-3 text-center text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+              />
+            </div>
             <div className="flex gap-3">
               <button onClick={addToCart}
                 className="flex-1 bg-terracotta hover:bg-terracotta-dark text-white px-6 py-4 rounded-xl font-bold font-sans text-lg transition-all hover:scale-[1.02] shadow-lg shadow-terracotta/20 flex items-center justify-center gap-2">
@@ -427,13 +440,13 @@ export default function ProductDetailPage() {
           );
         })()}
 
-        {/* People Also Buy */}
+        {/* People Also Bought */}
         {similarProducts.length > 0 && (
           <div className="mt-12">
-            <h2 className="font-serif text-2xl font-bold text-brown mb-6">People Also Buy</h2>
+            <h2 className="font-serif text-2xl font-bold text-brown mb-6">People Also Bought</h2>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-              {similarProducts.map((p) => (
-                <Link key={p.id} href={`/products/${p.slug || p.id}`}
+              {similarProducts.map((p, i) => (
+                <Link key={`${p.id}:${p.slug || p.name_english || p.name}:${i}`} href={`/products/${p.slug || p.id}`}
                   className="bg-white rounded-2xl border border-terracotta/10 overflow-hidden hover:shadow-md transition-shadow group">
                   <div className="relative aspect-square bg-cream">
                     {p.image ? (

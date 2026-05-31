@@ -39,6 +39,7 @@ interface Product {
   nutrition: { calories: string; protein: string; carbs: string; fat: string; fiber: string };
   tags: string[];
   reviews: { name: string; rating: number; comment: string; date: string }[];
+  coupon_applicable?: boolean;
 }
 
 const emptyProduct: Omit<Product, "id"> = {
@@ -47,7 +48,7 @@ const emptyProduct: Omit<Product, "id"> = {
   category: "hot-items",
   description: "",
   price: 0,
-  price_unit: "per pack",
+  price_unit: "500g",
   mrp: 0,
   quantity_prices: [],
   image: "",
@@ -61,6 +62,7 @@ const emptyProduct: Omit<Product, "id"> = {
   nutrition: { calories: "", protein: "", carbs: "", fat: "", fiber: "" },
   tags: [],
   reviews: [],
+  coupon_applicable: true,
 };
 
 export default function AdminProductsPage() {
@@ -255,7 +257,7 @@ export default function AdminProductsPage() {
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {filtered.map((product, i) => (
-          <motion.div key={product.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+          <motion.div key={`${product.id}:${product.name_english || product.name}:${i}`} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
             className="bg-white rounded-2xl border border-terracotta/10 overflow-hidden">
             <div className="relative aspect-video bg-cream-dark">
               {product.image ? (
@@ -265,6 +267,15 @@ export default function AdminProductsPage() {
               )}
               {product.badge && (
                 <span className="absolute top-2 left-2 bg-terracotta text-white text-[9px] font-bold font-sans px-2 py-0.5 rounded-full">{product.badge}</span>
+              )}
+              {product.coupon_applicable !== false ? (
+                <span className="absolute bottom-2 left-2 bg-green-600 text-white text-[9px] font-bold font-sans px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+                  🎟️ Coupon Eligible
+                </span>
+              ) : (
+                <span className="absolute bottom-2 left-2 bg-red-500/80 text-white text-[9px] font-bold font-sans px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
+                  🚫 No Coupon
+                </span>
               )}
               <div className="absolute top-2 right-2 flex gap-2">
                 <button onClick={() => handleEdit(product)}
@@ -371,6 +382,19 @@ export default function AdminProductsPage() {
                     <input value={formData.price_unit} onChange={(e) => handleChange("price_unit", e.target.value)}
                       className="w-full px-3 py-2 rounded-lg bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30" />
                   </div>
+                </div>
+
+                <div className="mt-4 flex items-center gap-2 bg-cream p-3 rounded-xl border border-terracotta/10">
+                  <input
+                    type="checkbox"
+                    id="coupon_applicable"
+                    checked={formData.coupon_applicable ?? true}
+                    onChange={(e) => handleChange("coupon_applicable", e.target.checked)}
+                    className="w-4 h-4 text-terracotta border-terracotta/20 rounded focus:ring-terracotta cursor-pointer"
+                  />
+                  <label htmlFor="coupon_applicable" className="text-sm font-sans font-semibold text-brown select-none cursor-pointer">
+                    Available for Coupon Discount
+                  </label>
                 </div>
 
                 <div className="mt-4">

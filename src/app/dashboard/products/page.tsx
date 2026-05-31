@@ -52,7 +52,7 @@ export default function DashboardProductsPage() {
 
       <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3 sm:gap-4">
         {filtered.map((product, i) => (
-          <motion.div key={product.id} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
+          <motion.div key={`${product.id}:${product.nameEnglish || product.name}:${i}`} initial={{ opacity: 0, y: 16 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.03 }}
             className="bg-white rounded-2xl border border-terracotta/10 overflow-hidden hover:shadow-md transition-shadow">
             <div className="relative aspect-square bg-cream-dark">
               <Image src={product.image} alt={product.name} fill className="object-cover" sizes="(max-width:640px) 50vw, 200px" />

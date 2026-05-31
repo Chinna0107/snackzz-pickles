@@ -184,10 +184,10 @@ export default function NewManualOrderPage() {
           <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 max-h-72 overflow-y-auto pr-1">
             {filtered.length === 0 ? (
               <p className="col-span-3 text-center text-brown-light/40 font-sans text-sm py-8">No products found</p>
-            ) : filtered.map((p) => {
+            ) : filtered.map((p, i) => {
               const item = getItem(p.id);
               return (
-                <motion.div key={p.id} layout
+                <motion.div key={`${p.id}:${p.name}:${i}`} layout
                   className={`relative rounded-xl border-2 p-3 transition-all cursor-pointer ${
                     item ? "border-terracotta bg-terracotta/5" : "border-terracotta/10 hover:border-terracotta/30 bg-cream/30"
                   }`}
