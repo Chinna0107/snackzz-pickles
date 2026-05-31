@@ -658,7 +658,7 @@ function BestSellers({ products, onCategorySelect }: { products: Product[]; onCa
   const scrollRef = useRef<HTMLDivElement>(null);
   const [addedId, setAddedId] = useState<string | null>(null);
 
-  const catIds = ["hot-items", "sweet-items", "podis-powders", "vadiyalu-papads"];
+  const catIds = ["snacks", "sweet-items", "masalas-powders", "vadiyalu-papads", "pickles", "fryums"];
   const bestsellers = catIds.flatMap(catId =>
     products.filter(p => p.category === catId).slice(0, 2)
   );
@@ -714,16 +714,8 @@ function BestSellers({ products, onCategorySelect }: { products: Product[]; onCa
                 <p className="font-serif font-bold text-brown text-xs sm:text-sm leading-tight mb-0.5 line-clamp-1">{product.name}</p>
                 <p className="text-brown-light/50 text-[10px] sm:text-[11px] font-sans mb-1.5 sm:mb-2 line-clamp-1">{product.nameEnglish}</p>
                 <div className="flex items-center justify-between">
-                  <span className="font-sans font-normal text-gold text-base sm:text-lg">₹{product.price}</span>
-                  <button onClick={(e) => handleAdd(e, product)}
-                    className={`flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold font-sans transition-all ${addedId === product.id
-                        ? "bg-green-500 text-white"
-                        : "bg-terracotta hover:bg-terracotta-dark text-white active:scale-95"
-                      }`}>
-                    {addedId === product.id ? <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : <ShoppingCart className="w-2.5 h-2.5 sm:w-3 sm:h-3" />}
-                    {addedId === product.id ? "Added" : "Add"}
-                  </button>
-                </div>
+  <span className="font-sans font-normal text-gold text-base sm:text-lg">₹{product.price}</span>
+</div>
               </div>
             </div>
           ))}

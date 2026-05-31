@@ -217,7 +217,8 @@ function ProductsContent() {
               if (cat === 'snacks') return 'hot-items';
               if (cat === 'sweets') return 'sweet-items';
               if (cat === 'powders') return 'podis-powders';
-              if (cat === 'pickles' || cat === 'papads') return 'vadiyalu-papads';
+              if (cat === 'pickles') return 'pickles';
+              if (cat === 'papads') return 'vadiyalu-papads';
               return cat;
             })(),
             description: p.description || "",

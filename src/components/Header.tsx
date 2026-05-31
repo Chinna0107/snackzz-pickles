@@ -94,7 +94,7 @@ export default function Header() {
   const handleCategoryClick = (catId: string) => {
     setMobileMenuOpen(false);
     setProductsOpen(false);
-    router.push(`/shop?category=${catId}`);
+    router.push(`/products?category=${catId}`);
   };
 
   const handleLogout = () => {
@@ -109,7 +109,7 @@ export default function Header() {
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (searchQuery.trim()) {
-      router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
+      router.push(`/products?search=${encodeURIComponent(searchQuery.trim())}`);
       setSearchOpen(false);
       setSearchQuery("");
       setMobileMenuOpen(false);
@@ -117,7 +117,7 @@ export default function Header() {
   };
 
   return (
-    <div ref={headerRootRef} className="fixed top-0 left-0 right-0 z-[100] w-full">
+    <div ref={headerRootRef} className="fixed top-0 left-0 right-0 z-[100] w-full mb-6">
       <TopAnnouncementBar hidden={false} />
       
       <nav className={`w-full transition-all duration-300 ${
@@ -166,7 +166,7 @@ export default function Header() {
                     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.15 }}
                       className="absolute top-full left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-terracotta/10 overflow-hidden z-50">
                       <div className="p-2">
-                        <Link href="/shop" onClick={() => setProductsOpen(false)}>
+                        <Link href="/products" onClick={() => setProductsOpen(false)}>
                           <div className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-terracotta/5 transition-colors cursor-pointer group">
                             <span className="text-xl">🛍️</span>
                             <div>
@@ -175,26 +175,14 @@ export default function Header() {
                           </div>
                         </Link>
                         <div className="h-px bg-terracotta/10 my-1" />
-                        
                         {categories.map((cat) => (
-                          <button key={cat.id} onClick={() => handleCategoryClick(cat.id)}
-                            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-terracotta/5 transition-colors group text-left">
-                            <div className="relative w-8 h-8 rounded-lg overflow-hidden flex-shrink-0 bg-cream"><Image src={cat.image} alt={cat.name} fill className="object-cover" sizes="32px" /></div>
-                            <div>
-                              <p className="font-sans font-semibold text-brown text-sm group-hover:text-terracotta">{cat.name}</p>
+                          <Link href={`/products?category=${cat.id}`} key={cat.id} onClick={() => setProductsOpen(false)}>
+                            <div className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-terracotta/5 transition-colors cursor-pointer group">
+                              <img src={cat.image} alt={cat.name} className="h-5 w-5 object-cover rounded" />
+                              <div className="font-sans font-semibold text-brown text-sm group-hover:text-terracotta">{cat.name}</div>
                             </div>
-                          </button>
+                          </Link>
                         ))}
-                        
-                        <div className="h-px bg-terracotta/10 my-1" />
-                        <Link href="/shop?filter=best-sellers" onClick={() => setProductsOpen(false)}>
-                          <div className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-terracotta/5 transition-colors cursor-pointer group">
-                            <span className="text-xl text-gold">🏆</span>
-                            <div>
-                              <p className="font-sans font-semibold text-brown text-sm group-hover:text-terracotta">Best Sellers</p>
-                            </div>
-                          </div>
-                        </Link>
                       </div>
                     </motion.div>
                   )}
@@ -437,17 +425,17 @@ export default function Header() {
                   <AnimatePresence>
                     {mobileProductsOpen && (
                       <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden bg-white/40 pl-3 pr-2 py-1 space-y-0.5">
-                        <Link href="/shop" onClick={() => setMobileMenuOpen(false)}>
+                        <Link href="/products" onClick={() => setMobileMenuOpen(false)}>
                           <div className="px-3 py-2 text-xs text-brown-light font-sans font-semibold hover:text-terracotta">All Products</div>
                         </Link>
                         {categories.map((cat) => (
-                          <button key={cat.id} onClick={() => handleCategoryClick(cat.id)} className="w-full text-left px-3 py-2 text-xs text-brown-light font-sans font-semibold hover:text-terracotta block truncate">
-                            {cat.name}
-                          </button>
+                          <Link href={`/products?category=${cat.id}`} key={cat.id} onClick={() => setMobileMenuOpen(false)}>
+                            <div className="px-3 py-2 text-xs text-brown-light font-sans font-semibold hover:text-terracotta flex items-center gap-2">
+                              <img src={cat.image} alt={cat.name} className="h-4 w-4 object-cover rounded" />
+                              {cat.name}
+                            </div>
+                          </Link>
                         ))}
-                        <Link href="/shop?filter=best-sellers" onClick={() => setMobileMenuOpen(false)}>
-                          <div className="px-3 py-2 text-xs text-brown-light font-sans font-semibold hover:text-terracotta">Best Sellers</div>
-                        </Link>
                       </motion.div>
                     )}
                   </AnimatePresence>

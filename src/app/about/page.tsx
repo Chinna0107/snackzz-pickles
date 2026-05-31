@@ -11,15 +11,15 @@ import { PROCESS_STEPS, VIDEO_TESTIMONIALS, REVIEWS } from "@/lib/products";
 
 const VALUES = [
   { icon: <HomeIcon className="w-6 h-6" />, title: "Made at Home", desc: "Every product is handcrafted in small batches using traditional kitchen methods — never in a factory." },
-  { icon: <Leaf className="w-6 h-6" />, title: "No Preservatives", desc: "We use only fresh, natural ingredients sourced from local Telangana farms. Zero artificial additives." },
-  { icon: <Heart className="w-6 h-6" />, title: "Made with Love", desc: "Every recipe carries the warmth of three generations of Telangana women who believed food is love." },
+  { icon: <Leaf className="w-6 h-6" />, title: "No Preservatives", desc: "We use only fresh, natural ingredients sourced from local Telangana and Andhra farms. Zero artificial additives." },
+  { icon: <Heart className="w-6 h-6" />, title: "Made with Love", desc: "Every recipe carries the warmth of three generations of Telangana and Andhra women who believed food is love." },
   { icon: <Award className="w-6 h-6" />, title: "Authentic Recipes", desc: "Our recipes are passed down through generations — unchanged, uncompromised, and utterly authentic." },
 ];
 
 const TEAM = [
-  { name: "Founder", role: "Recipe Curator & Head Chef", avatar: "👩‍🍳", desc: "Grew up watching her grandmother prepare traditional Telangana snacks for every festival." },
+  { name: "Founder", role: "Recipe Curator & Head Chef", avatar: "👩‍🍳", desc: "Grew up watching her grandmother prepare traditional Telangana and Andhra snacks for every festival." },
   { name: "Quality Team", role: "Freshness Guardians", avatar: "🌿", desc: "Ensures every batch meets our strict no-preservative, fresh-ingredient standards." },
-  { name: "Delivery Team", role: "Last-Mile Heroes", avatar: "🚚", desc: "Delivers your orders fresh across Telangana within 2-3 days of preparation." },
+  { name: "Delivery Team", role: "Last-Mile Heroes", avatar: "🚚", desc: "Delivers your orders fresh across Telangana and Andhra within 2-3 days of preparation." },
 ];
 
 const STATS = [
@@ -46,7 +46,7 @@ export default function AboutPage() {
                 <span className="text-gold">to Your Doorstep</span>
               </h1>
               <p className="text-cream/70 text-lg sm:text-xl max-w-2xl mx-auto font-sans leading-relaxed">
-                Snakzee was born from a simple longing — the taste of home. We bring authentic, homemade Telangana flavours to families across India.
+                Snakzee was born from a simple longing — the taste of home. We bring authentic, homemade Telangana and Andhra flavours to families across India.
               </p>
             </motion.div>
           </div>
@@ -77,14 +77,14 @@ export default function AboutPage() {
                 </h2>
                 <div className="relative pl-6 border-l-2 border-gold/30 mb-6">
                   <p className="font-serif text-lg text-brown-light/80 italic leading-relaxed">
-                    &ldquo;Every recipe we make carries the warmth of three generations of Telangana women who believed food is love.&rdquo;
+                    &ldquo;Every recipe we make carries the warmth of three generations of Telangana and Andhra women who believed food is love.&rdquo;
                   </p>
                 </div>
                 <div className="space-y-4 text-brown-light/70 font-sans leading-relaxed">
-                  <p>Snakzee was born from a simple longing — the taste of home. Growing up in the heart of Telangana, our founder watched her grandmother prepare sweets under the warm sun, grind podis on a stone mortar, and fry murukulu to golden perfection for every festival.</p>
-                  <p>When she moved to the city, that taste was impossible to find. Store-bought pickles lacked soul. Packaged snacks had preservatives. The authentic flavours of Telangana were fading.</p>
+                  <p>Snakzee was born from a simple longing — the taste of home. Growing up in the heart of Telangana and Andhra, our founder watched her grandmother prepare sweets under the warm sun, grind podis on a stone mortar, and fry murukulu to golden perfection for every festival.</p>
+                  <p>When she moved to the city, that taste was impossible to find. Store-bought pickles lacked soul. Packaged snacks had preservatives. The authentic flavours of Telangana and Andhra were fading.</p>
                   <p>So she went back to her roots — literally. Dusting off her grandmother&apos;s handwritten recipe book, she started making small batches at home. Word spread through WhatsApp. Friends told friends. And before long, Snakzee became Telangana&apos;s most loved homemade snacks brand.</p>
-                  <p>Today, every item is still made fresh after you order. No factories. No preservatives. Just honest, traditional Telangana food — delivered with love.</p>
+                  <p>Today, every item is still made fresh after you order. No factories. No preservatives. Just honest, traditional Telangana and Andhra food — delivered with love.</p>
                 </div>
               </motion.div>
               <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} className="grid grid-cols-2 gap-4">

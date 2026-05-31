@@ -125,75 +125,444 @@ export default function AdminOrdersPage() {
 
   const invoiceHtml = (order: Order) => {
     const subtotal = (order.items || []).reduce((sum, item) => sum + item.price * item.qty, 0);
-    const rows = (order.items || []).map((item) => `
-      <tr>
-        <td>${escapeHtml(item.name)}</td>
-        <td>${item.qty}</td>
-        <td>₹${item.price}</td>
-        <td>₹${item.price * item.qty}</td>
+    const rows = (order.items || []).map((item, idx) => `
+      <tr class="${idx % 2 === 0 ? '' : 'alt-row'}">
+        <td class="item-desc">${escapeHtml(item.name)}</td>
+        <td class="text-right">${item.qty}</td>
+        <td class="text-right">₹${item.price.toFixed(2)}</td>
+        <td class="text-right">₹${(item.price * item.qty).toFixed(2)}</td>
       </tr>
     `).join("");
+
+    const statusBadge = order.status === 'delivered' 
+      ? `<span style="background:#dcfce7;color:#166534;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">✓ ${escapeHtml(order.status)}</span>`
+      : order.status === 'cancelled'
+      ? `<span style="background:#fee2e2;color:#991b1b;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600;">✕ ${escapeHtml(order.status)}</span>`
+      : `<span style="background:#fef3c7;color:#92400e;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600;">${escapeHtml(order.status)}</span>`;
 
     return `<!doctype html>
       <html>
         <head>
           <title>Snakzee Invoice #${order.id}</title>
+          <link rel="preconnect" href="https://fonts.googleapis.com">
+          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+          <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
           <style>
-            body { font-family: Arial, sans-serif; color: #3D1A08; margin: 32px; }
-            .top { display: flex; justify-content: space-between; gap: 24px; border-bottom: 2px solid #C8401A; padding-bottom: 16px; margin-bottom: 24px; }
-            h1 { margin: 0; color: #C8401A; }
-            h2 { font-size: 16px; margin: 0 0 8px; }
-            p { margin: 4px 0; font-size: 13px; }
-            table { width: 100%; border-collapse: collapse; margin-top: 20px; }
-            th, td { text-align: left; border-bottom: 1px solid #E8D5BC; padding: 10px 8px; font-size: 13px; }
-            th { background: #FDF6EC; }
-            .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
-            .totals { margin-left: auto; margin-top: 20px; width: 280px; }
-            .totals div { display: flex; justify-content: space-between; padding: 6px 0; }
-            .grand { font-weight: 700; color: #C8401A; border-top: 2px solid #E8D5BC; margin-top: 6px; padding-top: 10px !important; }
-            .print { margin-top: 28px; padding: 10px 16px; border: 0; background: #C8401A; color: white; border-radius: 8px; cursor: pointer; }
-            @media print { .print { display: none; } body { margin: 20px; } }
+            :root {
+              --terracotta: #C8401A;
+              --terracotta-dark: #A33215;
+              --brown: #3D1A08;
+              --cream: #FDF6EC;
+              --cream-dark: #F5E6D3;
+              --gold: #D4A017;
+            }
+            * { margin: 0; padding: 0; box-sizing: border-box; }
+            body { 
+              font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
+              color: var(--brown); 
+              background: #FDF6EC;
+              line-height: 1.6;
+              -webkit-font-smoothing: antialiased;
+            }
+            .invoice-container {
+              max-width: 800px;
+              margin: 32px auto;
+              background: white;
+              border-radius: 16px;
+              overflow: hidden;
+              box-shadow: 0 8px 30px rgba(0,0,0,0.08);
+            }
+            .invoice-header {
+              background: linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%);
+              padding: 32px 40px;
+              color: white;
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              gap: 24px;
+            }
+            .invoice-header h1 {
+              font-family: 'Playfair Display', serif;
+              font-size: 32px;
+              font-weight: 700;
+              margin: 0 0 4px 0;
+            }
+            .invoice-header .tagline {
+              font-size: 13px;
+              opacity: 0.85;
+            }
+            .invoice-meta {
+              text-align: right;
+              min-width: 180px;
+            }
+            .invoice-meta .invoice-num {
+              font-weight: 600;
+              font-size: 15px;
+              margin-bottom: 4px;
+            }
+            .invoice-meta .invoice-date {
+              font-size: 13px;
+              opacity: 0.85;
+            }
+            .invoice-body {
+              padding: 32px 40px;
+            }
+            .addresses {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 24px;
+              margin-bottom: 32px;
+            }
+            .address-card {
+              background: var(--cream);
+              border-radius: 12px;
+              padding: 20px;
+              border: 1px solid rgba(200,64,26,0.1);
+            }
+            .address-card h3 {
+              font-size: 11px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              color: var(--brown);
+              opacity: 0.5;
+              margin-bottom: 8px;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+            }
+            .address-card p {
+              font-size: 14px;
+              margin: 3px 0;
+              color: var(--brown);
+            }
+            .address-card p:first-of-type {
+              font-weight: 600;
+            }
+            .company-banner {
+              background: linear-gradient(135deg, var(--cream) 0%, rgba(245,230,211,0.5) 100%);
+              border-radius: 12px;
+              padding: 16px 20px;
+              margin-bottom: 32px;
+              display: flex;
+              align-items: center;
+              justify-content: space-between;
+              gap: 16px;
+              border: 1px solid rgba(200,64,26,0.1);
+            }
+            .company-info {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+            }
+            .company-logo {
+              width: 40px;
+              height: 40px;
+              background: var(--terracotta);
+              border-radius: 50%;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              color: white;
+              font-weight: 700;
+              font-size: 14px;
+              flex-shrink: 0;
+            }
+            .company-details p {
+              font-size: 13px;
+              margin: 1px 0;
+            }
+            .company-details p:first-child {
+              font-weight: 600;
+            }
+            .company-details p:last-child {
+              opacity: 0.6;
+              font-size: 12px;
+            }
+            .company-contact {
+              display: flex;
+              gap: 16px;
+              font-size: 13px;
+              opacity: 0.7;
+            }
+            .section-title {
+              font-size: 11px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              color: var(--brown);
+              opacity: 0.5;
+              margin-bottom: 12px;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+            }
+            .items-table {
+              width: 100%;
+              border-collapse: collapse;
+              border-radius: 12px;
+              overflow: hidden;
+              border: 1px solid rgba(200,64,26,0.1);
+              margin-bottom: 32px;
+            }
+            .items-table thead th {
+              background: var(--terracotta);
+              color: white;
+              padding: 12px 16px;
+              text-align: left;
+              font-size: 13px;
+              font-weight: 600;
+            }
+            .items-table thead th.text-right {
+              text-align: right;
+            }
+            .items-table tbody td {
+              padding: 12px 16px;
+              font-size: 14px;
+              border-bottom: 1px solid rgba(200,64,26,0.08);
+            }
+            .items-table tbody td.text-right {
+              text-align: right;
+            }
+            .items-table tbody tr.alt-row {
+              background: var(--cream);
+            }
+            .items-table tbody tr:last-child td {
+              border-bottom: none;
+            }
+            .item-desc {
+              font-weight: 500;
+            }
+            .summary-section {
+              display: flex;
+              justify-content: flex-end;
+              margin-bottom: 32px;
+            }
+            .summary-card {
+              background: var(--cream);
+              border-radius: 12px;
+              padding: 20px 24px;
+              min-width: 280px;
+              border: 1px solid rgba(200,64,26,0.1);
+            }
+            .summary-row {
+              display: flex;
+              justify-content: space-between;
+              padding: 6px 0;
+              font-size: 14px;
+            }
+            .summary-row.total {
+              border-top: 2px solid rgba(200,64,26,0.2);
+              margin-top: 8px;
+              padding-top: 12px;
+              font-size: 18px;
+              font-weight: 700;
+            }
+            .summary-row.total span:last-child {
+              color: var(--terracotta);
+              font-family: 'Playfair Display', serif;
+            }
+            .info-grid {
+              display: grid;
+              grid-template-columns: 1fr 1fr;
+              gap: 16px;
+              margin-bottom: 24px;
+            }
+            .info-card {
+              background: rgba(253,246,236,0.5);
+              border-radius: 12px;
+              padding: 16px 20px;
+              border: 1px solid rgba(200,64,26,0.1);
+            }
+            .info-card h3 {
+              font-size: 11px;
+              text-transform: uppercase;
+              letter-spacing: 0.5px;
+              color: var(--brown);
+              opacity: 0.5;
+              margin-bottom: 8px;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+            }
+            .info-card p {
+              font-size: 13px;
+              margin: 2px 0;
+              opacity: 0.7;
+            }
+            .invoice-footer {
+              background: var(--cream);
+              border-top: 1px solid rgba(200,64,26,0.1);
+              padding: 20px 40px;
+              display: flex;
+              flex-wrap: wrap;
+              justify-content: space-between;
+              align-items: center;
+              gap: 16px;
+            }
+            .footer-info {
+              font-size: 12px;
+              opacity: 0.6;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+            }
+            .footer-actions {
+              display: flex;
+              gap: 8px;
+            }
+            .btn {
+              padding: 8px 20px;
+              border-radius: 9999px;
+              font-size: 13px;
+              font-weight: 600;
+              cursor: pointer;
+              border: none;
+              display: inline-flex;
+              align-items: center;
+              gap: 6px;
+              transition: all 0.2s;
+            }
+            .btn-primary {
+              background: var(--terracotta);
+              color: white;
+            }
+            .btn-primary:hover {
+              background: var(--terracotta-dark);
+            }
+            .btn-secondary {
+              background: white;
+              color: var(--terracotta);
+              border: 1px solid var(--terracotta);
+            }
+            .btn-secondary:hover {
+              background: rgba(200,64,26,0.05);
+            }
+            @media print {
+              body { background: white; }
+              .invoice-container { margin: 0; border-radius: 0; box-shadow: none; }
+              .print-btn, .invoice-footer { display: none !important; }
+            }
+            @media (max-width: 640px) {
+              .invoice-container { margin: 0; border-radius: 0; }
+              .invoice-header { padding: 24px; }
+              .invoice-body { padding: 20px; }
+              .addresses { grid-template-columns: 1fr; }
+              .company-banner { flex-direction: column; align-items: flex-start; }
+              .info-grid { grid-template-columns: 1fr; }
+              .invoice-footer { flex-direction: column; align-items: flex-start; }
+            }
           </style>
         </head>
         <body>
-          <div class="top">
-            <div>
-              <h1>Snakzee</h1>
-              <p>Invoice #${order.id}</p>
-              <p>Date: ${new Date(order.created_at).toLocaleDateString("en-IN")}</p>
+          <div class="invoice-container">
+            <!-- Header -->
+            <div class="invoice-header">
+              <div>
+                <h1>Invoice</h1>
+                <p class="tagline">Authentic Telangana Flavors</p>
+              </div>
+              <div class="invoice-meta">
+                <p class="invoice-num">#${order.id}</p>
+                <p class="invoice-date">${new Date(order.created_at).toLocaleDateString("en-IN", { day: 'numeric', month: 'long', year: 'numeric' })}</p>
+              </div>
             </div>
-            <div>
-              <p><strong>Status:</strong> ${escapeHtml(order.status)}</p>
-              ${order.payment_id ? `<p><strong>Payment:</strong> ${escapeHtml(order.payment_id)}</p>` : ""}
+
+            <div class="invoice-body">
+              <!-- Status Badge -->
+              <div style="margin-bottom:24px;">${statusBadge}</div>
+
+              <!-- Addresses -->
+              <div class="addresses">
+                <div class="address-card">
+                  <h3>🏢 Ship From</h3>
+                  <p>${escapeHtml(FROM_ADDRESS.name)}</p>
+                  <p>${escapeHtml(FROM_ADDRESS.line1)}</p>
+                  <p>${escapeHtml(FROM_ADDRESS.city)}, ${escapeHtml(FROM_ADDRESS.state)} — ${escapeHtml(FROM_ADDRESS.pincode)}</p>
+                  <p>${escapeHtml(FROM_ADDRESS.phone)}</p>
+                </div>
+                <div class="address-card">
+                  <h3>👤 Bill To</h3>
+                  <p>${escapeHtml(order.address?.name)}</p>
+                  <p>${escapeHtml(order.address?.line1)}${order.address?.line2 ? `, ${escapeHtml(order.address.line2)}` : ""}</p>
+                  <p>${escapeHtml(order.address?.city)}, ${escapeHtml(order.address?.state)} — ${escapeHtml(order.address?.pincode)}</p>
+                  ${order.address?.phone ? `<p>${escapeHtml(order.address.phone)}</p>` : ""}
+                </div>
+              </div>
+
+              <!-- Company Banner -->
+              <div class="company-banner">
+                <div class="company-info">
+                  <div class="company-logo">SZ</div>
+                  <div class="company-details">
+                    <p>Snakzee Foods India Pvt Ltd</p>
+                    <p>FSSAI Lic. No.: 20126191000174</p>
+                  </div>
+                </div>
+                <div class="company-contact">
+                  <span>📧 support@snakzee.com</span>
+                  <span>📞 +91 8464919366</span>
+                </div>
+              </div>
+
+              <!-- Items Table -->
+              <div class="section-title">📦 Order Items</div>
+              <table class="items-table">
+                <thead>
+                  <tr>
+                    <th>Item Description</th>
+                    <th class="text-right">Qty</th>
+                    <th class="text-right">Rate (₹)</th>
+                    <th class="text-right">Amount (₹)</th>
+                  </tr>
+                </thead>
+                <tbody>${rows}</tbody>
+              </table>
+
+              <!-- Summary -->
+              <div class="summary-section">
+                <div class="summary-card">
+                  <div class="summary-row">
+                    <span>Subtotal</span>
+                    <span>₹${subtotal.toFixed(2)}</span>
+                  </div>
+                  ${order.discount ? `<div class="summary-row"><span>Discount ${order.coupon ? "(" + escapeHtml(order.coupon) + ")" : ""}</span><span style="color:#16a34a;">-₹${order.discount.toFixed(2)}</span></div>` : ""}
+                  ${order.delivery_fee ? `<div class="summary-row"><span>Delivery</span><span>₹${order.delivery_fee.toFixed(2)}</span></div>` : ""}
+                  <div class="summary-row"><span>Tax (10%)</span><span>₹${(subtotal * 0.1).toFixed(2)}</span></div>
+                  <div class="summary-row total">
+                    <span>Total</span>
+                    <span>₹${order.total.toFixed(2)}</span>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Info Cards -->
+              <div class="info-grid">
+                ${order.payment_id ? `
+                <div class="info-card">
+                  <h3>💳 Payment</h3>
+                  <p>${escapeHtml(order.payment_id)}</p>
+                </div>` : ""}
+                <div class="info-card">
+                  <h3>📝 Notes</h3>
+                  <p>Thank you for shopping with Snakzee!</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="invoice-footer">
+              <div class="footer-info">
+                🕐 Generated on ${new Date().toLocaleDateString('en-IN', { dateStyle: 'long' })}
+              </div>
+              <div class="footer-actions print-btn">
+                <button class="btn btn-secondary" onclick="window.print()">
+                  🖨️ Print
+                </button>
+                <button class="btn btn-primary" onclick="window.print()">
+                  📥 Download PDF
+                </button>
+              </div>
             </div>
           </div>
-          <div class="grid">
-            <div>
-              <h2>From</h2>
-              <p><strong>${escapeHtml(FROM_ADDRESS.name)}</strong></p>
-              <p>${escapeHtml(FROM_ADDRESS.line1)}</p>
-              <p>${escapeHtml(FROM_ADDRESS.city)}, ${escapeHtml(FROM_ADDRESS.state)} - ${escapeHtml(FROM_ADDRESS.pincode)}</p>
-              <p>${escapeHtml(FROM_ADDRESS.phone)}</p>
-            </div>
-            <div>
-              <h2>Bill To</h2>
-              <p><strong>${escapeHtml(order.address?.name)}</strong></p>
-              <p>${escapeHtml(order.address?.line1)}${order.address?.line2 ? `, ${escapeHtml(order.address.line2)}` : ""}</p>
-              <p>${escapeHtml(order.address?.city)}, ${escapeHtml(order.address?.state)} - ${escapeHtml(order.address?.pincode)}</p>
-              ${order.address?.phone ? `<p>${escapeHtml(order.address.phone)}</p>` : ""}
-            </div>
-          </div>
-          <table>
-            <thead><tr><th>Item</th><th>Qty</th><th>Rate</th><th>Total</th></tr></thead>
-            <tbody>${rows}</tbody>
-          </table>
-          <div class="totals">
-            <div><span>Subtotal</span><span>₹${subtotal}</span></div>
-            ${order.discount ? `<div><span>Discount ${order.coupon ? `(${escapeHtml(order.coupon)})` : ""}</span><span>-₹${order.discount}</span></div>` : ""}
-            ${order.delivery_fee ? `<div><span>Delivery</span><span>₹${order.delivery_fee}</span></div>` : ""}
-            <div class="grand"><span>Total</span><span>₹${order.total}</span></div>
-          </div>
-          <button class="print" onclick="window.print()">Save / Print PDF</button>
         </body>
       </html>`;
   };

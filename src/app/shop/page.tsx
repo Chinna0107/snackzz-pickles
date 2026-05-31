@@ -30,6 +30,7 @@ function ProductCard({ product }: {
   const { toast } = useToast();
   const router = useRouter();
   const [added, setAdded] = useState(false);
+  const [selectedQuantity, setSelectedQuantity] = useState<string>(product.quantity_prices?.[0]?.quantity || "1");
   const [selectedGram, setSelectedGram] = useState<GramOption>("500g");
   const [quantity, setQuantity] = useState(1);
   const inCart = items.some((i) => i.product.id === product.id);
@@ -37,9 +38,12 @@ function ProductCard({ product }: {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addItem(productForGramOption(product, selectedGram), quantity);
+    const pack = product.quantity_prices?.find((qp) => qp.quantity === selectedQuantity);
+    const finalPrice = pack?.price ?? selectedPrice;
+    const finalProduct = { ...productForGramOption(product, selectedGram), price: finalPrice };
+    addItem(finalProduct, quantity);
     setAdded(true);
-    toast({ title: "Added to cart! 🛒", description: `${quantity} × ${selectedGram} ${product.nameEnglish}` });
+    toast({ title: "Added to cart! 🛒", description: `${quantity} × ${selectedQuantity} ${selectedGram} ${product.nameEnglish}` });
     setTimeout(() => setAdded(false), 2000);
   };
 
@@ -96,11 +100,7 @@ function ProductCard({ product }: {
           <motion.button
             onClick={handleAddToCart}
             whileTap={{ scale: 0.95 }}
-            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm font-sans transition-all duration-300 flex-shrink-0 ${
-              added || inCart
-                ? "bg-green-500 text-white shadow-lg shadow-green-500/20"
-                : "bg-terracotta hover:bg-terracotta-dark text-white shadow-md shadow-terracotta/20 hover:scale-105"
-            }`}
+            className={`w-full sm:w-auto flex items-center justify-center gap-2 px-4 py-2 rounded-full font-semibold text-sm font-sans transition-all duration-300 flex-shrink-0 ${added || inCart ? "bg-green-500 text-white shadow-lg shadow-green-500/20" : "bg-terracotta hover:bg-terracotta-dark text-white shadow-md shadow-terracotta/20 hover:scale-105"}`}
           >
             <AnimatePresence mode="wait">
               {added || inCart ? (
@@ -117,28 +117,49 @@ function ProductCard({ product }: {
             </AnimatePresence>
           </motion.button>
         </div>
-        <div className="grid grid-cols-[1fr_auto] gap-2 mt-3" onClick={(e) => e.stopPropagation()}>
-          <select
-            value={selectedGram}
-            onChange={(e) => setSelectedGram(e.target.value as GramOption)}
-            className="min-w-0 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
-            aria-label="Select weight"
-          >
-            {GRAM_OPTIONS.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
-          <input
-            type="number"
-            min={1}
-            max={10}
-            value={quantity}
-            onChange={(e) => setQuantity(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
-            className="w-20 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-center text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
-            aria-label="Quantity"
-          />
+            <div className="grid grid-cols-2 gap-2 mt-3">
+              {/* Quantity selector */}
+              <select
+                value={selectedQuantity}
+                onChange={(e) => setSelectedQuantity(e.target.value)}
+                className="rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+                aria-label="Select quantity"
+              >
+                {product.quantity_prices && product.quantity_prices.length > 0 ? (
+                  product.quantity_prices.map((qp) => (
+                    <option key={qp.quantity} value={qp.quantity}>
+                      {qp.quantity}
+                    </option>
+                  ))
+                ) : (
+                  <option value="1">1</option>
+                )}
+              </select>
+              {/* Gram selector */}
+              <select
+                value={selectedGram}
+                onChange={(e) => setSelectedGram(e.target.value as GramOption)}
+                className="min-w-0 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+                aria-label="Select weight"
+              >
+                {GRAM_OPTIONS.map((option) => (
+                  <option key={option} value={option}>
+                    {option}
+                  </option>
+                ))}
+              </select>
+            </div>
+            <input
+              type="number"
+              min={1}
+              max={10}
+              value={quantity}
+              onChange={(e) => setQuantity(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
+              className="w-20 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-center text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+              aria-label="Quantity"
+            />
         </div>
-      </div>
+
     </motion.div>
   );
 }

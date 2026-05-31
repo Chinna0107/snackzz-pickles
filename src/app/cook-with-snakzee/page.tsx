@@ -4,7 +4,7 @@ import { useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
-import { Clock, Users, Timer, ArrowRight, PlayCircle, ChevronDown, ChevronUp, MessageCircle } from "lucide-react";
+import { Clock, Users, Timer, ArrowRight, PlayCircle, ChevronDown, ChevronUp, MessageCircle, Leaf, Sparkles } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
@@ -14,7 +14,7 @@ import { products, getWhatsAppLink } from "@/lib/products";
 const recipes = [
   {
     title: "Palli Karam Rice",
-    description: "Hot steaming rice mixed with Palli Karam Podi and ghee — the ultimate Telangana comfort meal",
+    description: "Hot steaming rice mixed with Palli Karam Podi and ghee — the ultimate Telangana and Andhra comfort meal",
     time: "10 min",
     servings: "2 servings",
     difficulty: "Easy",
@@ -166,6 +166,70 @@ function RecipeCard({ recipe }: { recipe: typeof recipes[0] }) {
   );
 }
 
+// Health benefits data for each ingredient
+const ingredientHealthBenefits: Record<string, string> = {
+  "Peanuts": "Capsaicin boosts metabolism, vitamin C, pain relief",
+  "Ghee": "Rich in vitamins A, D, E, K. Supports digestion and immunity",
+  "Jaggery": "Natural detoxifier, rich in iron and minerals, aids digestion",
+  "Red Chili": "Capsaicin boosts metabolism, rich in vitamin C and A, pain relief",
+  "Sesame Seeds": "High in protein, calcium, and fiber. Supports bone health",
+  "Rice Flour": "Gluten-free, easy to digest, provides energy",
+  "Urad Dal": "High protein, rich in iron and folate, supports muscle health",
+  "Curry Leaves": "Rich in antioxidants, aids digestion, controls diabetes",
+  "Cashew": "Heart-healthy fats, magnesium, supports brain function",
+  "Millets": "Gluten-free, high fiber, controls blood sugar, rich in minerals",
+  "Tamarind": "Rich in antioxidants, aids digestion, anti-inflammatory",
+  "Cold-Pressed Oil": "Heart-healthy, retains nutrients, natural antioxidants",
+};
+
+function IngredientCard({ ingredient, index }: { ingredient: { icon: string; name: string; telugu: string; desc: string }; index: number }) {
+  const [showBenefits, setShowBenefits] = useState(false);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ delay: index * 0.05 }}
+      className="bg-white rounded-2xl border border-terracotta/10 p-5 hover:shadow-lg hover:border-terracotta/20 transition-all group"
+    >
+      <div className="text-4xl mb-3">{ingredient.icon}</div>
+      <h3 className="font-serif text-lg font-bold text-brown">{ingredient.name}</h3>
+      <p className="text-terracotta text-xs font-sans mb-2">{ingredient.telugu}</p>
+      <p className="text-brown-light/70 text-sm font-sans leading-relaxed mb-4">{ingredient.desc}</p>
+      
+      <AnimatePresence>
+        {showBenefits && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: "auto", opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            className="overflow-hidden"
+          >
+            <div className="flex items-start gap-2 bg-gold/10 rounded-lg p-3 mb-3">
+              <Sparkles className="w-4 h-4 text-gold flex-shrink-0 mt-0.5" />
+              <p className="text-sm text-brown font-sans leading-relaxed">
+                {ingredientHealthBenefits[ingredient.name]}
+              </p>
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+      
+      <button
+        onClick={() => setShowBenefits(!showBenefits)}
+        className="inline-flex items-center gap-1 text-terracotta font-sans font-semibold text-sm hover:text-terracotta-dark transition-colors"
+      >
+        {showBenefits ? (
+          <>Show less <ChevronUp className="w-3.5 h-3.5" /></>
+        ) : (
+          <>Health benefits <ArrowRight className="w-3.5 h-3.5" /></>
+        )}
+      </button>
+    </motion.div>
+  );
+}
+
 export default function CookWithSnakzee() {
   return (
     <div className="min-h-screen bg-cream selection:bg-terracotta/20 font-sans flex flex-col">
@@ -173,7 +237,7 @@ export default function CookWithSnakzee() {
       
       <main className="flex-1 pb-12">
         {/* Page Header */}
-        <section className="px-4 sm:px-6 lg:px-8 mb-16 text-center max-w-4xl mx-auto">
+        <section className="px-4 sm:px-6 lg:px-8 pt-12 mb-16 text-center max-w-4xl mx-auto">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -203,6 +267,35 @@ export default function CookWithSnakzee() {
 
         {/* Bulk Order Section imported from page.tsx */}
         <BulkOrderSection products={products} />
+
+        {/* Our Ingredients Section */}
+        <section className="py-16 sm:py-20 bg-cream border-t border-terracotta/10 scroll-mt-20">
+          <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div className="text-center mb-12">
+              <Badge className="bg-terracotta/10 text-terracotta border-terracotta/20 mb-4 font-sans">Our Ingredients</Badge>
+              <h2 className="font-serif text-3xl sm:text-4xl font-bold text-brown mb-3">Pure & Authentic Ingredients</h2>
+              <p className="text-brown-light/60 font-sans max-w-xl mx-auto">We source only the finest ingredients from Telangana and Andhra farms and traditional suppliers.</p>
+            </div>
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+              {[
+                { icon: "🥜", name: "Peanuts", telugu: "పల్లీలు", desc: "Roasted peanuts — the heart of our podis and laddus, adding protein and crunch" },
+                { icon: "🧈", name: "Ghee", telugu: "నెయ్యి", desc: "Clarified butter made from cow's milk — used in sweets and tempering" },
+                { icon: "🟤", name: "Jaggery", telugu: "బెల్లం", desc: "Unrefined cane sugar — the traditional sweetener in all our Telangana and Andhra sweets" },
+                { icon: "🌶️", name: "Red Chili", telugu: "ఎర్రమిర్చి", desc: "Sun-dried Guntur chilies — the fire behind every spicy podi and snack" },
+                { icon: "⚪", name: "Sesame Seeds", telugu: "నువ్వులు", desc: "Nutty seeds used in snacks and chutneys — a protein and calcium powerhouse" },
+                { icon: "🍚", name: "Rice Flour", telugu: "బియ్యం పిండి", desc: "Fine ground rice used in murukulu, nippatlu and other crispy snacks" },
+                { icon: "⚫", name: "Urad Dal", telugu: "మినప పప్పు", desc: "Black gram lentil — key ingredient in vadiyalu and snack doughs" },
+                { icon: "🍃", name: "Curry Leaves", telugu: "కరివేపాకు", desc: "Aromatic leaves for tempering — adds authentic South Indian flavour" },
+                { icon: "🌰", name: "Cashew", telugu: "జీడిపప్పు", desc: "Premium cashew nuts — used in Kaju Katli, laddus and as garnish" },
+                { icon: "🌾", name: "Millets", telugu: "చిరుధాన్యాలు", desc: "Ancient grains like ragi, jowar and foxtail — the base of our healthy range" },
+                { icon: "🫘", name: "Tamarind", telugu: "చింతపండు", desc: "Sour fruit pulp essential in pulihora paste and South Indian cooking" },
+                { icon: "🫒", name: "Cold-Pressed Oil", telugu: "నూనె", desc: "Traditional wood-pressed groundnut/sesame oil for authentic flavour" },
+              ].map((ingredient, i) => (
+                <IngredientCard key={ingredient.name} ingredient={ingredient} index={i} />
+              ))}
+            </div>
+          </div>
+        </section>
 
         {/* Loyalty Rewards */}
         <section id="rewards" className="py-16 sm:py-20 bg-cream border-t border-terracotta/10 scroll-mt-20">
@@ -244,14 +337,14 @@ export default function CookWithSnakzee() {
             <div className="text-center mb-10">
               <Badge className="bg-terracotta/10 text-terracotta border-terracotta/20 mb-4 font-sans">🪔 Festival Calendar</Badge>
               <h2 className="font-serif text-3xl sm:text-4xl font-bold text-brown mb-3">Celebrate Every Festival 🎉</h2>
-              <p className="text-brown-light/60 font-sans max-w-xl mx-auto">From Sankranti to Diwali — every Telangana festival deserves authentic homemade flavors.</p>
+              <p className="text-brown-light/60 font-sans max-w-xl mx-auto">From Sankranti to Diwali — every Telangana and Andhra festival deserves authentic homemade flavors.</p>
             </div>
             <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
               {[
                 { icon: "🪁", name: "Sankranti", telugu: "సంక్రాంతి", month: "January", desc: "The harvest festival — a time for Athrasalu, sweets and snacks." },
                 { icon: "🥭", name: "Ugadi", telugu: "ఉగాది", month: "March/April", desc: "Telugu New Year! A time for new beginnings and homemade sweets." },
                 { icon: "🪔", name: "Bonalu", telugu: "బోనాలు", month: "July/August", desc: "Honoring Goddess Mahankali with special homemade snacks." },
-                { icon: "🌸", name: "Bathukamma", telugu: "బతుకమ్మ", month: "September/October", desc: "Telangana's floral festival with folk songs and traditional foods." },
+                { icon: "🌸", name: "Bathukamma", telugu: "బతుకమ్మ", month: "September/October", desc: "Telangana's and Andhra's floral festival with folk songs and traditional foods." },
                 { icon: "🏹", name: "Dasara", telugu: "దసరా", month: "October", desc: "Families exchange sweets and celebrate with grand feasts." },
                 { icon: "🪔", name: "Diwali", telugu: "దీపావళి", month: "October/November", desc: "Perfect time for Snakzee hampers and traditional sweets." },
               ].map((fest, i) => (
@@ -272,7 +365,7 @@ export default function CookWithSnakzee() {
         <section className="py-16 bg-gradient-to-br from-terracotta to-terracotta-dark">
           <div className="max-w-3xl mx-auto px-4 sm:px-6 text-center">
             <h2 className="font-serif text-3xl sm:text-4xl font-bold text-cream mb-4">Taste the Tradition Today</h2>
-            <p className="text-cream/70 text-lg font-sans mb-8">Order fresh, authentic Telangana snacks delivered to your doorstep.</p>
+            <p className="text-cream/70 text-lg font-sans mb-8">Order fresh, authentic Telangana and Andhra snacks delivered to your doorstep.</p>
             <div className="flex flex-wrap gap-4 justify-center">
               <a href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-terracotta px-8 py-4 rounded-full font-bold text-base transition-all hover:scale-105 shadow-xl font-sans">
                 <MessageCircle className="w-5 h-5" />Order on WhatsApp
@@ -283,7 +376,14 @@ export default function CookWithSnakzee() {
             </div>
           </div>
         </section>
-      </main>
+              </main>
+        {/* New Content Section */}
+        <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 bg-cream">
+          <h2 className="font-serif text-3xl md:text-4xl font-bold text-brown mb-6 text-center">Cooking Tips & Tricks</h2>
+          <p className="text-brown-light/80 text-lg leading-relaxed max-w-3xl mx-auto text-center">
+            Explore our curated cooking tips, ingredient hacks, and seasonal recipes to elevate your Snakzee experience. From perfecting the art of tempering to creative serving ideas, we’ve got you covered.
+          </p>
+        </section>
 
       <Footer />
     </div>

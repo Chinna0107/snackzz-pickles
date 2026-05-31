@@ -12,10 +12,9 @@ const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:500
 const CATEGORIES = [
   { id: "hot-items", name: "Hot Items" },
   { id: "sweet-items", name: "Sweet Items" },
-  { id: "podis-powders", name: "Podis & Powders" },
-  { id: "vadiyalu-papads", name: "Vadiyalu & Papads" },
-  { id: "snacks", name: "Snacks" },
+  { id: "podis-and-powders", name: "Podis & Powders" },
   { id: "pickles", name: "Pickles" },
+  { id: "fryums", name: "Fryums" },
 ];
 
 interface Product {
@@ -72,8 +71,8 @@ export default function AdminProductsPage() {
   const [cat, setCat] = useState("all");
   const [editProduct, setEditProduct] = useState<Product | null>(null);
   const [formData, setFormData] = useState<Omit<Product, "id"> | Product>(emptyProduct);
-  const [isNew, setIsNew] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [uploading, setUploading] = useState(false);
 
   useEffect(() => {
@@ -113,7 +112,7 @@ export default function AdminProductsPage() {
   const handleSave = async () => {
     const token = localStorage.getItem("snackzee_token");
     if (!token) return;
-
+    setSaving(true);
     try {
       const url = isNew ? `${BACKEND_URL}/products` : `${BACKEND_URL}/products/${(editProduct as Product).id}`;
       const method = isNew ? "POST" : "PUT";
@@ -140,6 +139,8 @@ export default function AdminProductsPage() {
       fetchProducts();
     } catch (err) {
       toast({ title: "Error", description: "Failed to save product", variant: "destructive" });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -584,9 +585,15 @@ export default function AdminProductsPage() {
                 className="flex-1 px-4 py-2.5 rounded-xl bg-cream text-brown font-sans font-semibold hover:bg-cream-dark transition-colors">
                 Cancel
               </button>
-              <button onClick={handleSave}
+              <button onClick={handleSave} disabled={saving || uploading}
                 className="flex-1 px-4 py-2.5 rounded-xl bg-terracotta text-white font-sans font-semibold hover:bg-terracotta-dark transition-colors flex items-center justify-center gap-2">
-                <Save className="w-4 h-4" /> {isNew ? "Add" : "Save"} Product
+                {saving ? (
+                  <>⏳ Saving...</>
+                ) : (
+                  <>
+                    <Save className="w-4 h-4" /> {isNew ? "Add" : "Save"} Product
+                  </>
+                )}
               </button>
             </div>
           </motion.div>

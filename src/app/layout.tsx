@@ -153,7 +153,20 @@ export default function RootLayout({
           dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
         />
         <CartProvider>
-          {children}
+          {/* Add Button removed for cleaner UI */}
+          {/* <button
+            onClick={(e) => handleAdd(e, product)}
+            className={`flex items-center gap-0.5 sm:gap-1 px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-[10px] sm:text-[11px] font-bold font-sans transition-all ${addedId === product.id
+                ? "bg-green-500 text-white"
+                : "bg-terracotta hover:bg-terracotta-dark text-white active:scale-95"
+              }`}
+          >
+            {addedId === product.id ? <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" /> : <ShoppingCart className="w-2.5 h-2.5 sm:w-3 sm:h-3" />}
+            {addedId === product.id ? "Added" : "Add"}
+          </button> */}
+          <div className="pt-8">
+            {children}
+          </div>
         </CartProvider>
         <Toaster />
       </body>

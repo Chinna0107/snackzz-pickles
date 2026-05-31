@@ -93,12 +93,14 @@ export default function Footer() {
             <h4 className="hidden md:block font-serif text-lg font-bold mb-4 text-white">SHOP</h4>
             <div className={`${footerOpenSections.shop ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
               <ul className="space-y-2.5 font-sans text-sm">
-                <li><Link href="/shop" className="footer-link-hover text-white/80 hover:text-white transition-colors">All Products</Link></li>
-                <li><Link href="/shop?category=hot-items" className="footer-link-hover text-white/80 hover:text-white transition-colors">Hot Items</Link></li>
-                <li><Link href="/shop?category=sweet-items" className="footer-link-hover text-white/80 hover:text-white transition-colors">Sweet Items</Link></li>
-                <li><Link href="/shop?category=podis-powders" className="footer-link-hover text-white/80 hover:text-white transition-colors">Podis & Powders</Link></li>
-                <li><Link href="/shop?category=vadiyalu-papads" className="footer-link-hover text-white/80 hover:text-white transition-colors">Vadiyalu & Papads</Link></li>
-                <li><Link href="/shop?filter=best-sellers" className="footer-link-hover text-white/80 hover:text-white transition-colors">Best Sellers</Link></li>
+                <li><Link href="/products" className="footer-link-hover text-white/80 hover:text-white transition-colors">All Products</Link></li>
+                <li><Link href="/products?category=snacks" className="footer-link-hover text-white/80 hover:text-white transition-colors">Snacks</Link></li>
+                <li><Link href="/products?category=sweet-items" className="footer-link-hover text-white/80 hover:text-white transition-colors">Sweet Items</Link></li>
+                <li><Link href="/products?category=podis-and-powders" className="footer-link-hover text-white/80 hover:text-white transition-colors">Masalas & Powders</Link></li>
+                <li><Link href="/products?category=pickles" className="footer-link-hover text-white/80 hover:text-white transition-colors">Pickles</Link></li>
+                <li><Link href="/products?category=fryums" className="footer-link-hover text-white/80 hover:text-white transition-colors">Fryums</Link></li>
+                {/* <li><Link href="/products?category=vadiyalu-papads" className="footer-link-hover text-white/80 hover:text-white transition-colors">Vadiyalu & Papads</Link></li> */}
+                {/* <li><Link href="/products?filter=best-sellers" className="footer-link-hover text-white/80 hover:text-white transition-colors">Best Sellers</Link></li> */}
               </ul>
             </div>
           </div>
@@ -158,7 +160,7 @@ export default function Footer() {
             <div className={`${footerOpenSections.support ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
               <ul className="space-y-2.5 font-sans text-sm">
                 <li><Link href="/orders" className="footer-link-hover text-white/80 hover:text-white transition-colors">Order Tracking</Link></li>
-                <li>{scrollOrLink("faq", "FAQ")}</li>
+                {/* <li>{scrollOrLink("faq", "FAQ")}</li> */}
                 <li><Link href="/contact" className="footer-link-hover text-white/80 hover:text-white transition-colors">Contact Us</Link></li>
                 <li className="pt-1">
                   <a href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-whatsapp hover:bg-cream px-3 py-2 rounded-full font-bold shadow-md shadow-black/10 transition-all hover:scale-[1.02]">
