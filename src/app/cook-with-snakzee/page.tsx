@@ -272,7 +272,7 @@ export default function CookWithSnakzee() {
         <section className="py-16 sm:py-20 bg-cream border-t border-terracotta/10 scroll-mt-20">
           <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="text-center mb-12">
-              <Badge className="bg-terracotta/10 text-terracotta border-terracotta/20 mb-4 font-sans">Our Ingredients</Badge>
+              <Badge className="bg-terracotta/10 text-terracotta border-terracotta/20 mb-4 font-sans" id="heritage">Our Ingredients</Badge>
               <h2 className="font-serif text-3xl sm:text-4xl font-bold text-brown mb-3">Pure & Authentic Ingredients</h2>
               <p className="text-brown-light/60 font-sans max-w-xl mx-auto">We source only the finest ingredients from Telangana and Andhra farms and traditional suppliers.</p>
             </div>

@@ -23,6 +23,7 @@ import {
   getShareLink,
   priceForGramOption,
   productForGramOption,
+  normalizeGramUnit,
   type GramOption,
   type Product,
   type SpiceLevel,
@@ -40,14 +41,52 @@ function SpiceLevelBadge({ level }: { level: SpiceLevel }) {
   );
 }
 
-function ProductCard({ product }: { product: Product }) {
+interface ProductWithQuantities extends Product {
+  availableQuantities?: string[];
+  quantity_prices?: { quantity: string; price: number; mrp?: number }[];
+}
+
+function ProductCard({ product }: { product: ProductWithQuantities }) {
   const { addItem } = useCart();
   const { toast } = useToast();
   const router = useRouter();
   const [isFav, setIsFav] = useState(false);
-  const [selectedGram, setSelectedGram] = useState<GramOption>("500g");
+  
+  // Use admin-defined quantities if available, otherwise just the base unit
+  const adminQuantities = product.availableQuantities || [];
+  const gramOptions = [product.priceUnit, ...adminQuantities.filter(q => q !== product.priceUnit)];
+  
+  // Set default selected gram to first available option
+  const [selectedGram, setSelectedGram] = useState<string>(gramOptions[0]);
   const [quantity, setQuantity] = useState(1);
-  const selectedPrice = priceForGramOption(product, selectedGram);
+  
+  // Update selected gram if available options change
+  useEffect(() => {
+    if (gramOptions.length > 0 && !gramOptions.includes(selectedGram)) {
+      setSelectedGram(gramOptions[0]);
+    }
+  }, [gramOptions, selectedGram]);
+  
+  // Calculate price based on selected quantity
+  const selectedPrice = (() => {
+    // If it's the base unit, return base price
+    if (selectedGram === product.priceUnit) return product.price;
+
+    // Check if there's a matching quantity_price
+    if (product.quantity_prices && product.quantity_prices.length > 0) {
+      const match = product.quantity_prices.find(qp => {
+        // Normalize for comparison
+        let qty = qp.quantity.trim().toLowerCase();
+        qty = qty.replace(/\s*grms?\s*$/i, 'g').replace(/\s*gms?\s*$/i, 'g').replace(/\s*grams?\s*$/i, 'g');
+        if (/^\d+$/.test(qty)) qty = `${qty}g`;
+        return qty === selectedGram.toLowerCase();
+      });
+      if (match) return match.price;
+    }
+    
+    // Last resort fallback (shouldn't really happen with our new logic)
+    return product.price;
+  })();
 
   useEffect(() => {
     const stored = localStorage.getItem("snackzee_wishlist");
@@ -87,7 +126,8 @@ function ProductCard({ product }: { product: Product }) {
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addItem(productForGramOption(product, selectedGram), quantity);
+    const cartProduct = { ...product, price: selectedPrice, priceUnit: selectedGram };
+    addItem(cartProduct, quantity);
     toast({ title: "Added to cart! 🛒", description: `${quantity} × ${selectedGram} ${product.name} added.` });
   };
 
@@ -161,16 +201,22 @@ function ProductCard({ product }: { product: Product }) {
           </a>
         </div>
         <div className="grid grid-cols-[1fr_auto] gap-2 mb-3" onClick={(e) => e.stopPropagation()}>
-          <select
-            value={selectedGram}
-            onChange={(e) => setSelectedGram(e.target.value as GramOption)}
-            className="min-w-0 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
-            aria-label="Select weight"
-          >
-            {GRAM_OPTIONS.map((option) => (
-              <option key={option} value={option}>{option}</option>
-            ))}
-          </select>
+          {gramOptions.length > 1 ? (
+            <select
+              value={selectedGram}
+              onChange={(e) => setSelectedGram(e.target.value)}
+              className="min-w-0 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+              aria-label="Select weight"
+            >
+              {gramOptions.map((option) => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          ) : (
+            <div className="min-w-0 rounded-xl border border-terracotta/10 bg-cream/50 px-3 py-2 text-sm font-semibold text-brown/70 flex items-center">
+              {product.priceUnit}
+            </div>
+          )}
           <input
             type="number"
             min={1}
@@ -207,33 +253,61 @@ function ProductsContent() {
         const res = await fetch(`${BACKEND_URL}/products`);
         const data = await res.json();
         if (data.products && Array.isArray(data.products)) {
-          const mapped = data.products.map((p: any) => ({
-            id: String(p.id),
-            name: p.name,
-            nameEnglish: p.name_english,
-            category: (() => {
-              const cat = (p.category || 'hot-items').replace(/_/g, '-');
-              // normalize legacy/alternate category names
-              if (cat === 'snacks') return 'hot-items';
-              if (cat === 'sweets') return 'sweet-items';
-              if (cat === 'powders') return 'podis-powders';
-              if (cat === 'pickles') return 'pickles';
-              if (cat === 'papads') return 'vadiyalu-papads';
-              return cat;
-            })(),
-            description: p.description || "",
-            price: p.price,
-            priceUnit: p.price_unit && p.price_unit !== "per pack" ? p.price_unit : "500g",
-            image: p.image || "/placeholder.jpg",
-            badge: p.badge,
-            popular: p.popular || false,
-            spiceLevel: p.spice_level || "none",
-            shelfLife: p.shelf_life || "N/A",
-            serves: p.serves || "N/A",
-            ingredients: Array.isArray(p.ingredients) ? p.ingredients : [],
-            nutrition: p.nutrition || { calories: "0", protein: "0g", carbs: "0g", fat: "0g", fiber: "0g" },
-            tags: Array.isArray(p.tags) ? p.tags : [],
-          }));
+          // Debug: Log first product's quantity_prices
+          if (data.products.length > 0) {
+            console.log('Products page - first product quantity_prices:', data.products[0].quantity_prices);
+          }
+          const mapped = data.products.map((p: any) => {
+            // Extract available quantities from quantity_prices array - normalize format
+            let availableQuantities: string[] = [];
+            if (Array.isArray(p.quantity_prices) && p.quantity_prices.length > 0) {
+              const quantities = p.quantity_prices
+                .filter((qp: { quantity: string; price: number }) => qp.quantity && qp.price > 0)
+                .map((qp: { quantity: string }) => {
+                  // Normalize quantity format: "250grms" -> "250g", "100" -> "100g", "1kg" -> "1kg"
+                  let qty = qp.quantity.trim().toLowerCase();
+                  // Replace various gram suffixes with 'g'
+                  qty = qty.replace(/\s*grms?\s*$/i, 'g').replace(/\s*gms?\s*$/i, 'g').replace(/\s*grams?\s*$/i, 'g');
+                  // If it's just a number, add 'g' suffix
+                  if (/^\d+$/.test(qty)) {
+                    qty = `${qty}g`;
+                  }
+                  return qty;
+                });
+              // Remove duplicates
+              availableQuantities = [...new Set(quantities)] as string[];
+            }
+            
+            return {
+              id: String(p.id),
+              name: p.name,
+              nameEnglish: p.name_english,
+              category: (() => {
+                const cat = (p.category || 'hot-items').replace(/_/g, '-');
+                // normalize legacy/alternate category names
+                if (cat === 'snacks') return 'hot-items';
+                if (cat === 'sweets') return 'sweet-items';
+                if (cat === 'powders') return 'podis-powders';
+                if (cat === 'pickles') return 'pickles';
+                if (cat === 'papads') return 'vadiyalu-papads';
+                return cat;
+              })(),
+              description: p.description || "",
+              price: p.price,
+              priceUnit: p.price_unit && p.price_unit !== "per pack" ? p.price_unit : "500g",
+              image: p.image || "/placeholder.jpg",
+              badge: p.badge,
+              popular: p.popular || false,
+              spiceLevel: p.spice_level || "none",
+              shelfLife: p.shelf_life || "N/A",
+              serves: p.serves || "N/A",
+              ingredients: Array.isArray(p.ingredients) ? p.ingredients : [],
+              nutrition: p.nutrition || { calories: "0", protein: "0g", carbs: "0g", fat: "0g", fiber: "0g" },
+              tags: Array.isArray(p.tags) ? p.tags : [],
+              availableQuantities: availableQuantities,
+              quantity_prices: Array.isArray(p.quantity_prices) ? p.quantity_prices : [],
+            } as ProductWithQuantities;
+          });
           setProducts(mapped);
         } else {
           setProducts(staticProducts);

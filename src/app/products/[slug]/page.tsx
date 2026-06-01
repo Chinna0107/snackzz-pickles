@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/context/CartContext";
 import Header from "@/components/Header";
 
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+const BACKEND_URL = "http://localhost:5000";
 
 const SPICE_LABELS = [
   { label: "No Spice", emoji: "😊", color: "bg-green-100 text-green-700" },
@@ -139,7 +139,7 @@ export default function ProductDetailPage() {
   const addToCart = () => {
     if (!product) return;
     const price = selectedQuantity !== null ? product.quantity_prices[selectedQuantity].price : product.price;
-    const priceUnit = selectedQuantity !== null ? product.quantity_prices[selectedQuantity].quantity : (product.price_unit === "per pack" ? "500g" : product.price_unit);
+    const priceUnit = selectedQuantity !== null ? product.quantity_prices[selectedQuantity].quantity : product.price_unit;
     addItem({
       id: `${product.id}-${priceUnit}`,
       name: product.name,
@@ -182,8 +182,8 @@ export default function ProductDetailPage() {
     <div className="min-h-screen bg-cream">
       <Header />
       {/* Header */}
-      <div className="bg-white border-b border-terracotta/10 sticky top-16 sm:top-20 z-40">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 flex items-center gap-4">
+      <div className="bg-white border-b border-terracotta/10 sticky top-[112px] sm:top-[128px] z-40 shadow-sm">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
           <button onClick={() => router.back()} className="text-brown-light hover:text-brown transition-colors">
             <ArrowLeft className="w-5 h-5" />
           </button>
@@ -194,7 +194,7 @@ export default function ProductDetailPage() {
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-8 mt-16 sm:mt-20">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 py-4 mt-20 sm:mt-28">
         <div className="grid lg:grid-cols-2 gap-8">
           {/* Left: Images */}
           <div className="space-y-4">
@@ -269,7 +269,7 @@ export default function ProductDetailPage() {
                     className={`p-3 rounded-xl border-2 transition-all ${
                       selectedQuantity === null ? "border-terracotta bg-terracotta/5" : "border-terracotta/10 hover:border-terracotta/30"
                     }`}>
-                    <p className="font-sans font-bold text-brown text-sm">{product.price_unit === "per pack" ? "500g" : product.price_unit}</p>
+                    <p className="font-sans font-bold text-brown text-sm">{product.price_unit}</p>
                     <p className="font-sans font-bold text-terracotta">₹{product.price}</p>
                   </button>
                   {product.quantity_prices.map((qp, i) => (

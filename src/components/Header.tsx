@@ -257,6 +257,7 @@ export default function Header() {
 
                         {[
                           { href: "/cook-with-snakzee", label: "Cook with Snakzee (Recipes)", icon: "🍳" },
+                          {href: "/cook-with-snakzee#heritage", label: "Our Heritage Products", icon: "🧈" },
                           { href: "/cook-with-snakzee#festival-calendar", label: "Festival Specials", icon: "🪔" },
                           { href: "/cook-with-snakzee#rewards", label: "Snakzee Rewards", icon: "🎁" }
                         ].map((item) => (
@@ -315,19 +316,18 @@ export default function Header() {
               </Link>
 
               {/* 🛒 Shopping Cart Mini Button */}
-              <Link href="/cart">
-                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                  className="relative flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-terracotta hover:bg-terracotta-dark text-white rounded-full transition-all shadow-md hover:shadow-lg cursor-pointer">
-                  <ShoppingCart className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-                  <span className="hidden lg:inline font-semibold text-xs sm:text-sm">₹{total}</span>
-                  {cartCount > 0 && (
-                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
-                      className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-gold text-brown text-[9px] font-bold rounded-full flex items-center justify-center shadow-md">
-                      {cartCount}
-                    </motion.span>
-                  )}
-                </motion.div>
-              </Link>
+                <Link href="/cart">
+                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                    className="relative flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-terracotta hover:bg-terracotta-dark text-white rounded-full transition-all shadow-md hover:shadow-lg cursor-pointer">
+                    <ShoppingCart className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
+                    {cartCount > 0 && (
+                      <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
+                        className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-gold text-brown text-[9px] font-bold rounded-full flex items-center justify-center shadow-md">
+                        {cartCount}
+                      </motion.span>
+                    )}
+                  </motion.div>
+                </Link>
 
               {/* 👤 Account Options Controller */}
               {user ? (

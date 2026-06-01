@@ -2,269 +2,229 @@
 
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
-import { Download, Printer, Mail, Phone, MapPin, Building2, Package, CreditCard, CheckCircle2, Clock, FileText, Truck } from "lucide-react";
+import { Download, Printer } from "lucide-react";
 
 export default function InvoicePage() {
-  // Placeholder invoice data; replace with real data fetching as needed
   const invoice = {
     number: "SZ-98742",
     date: "2026-05-31",
-    due: "2026-06-15",
-    status: "Paid",
+    paymentMode: "UPI",
+    status: "shipped",
     billing: {
       name: "Kancharla Hemanth",
-      address: "Bangalore, Karnataka",
-      email: "",
-      phone: "+91 8179860935",
+      addressLine1: "Banglore, Karnataka",
+      addressLine2: "",
+      cityStatePin: "Karnataka — 560068",
+      phone: "8179860935",
     },
     shipping: {
       name: "Snakzee Foods India Pvt Ltd",
-      address: "House No 1/2/32, Taka Street, Near Main Road, Jagtial, Telangana - 505327",
-      phone: "+91 8464919366",
+      addressLine1: "57/14-A Sri Raghavendra Swamy Temple,",
+      addressLine2: "Kurnool, Andhra Pradesh – 518001, India",
+      phone: "+91 95055 50051",
     },
     items: [
-      { description: "Snakzee Pack - 500g", qty: 2, rate: 199, amount: 398 },
-      { description: "Gongura Pickles - 250g", qty: 1, rate: 149, amount: 149 },
+      { sNo: 1, itemName: "Test", packSize: "100g", quantity: 3, price: 1.00 },
     ],
-    subTotal: 547,
-    tax: 54.7,
-    shippingCharge: 0,
-    discount: 0,
-    total: 601.7,
-    notes: "Thank you for your purchase!",
-    terms: "All sales are final. Delivery within 3-5 business days. Please retain this invoice for warranty purposes.",
+    subtotal: 3.00,
+    deliveryCharges: "FREE",
+    total: 3.00,
+    amountInWords: "Three Rupees Only",
+    notes: "Thank you for shopping with Snakzee!",
+    terms: [
+      "Once we receive the order, we will start preparing it.",
+      "It will take 3-4 days to prepare the order based on the order size.",
+      "Your order will be dispatched the next day once it is packed safely.",
+      "We will share the tracking details through WhatsApp once we ship the order.",
+      "Estimated delivery time will depend on your shipping location and courier availability.",
+    ],
     company: {
       name: "Snakzee Foods India Pvt Ltd",
       fssai: "FSSAI Lic. No.: 20126191000174",
-      phone: "+91 8464919366",
       email: "support@snakzee.com",
+      phone: "+91 95055 50051",
       website: "www.snakzee.com",
     },
   };
 
   return (
-    <div className="min-h-screen bg-cream selection:bg-terracotta/20 font-sans flex flex-col">
-      {/* Header */}
+    <div className="min-h-screen bg-[#FDF6EC] font-sans flex flex-col">
       <Header />
 
-      {/* Invoice Content */}
       <main className="flex-1 max-w-5xl mx-auto p-4 sm:p-6 lg:p-8">
-        <section className="border border-terracotta/20 rounded-2xl bg-white shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
-          {/* Invoice Header with Brand Colors */}
-          <div className="bg-gradient-to-r from-terracotta to-terracotta-dark p-6 sm:p-8 text-white">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-              <div>
-                <h1 className="font-serif text-3xl sm:text-4xl font-bold mb-1">Invoice</h1>
-                <p className="text-white/80 text-sm">Authentic Telangana Flavors</p>
-              </div>
-              <div className="flex items-center gap-3 flex-wrap sm:justify-end">
-                <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold ${
-                  invoice.status === "Paid" 
-                    ? "bg-green-500/20 text-green-100 border border-green-400/30" 
-                    : "bg-yellow-500/20 text-yellow-100 border border-yellow-400/30"
-                }`}>
-                  <CheckCircle2 className="w-4 h-4" />
-                  {invoice.status}
-                </span>
-                <div className="text-right text-white/90">
-                  <p className="font-semibold">#{invoice.number}</p>
-                  <p className="text-sm text-white/70">Date: {invoice.date}</p>
+        <section className="border border-[#E63A12]/20 rounded-2xl bg-white shadow-[0_8px_30px_rgba(0,0,0,0.04)] overflow-hidden">
+          {/* Invoice Header - Matching PDF Layout */}
+          <div className="border-b-[3px] border-[#E63A12] p-6 sm:p-8">
+            <div className="flex flex-col lg:flex-row justify-between gap-6">
+              {/* Left Side - Brand & Company Info */}
+              <div className="flex-1">
+                <div className="flex items-center gap-3 mb-2">
+                  {/* Logo SVG matching PDF */}
+                  <svg width="60" height="45" viewBox="0 0 100 75" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
+                    <path d="M85,30 C95,20 98,5 85,2 C72,-1 65,15 62,25 C55,20 45,22 40,28 C32,25 20,30 18,38 C15,45 22,55 35,58 C45,60 55,55 60,48 C65,58 78,60 85,52 C95,42 90,35 85,30 Z" fill="#E63A12"/>
+                    <circle cx="48" cy="32" r="3" fill="#ffffff"/>
+                    <circle cx="72" cy="35" r="4" fill="#E63A12"/>
+                    <circle cx="78" cy="28" r="3" fill="#E63A12"/>
+                  </svg>
+                  <div>
+                    <h1 className="font-serif text-4xl font-bold text-[#E63A12] leading-tight">Snakzee</h1>
+                    <p className="text-xs font-bold text-[#4A1204] uppercase tracking-wider mt-1">Art of Authentic Snacking</p>
+                  </div>
                 </div>
+                <div className="text-sm text-[#555] mt-3 leading-relaxed">
+                  <strong className="text-[#333]">{invoice.company.name}</strong><br/>
+                  {invoice.company.fssai}<br/>
+                  Phone: {invoice.company.phone} | Email: {invoice.company.email}<br/>
+                  Website: {invoice.company.website}
+                </div>
+              </div>
+
+              {/* Right Side - Invoice Title & Meta */}
+              <div className="text-right flex-shrink-0">
+                <h2 className="text-3xl font-bold text-[#E63A12] uppercase tracking-wide mb-3">Order Invoice</h2>
+                <div className="text-sm text-[#444] leading-relaxed">
+                  <p><strong>Invoice No:</strong> #{invoice.number}</p>
+                  <p><strong>Date:</strong> {invoice.date}</p>
+                  <p><strong>Payment Mode:</strong> {invoice.paymentMode}</p>
+                </div>
+                {invoice.status && (
+                  <span className={`inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full text-sm font-semibold mt-3 ${
+                    invoice.status === "shipped" 
+                      ? "bg-green-500/20 text-green-700 border border-green-400/30" 
+                      : "bg-yellow-500/20 text-yellow-700 border border-yellow-400/30"
+                  }`}>
+                    ✓ {invoice.status.toUpperCase()}
+                  </span>
+                )}
               </div>
             </div>
           </div>
 
           {/* Invoice Body */}
           <div className="p-6 sm:p-8">
-            {/* Company Info & Addresses */}
-            <div className="grid md:grid-cols-2 gap-6 mb-8">
-              {/* Bill To */}
-              <div className="bg-cream-dark/30 rounded-xl p-5 border border-terracotta/10">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-lg bg-terracotta/10 flex items-center justify-center">
-                    <Building2 className="w-4 h-4 text-terracotta" />
-                  </div>
-                  <h2 className="font-sans font-semibold text-brown">Bill To</h2>
-                </div>
-                <p className="text-brown font-semibold">{invoice.billing.name}</p>
-                <p className="text-brown-light/70 text-sm mt-1">{invoice.billing.address}</p>
-                {invoice.billing.phone && (
-                  <p className="text-brown-light/70 text-sm flex items-center gap-1.5 mt-1">
-                    <Phone className="w-3.5 h-3.5" /> {invoice.billing.phone}
-                  </p>
-                )}
-              </div>
+            {/* Addresses - Side by Side matching PDF */}
+            <table className="w-full mb-6">
+              <tbody>
+                <tr>
+                  <td className="w-1/2 align-top p-3 bg-[#FFFDFD] border border-[#FFE4DE] rounded-l">
+                    <h3 className="text-sm font-bold text-[#E63A12] uppercase tracking-wide mb-2 border-b border-[#FFE4DE] pb-1">From Address</h3>
+                    <div className="text-sm text-[#555] leading-relaxed">
+                      <strong className="text-[#333]">Snakzee Foods India Pvt Ltd</strong><br/>
+                      57/14-A Sri Raghavendra Swamy Temple,<br/>
+                      Kurnool, Andhra Pradesh – 518001, India<br/>
+                      <strong className="text-[#333]">Phone:</strong> +91 95055 50051
+                    </div>
+                  </td>
+                  <td className="w-1/2 align-top p-3 bg-[#FFFAF9] border border-[#FFE4DE] rounded-r">
+                    <h3 className="text-sm font-bold text-[#E63A12] uppercase tracking-wide mb-2 border-b border-[#FFE4DE] pb-1">Shipping Address</h3>
+                    <div className="text-sm text-[#555] leading-relaxed">
+                      <strong className="text-[#333]">{invoice.billing.name}</strong><br/>
+                      {invoice.billing.addressLine1},<br/>
+                      {invoice.billing.addressLine2}<br/>
+                      {invoice.billing.cityStatePin}, India<br/>
+                      <strong className="text-[#333]">Mobile:</strong> {invoice.billing.phone}
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-              {/* Ship To */}
-              <div className="bg-cream-dark/30 rounded-xl p-5 border border-terracotta/10">
-                <div className="flex items-center gap-2 mb-3">
-                  <div className="w-8 h-8 rounded-lg bg-terracotta/10 flex items-center justify-center">
-                    <Truck className="w-4 h-4 text-terracotta" />
-                  </div>
-                  <h2 className="font-sans font-semibold text-brown">Ship From</h2>
-                </div>
-                <p className="text-brown font-semibold text-sm">{invoice.shipping.name}</p>
-                <p className="text-brown-light/70 text-sm mt-1">{invoice.shipping.address}</p>
-                <p className="text-brown-light/70 text-sm flex items-center gap-1.5 mt-1">
-                  <Phone className="w-3.5 h-3.5" /> {invoice.shipping.phone}
-                </p>
-              </div>
-            </div>
-
-            {/* Company Details Banner */}
-            <div className="bg-gradient-to-r from-cream to-cream-dark/50 rounded-xl p-4 mb-8 border border-terracotta/10">
-              <div className="flex flex-wrap items-center justify-between gap-4">
-                <div className="flex items-center gap-2">
-                  <div className="w-10 h-10 rounded-full bg-terracotta flex items-center justify-center">
-                    <span className="text-white font-bold text-sm">SZ</span>
-                  </div>
-                  <div>
-                    <p className="font-semibold text-brown text-sm">{invoice.company.name}</p>
-                    <p className="text-brown-light/60 text-xs">{invoice.company.fssai}</p>
-                  </div>
-                </div>
-                <div className="flex gap-4 text-sm text-brown-light/70">
-                  <a href={`mailto:${invoice.company.email}`} className="flex items-center gap-1.5 hover:text-terracotta transition-colors">
-                    <Mail className="w-3.5 h-3.5" /> {invoice.company.email}
-                  </a>
-                  <span className="flex items-center gap-1.5">
-                    <Phone className="w-3.5 h-3.5" /> {invoice.company.phone}
-                  </span>
-                </div>
-              </div>
-            </div>
-
-            {/* Items Table */}
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-terracotta/10 flex items-center justify-center">
-                  <Package className="w-4 h-4 text-terracotta" />
-                </div>
-                <h2 className="font-sans font-semibold text-brown">Order Items</h2>
-              </div>
-              <div className="overflow-x-auto rounded-xl border border-terracotta/10">
-                <table className="w-full">
-                  <thead>
-                    <tr className="bg-terracotta text-white">
-                      <th className="px-4 py-3 text-left font-sans font-semibold text-sm">Item Description</th>
-                      <th className="px-4 py-3 text-right font-sans font-semibold text-sm">Qty</th>
-                      <th className="px-4 py-3 text-right font-sans font-semibold text-sm">Rate (₹)</th>
-                      <th className="px-4 py-3 text-right font-sans font-semibold text-sm">Amount (₹)</th>
+            {/* Items Table - Matching PDF */}
+            <div className="mb-6">
+              <table className="w-full">
+                <thead>
+                  <tr className="bg-[#E63A12] text-white">
+                    <th className="px-4 py-3 text-center font-semibold text-sm" style={{width: '8%'}}>S.No.</th>
+                    <th className="px-4 py-3 text-left font-semibold text-sm" style={{width: '44%'}}>Item Name</th>
+                    <th className="px-4 py-3 text-center font-semibold text-sm" style={{width: '18%'}}>Pack Size</th>
+                    <th className="px-4 py-3 text-center font-semibold text-sm" style={{width: '12%'}}>Quantity</th>
+                    <th className="px-4 py-3 text-right font-semibold text-sm" style={{width: '18%'}}>Price (₹)</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {invoice.items.map((item, idx) => (
+                    <tr key={idx} className={`border-b border-[#F6EFEF] ${idx % 2 === 0 ? 'bg-white' : 'bg-[#FFFAF9]'}`}>
+                      <td className="px-4 py-3 text-center text-[#555]">{item.sNo}</td>
+                      <td className="px-4 py-3 text-[#222] font-medium">{item.itemName}</td>
+                      <td className="px-4 py-3 text-center text-[#555]">{item.packSize}</td>
+                      <td className="px-4 py-3 text-center text-[#555]">{item.quantity} Packs</td>
+                      <td className="px-4 py-3 text-right font-semibold text-[#333]">₹{item.price.toFixed(2)}</td>
                     </tr>
-                  </thead>
-                  <tbody>
-                    {invoice.items.map((item, idx) => (
-                      <tr key={idx} className={`border-b border-terracotta/10 hover:bg-cream transition-colors ${idx % 2 === 0 ? 'bg-white' : 'bg-cream/30'}`}>
-                        <td className="px-4 py-3 text-brown font-medium">{item.description}</td>
-                        <td className="px-4 py-3 text-right text-brown-light/80">{item.qty}</td>
-                        <td className="px-4 py-3 text-right text-brown-light/80">₹{item.rate.toFixed(2)}</td>
-                        <td className="px-4 py-3 text-right font-semibold text-brown">₹{item.amount.toFixed(2)}</td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
+                  ))}
+                </tbody>
+              </table>
             </div>
 
-            {/* Summary Section */}
-            <div className="flex flex-col sm:flex-row justify-end gap-6 mb-8">
-              <div className="w-full sm:w-80 bg-cream-dark/30 rounded-xl p-5 border border-terracotta/10">
-                <div className="space-y-3">
-                  <div className="flex justify-between">
-                    <span className="text-brown-light/70 font-sans">Subtotal</span>
-                    <span className="font-semibold text-brown">₹{invoice.subTotal.toFixed(2)}</span>
-                  </div>
-                  {invoice.shippingCharge > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-brown-light/70 font-sans">Shipping</span>
-                      <span className="font-semibold text-brown">₹{invoice.shippingCharge.toFixed(2)}</span>
+            {/* Terms & Summary - Side by Side matching PDF */}
+            <table className="w-full">
+              <tbody>
+                <tr>
+                  <td className="align-top pr-6" style={{width: '55%'}}>
+                    <h3 className="text-sm font-bold text-[#4A1204] uppercase tracking-wide mb-2">Terms & Conditions</h3>
+                    <ul className="text-xs text-[#555] leading-relaxed pl-5 space-y-1">
+                      {invoice.terms.map((term, idx) => (
+                        <li key={idx}>{term}</li>
+                      ))}
+                    </ul>
+                    <div className="mt-3 text-xs italic text-[#444] bg-[#FFFAF9] p-2 border-l-[3px] border-[#E63A12] rounded">
+                      <strong>Total Amount in Words:</strong> {invoice.amountInWords}
                     </div>
-                  )}
-                  {invoice.discount > 0 && (
-                    <div className="flex justify-between">
-                      <span className="text-brown-light/70 font-sans">Discount</span>
-                      <span className="font-semibold text-green-600">-₹{invoice.discount.toFixed(2)}</span>
-                    </div>
-                  )}
-                  <div className="flex justify-between">
-                    <span className="text-brown-light/70 font-sans">Tax (10%)</span>
-                    <span className="font-semibold text-brown">₹{invoice.tax.toFixed(2)}</span>
-                  </div>
-                  <div className="border-t border-terracotta/20 pt-3 mt-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-brown font-semibold">Total</span>
-                      <span className="font-serif text-2xl font-bold text-terracotta">₹{invoice.total.toFixed(2)}</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Additional Info */}
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Notes */}
-              {invoice.notes && (
-                <div className="bg-cream/50 rounded-xl p-5 border border-terracotta/10">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-terracotta/10 flex items-center justify-center">
-                      <FileText className="w-4 h-4 text-terracotta" />
-                    </div>
-                    <h2 className="font-sans font-semibold text-brown">Notes</h2>
-                  </div>
-                  <p className="text-brown-light/70 text-sm italic">{invoice.notes}</p>
-                </div>
-              )}
-
-              {/* Terms */}
-              {invoice.terms && (
-                <div className="bg-cream/50 rounded-xl p-5 border border-terracotta/10">
-                  <div className="flex items-center gap-2 mb-3">
-                    <div className="w-8 h-8 rounded-lg bg-terracotta/10 flex items-center justify-center">
-                      <CreditCard className="w-4 h-4 text-terracotta" />
-                    </div>
-                    <h2 className="font-sans font-semibold text-brown">Terms & Conditions</h2>
-                  </div>
-                  <p className="text-brown-light/70 text-sm">{invoice.terms}</p>
-                </div>
-              )}
-            </div>
+                  </td>
+                  <td className="align-top" style={{width: '45%'}}>
+                    <table className="w-full">
+                      <tbody>
+                        <tr>
+                          <td className="py-2 text-right text-[#555]">Subtotal</td>
+                          <td className="py-2 text-right font-bold text-[#333]">₹{invoice.subtotal.toFixed(2)}</td>
+                        </tr>
+                        <tr>
+                          <td className="py-2 text-right text-[#555]">Delivery Charges</td>
+                          <td className="py-2 text-right font-bold text-green-600">{invoice.deliveryCharges}</td>
+                        </tr>
+                        <tr className="bg-[#FFEBE7] border-t-2 border-b-2 border-[#E63A12]">
+                          <td className="py-3 text-right font-bold text-[#E63A12] text-lg">TOTAL PAYABLE:</td>
+                          <td className="py-3 text-right font-bold text-[#E63A12] text-lg">₹{invoice.total.toFixed(2)}</td>
+                        </tr>
+                      </tbody>
+                    </table>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
 
-          {/* Invoice Footer with Actions */}
-          <div className="bg-cream border-t border-terracotta/10 p-4 sm:p-6">
-            <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-2 text-brown-light/60 text-sm">
-                <Clock className="w-4 h-4" />
-                <span>Generated on {new Date().toLocaleDateString('en-IN', { dateStyle: 'long' })}</span>
-              </div>
-              <div className="flex gap-3">
-                <button
-                  onClick={() => window.print()}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-white border border-terracotta text-terracotta rounded-full font-sans font-semibold hover:bg-terracotta/5 transition-colors"
-                >
-                  <Printer className="w-4 h-4" /> Print
-                </button>
-                <button
-                  onClick={() => window.print()}
-                  className="flex items-center gap-2 px-5 py-2.5 bg-terracotta text-white rounded-full font-sans font-semibold hover:bg-terracotta-dark transition-colors"
-                >
-                  <Download className="w-4 h-4" /> Download PDF
-                </button>
-              </div>
+          {/* Footer - Matching PDF */}
+          <div className="bg-[#FDF6EC] border-t border-[#F6EFEF] p-6 sm:p-8">
+            <div className="text-center text-sm text-[#777]">
+              This is an electronically generated invoice and requires no physical signature.
+              <div className="font-serif text-lg text-[#E63A12] italic font-bold mt-1">Thank you!!</div>
+            </div>
+            <div className="flex justify-center gap-3 mt-6 no-print">
+              <button
+                onClick={() => window.print()}
+                className="flex items-center gap-2 px-5 py-2.5 bg-white border border-[#E63A12] text-[#E63A12] rounded-full font-semibold hover:bg-[#E63A12]/5 transition-colors"
+              >
+                <Printer className="w-4 h-4" /> 🖨️ Print
+              </button>
+              <button
+                onClick={() => window.print()}
+                className="flex items-center gap-2 px-5 py-2.5 bg-[#E63A12] text-white rounded-full font-semibold hover:bg-[#A33215] transition-colors"
+              >
+                <Download className="w-4 h-4" /> 📥 Download PDF
+              </button>
             </div>
           </div>
         </section>
       </main>
 
-      {/* Footer */}
       <Footer />
 
-      {/* Print-specific styles */}
       <style jsx global>{`
         @media print {
           body { background: white; }
           header, footer, .no-print { display: none !important; }
           .invoice-container { box-shadow: none; border: none; }
+          * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
         }
       `}</style>
     </div>

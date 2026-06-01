@@ -119,7 +119,7 @@ export default function Footer() {
                 <li><Link href="/cook-with-snakzee" className="footer-link-hover text-white/80 hover:text-white transition-colors">Cook with Snakzee (Recipes)</Link></li>
                 <li><Link href="/cook-with-snakzee#festival-calendar" className="footer-link-hover text-white/80 hover:text-white transition-colors">Festival Specials</Link></li>
                 <li><Link href="/how-its-made" className="footer-link-hover text-white/80 hover:text-white transition-colors">How It’s Made</Link></li>
-                <li>{scrollOrLink("ingredients", "Our Ingredients")}</li>
+                {/* <li>{scrollOrLink("ingredients", "Our Ingredients")}</li> */}
                 <li><Link href="/cook-with-snakzee#rewards" className="footer-link-hover text-white/80 hover:text-white transition-colors">Snakzee Rewards</Link></li>
               </ul>
             </div>

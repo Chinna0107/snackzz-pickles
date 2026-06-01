@@ -1,10 +1,10 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Mail, Lock, Eye, EyeOff, LogIn, Phone, ShieldCheck, Edit2, KeyRound } from "lucide-react";
+import { Mail, Lock, Eye, EyeOff, Phone, ShieldCheck, Edit2, KeyRound } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -14,20 +14,22 @@ export default function LoginPage() {
   const router = useRouter();
   const { toast } = useToast();
 
-  const [mode, setMode] = useState<"login" | "register" | "reset">("login");
   const [loginMethod, setLoginMethod] = useState<"password" | "otp">("password");
   const [loginStep, setLoginStep] = useState<1 | 2>(1);
-  const [registerStep, setRegisterStep] = useState<1 | 2>(1);
   const [resetStep, setResetStep] = useState<1 | 2>(1);
+  const [mode, setMode] = useState<"login" | "reset">("login");
   
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [form, setForm] = useState({ name: "", email: "", phone: "", password: "" });
+  const [form, setForm] = useState({ email: "", phone: "", password: "" });
 
   // OTP states
   const [otp, setOtp] = useState("");
   const [otpSending, setOtpSending] = useState(false);
   const [countdown, setCountdown] = useState(0);
+
+  const loginBtnRef = useRef<HTMLDivElement>(null);
+  const googleInitialized = useRef(false);
 
   const handleGoogleLoginSuccess = async (response: any) => {
     const idToken = response.credential;
@@ -54,37 +56,58 @@ export default function LoginPage() {
     }
   };
 
+  const renderGoogleButton = useCallback((container: HTMLDivElement | null) => {
+    if (!container || !googleInitialized.current) return;
+    container.innerHTML = '';
+    if (typeof window !== "undefined" && (window as any).google) {
+      (window as any).google.accounts.id.renderButton(
+        container,
+        { theme: "outline", size: "large", width: "100%", text: "signin_with" }
+      );
+    }
+  }, []);
+
+  // Initialize Google Sign-In
   useEffect(() => {
+    if (typeof window === "undefined") return;
+
     const initGoogle = () => {
-      if (typeof window !== "undefined" && (window as any).google) {
+      if ((window as any).google && !googleInitialized.current) {
         (window as any).google.accounts.id.initialize({
           client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID || "your-google-client-id.apps.googleusercontent.com",
           callback: handleGoogleLoginSuccess,
         });
-        const btnContainer = document.getElementById("google-signin-btn");
-        if (btnContainer) {
-          (window as any).google.accounts.id.renderButton(
-            btnContainer,
-            { theme: "outline", size: "large", width: "100%" }
-          );
-        }
+        googleInitialized.current = true;
+        renderGoogleButton(loginBtnRef.current);
       }
     };
 
-    if (document.getElementById("google-gsi-client")) {
+    if ((window as any).google) {
       initGoogle();
     } else {
-      const script = document.createElement("script");
-      script.id = "google-gsi-client";
-      script.src = "https://accounts.google.com/gsi/client";
-      script.async = true;
-      script.defer = true;
-      script.onload = initGoogle;
-      document.body.appendChild(script);
+      const existingScript = document.getElementById("google-gsi-client");
+      if (!existingScript) {
+        const script = document.createElement("script");
+        script.id = "google-gsi-client";
+        script.src = "https://accounts.google.com/gsi/client";
+        script.async = true;
+        script.defer = true;
+        script.onload = initGoogle;
+        document.body.appendChild(script);
+      }
     }
-  }, [mode]);
+  }, [renderGoogleButton]);
 
-  // Countdown timer for resending OTP
+  // Re-render buttons when mode/step changes
+  useEffect(() => {
+    if (googleInitialized.current) {
+      setTimeout(() => {
+        renderGoogleButton(loginBtnRef.current);
+      }, 100);
+    }
+  }, [mode, loginStep, renderGoogleButton]);
+
+  // Countdown timer
   useEffect(() => {
     if (countdown > 0) {
       const timer = setTimeout(() => setCountdown(countdown - 1), 1000);
@@ -95,8 +118,7 @@ export default function LoginPage() {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) =>
     setForm((prev) => ({ ...prev, [e.target.name]: e.target.value }));
 
-  // Send OTP (Unified helper)
-  const handleSendOtp = async (type: "register" | "login" | "reset") => {
+  const handleSendOtp = async (type: "login" | "reset") => {
     if (!form.phone) {
       toast({ title: "Phone required", description: "Please enter your phone number to receive an OTP.", variant: "destructive" });
       return;
@@ -108,7 +130,6 @@ export default function LoginPage() {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ 
-          email: type === "register" ? (form.email || undefined) : undefined, 
           phone: form.phone,
           type
         }),
@@ -134,9 +155,8 @@ export default function LoginPage() {
         });
       }
 
-      if (type === "register") setRegisterStep(2);
-      else if (type === "login") setLoginStep(2);
-      else if (type === "reset") setResetStep(2);
+      if (type === "login") setLoginStep(2);
+      else setResetStep(2);
 
       setCountdown(60);
     } catch {
@@ -146,7 +166,6 @@ export default function LoginPage() {
     }
   };
 
-  // Submit flow
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
@@ -162,16 +181,7 @@ export default function LoginPage() {
         endpoint = "/auth/login-otp";
         body = { phone: form.phone, otp };
       }
-    } else if (mode === "register") {
-      endpoint = "/auth/register";
-      body = { 
-        name: form.name, 
-        email: form.email || undefined, 
-        phone: form.phone, 
-        password: form.password,
-        otp 
-      };
-    } else if (mode === "reset") {
+    } else {
       endpoint = "/auth/reset-password";
       body = {
         phone: form.phone,
@@ -207,7 +217,7 @@ export default function LoginPage() {
       localStorage.setItem("snackzee_user", JSON.stringify(data.user));
 
       toast({
-        title: mode === "login" ? "Welcome back! 🎉" : "Account created! 🎉",
+        title: "Welcome back! 🎉",
         description: `Logged in as ${data.user.email || data.user.phone}`,
       });
 
@@ -237,29 +247,29 @@ export default function LoginPage() {
           </p>
         </div>
 
-        {/* Tab Toggle */}
-        {mode !== "reset" && (
-          <div className="flex border-b border-terracotta/10">
-            {(["login", "register"] as const).map((tab) => (
-              <button
-                key={tab}
-                onClick={() => {
-                  setMode(tab);
-                  setRegisterStep(1);
-                  setLoginStep(1);
-                  setOtp("");
-                }}
-                className={`flex-1 py-3 text-sm font-semibold font-sans capitalize transition-colors ${
-                  mode === tab
-                    ? "text-terracotta border-b-2 border-terracotta"
-                    : "text-brown-light/50 hover:text-brown"
-                }`}
-              >
-                {tab === "login" ? "Sign In" : "Create Account"}
-              </button>
-            ))}
-          </div>
-        )}
+        {/* Tab Toggle - Only for login/reset */}
+        <div className="flex border-b border-terracotta/10">
+          <button
+            onClick={() => { setMode("login"); setLoginStep(1); setOtp(""); }}
+            className={`flex-1 py-3 text-sm font-semibold font-sans transition-colors ${
+              mode === "login"
+                ? "text-terracotta border-b-2 border-terracotta"
+                : "text-brown-light/50 hover:text-brown"
+            }`}
+          >
+            Sign In
+          </button>
+          <button
+            onClick={() => { setMode("reset"); setResetStep(1); setOtp(""); }}
+            className={`flex-1 py-3 text-sm font-semibold font-sans transition-colors ${
+              mode === "reset"
+                ? "text-terracotta border-b-2 border-terracotta"
+                : "text-brown-light/50 hover:text-brown"
+            }`}
+          >
+            Reset Password
+          </button>
+        </div>
 
         {/* Form Container */}
         <div className="px-8 py-7">
@@ -334,11 +344,7 @@ export default function LoginPage() {
                     <div className="text-right">
                       <button
                         type="button"
-                        onClick={() => {
-                          setMode("reset");
-                          setResetStep(1);
-                          setOtp("");
-                        }}
+                        onClick={() => { setMode("reset"); setResetStep(1); setOtp(""); }}
                         className="text-xs font-semibold text-terracotta hover:underline font-sans"
                       >
                         Forgot Password?
@@ -441,189 +447,16 @@ export default function LoginPage() {
                   <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-terracotta/10" /></div>
                   <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-brown-light/40 font-sans">Or continue with</span></div>
                 </div>
-                <div id="google-signin-btn" className="w-full min-h-[40px] flex justify-center animate-pulse-subtle" />
+                <div ref={loginBtnRef} className="w-full min-h-[40px] flex justify-center" />
 
                 <p className="text-center text-brown-light/50 text-xs font-sans mt-4">
                   Don't have an account?{" "}
                   <button
                     type="button"
-                    onClick={() => { setMode("register"); setRegisterStep(1); }}
+                    onClick={() => router.push("/register")}
                     className="text-terracotta font-semibold hover:underline"
                   >
-                    Register
-                  </button>
-                </p>
-              </motion.div>
-            ) : mode === "register" ? (
-              // ─── REGISTER FLOW (2-STEP) ────────────────────────────────
-              <motion.div
-                key="register-flow"
-                initial={{ opacity: 0, x: 10 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -10 }}
-                className="space-y-4"
-              >
-                {registerStep === 1 ? (
-                  // ─── STEP 1: PHONE & EMAIL ───
-                  <form onSubmit={(e) => { e.preventDefault(); handleSendOtp("register"); }} className="space-y-4">
-                    <p className="text-xs text-brown-light/70 font-sans text-center mb-2 leading-relaxed">
-                      Enter your phone number to receive a 6-digit OTP verification code. Email is optional.
-                    </p>
-                    
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brown-light/40" />
-                      <input
-                        name="phone"
-                        type="tel"
-                        required
-                        placeholder="Phone number (10 digits)"
-                        value={form.phone}
-                        onChange={handleChange}
-                        pattern="[0-9]{10}"
-                        title="Enter a valid 10-digit phone number"
-                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown text-sm font-sans placeholder:text-brown-light/40 focus:outline-none focus:border-terracotta/40"
-                      />
-                    </div>
-
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brown-light/40" />
-                      <input
-                        name="email"
-                        type="email"
-                        placeholder="Email address (optional)"
-                        value={form.email}
-                        onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown text-sm font-sans placeholder:text-brown-light/40 focus:outline-none focus:border-terracotta/40"
-                      />
-                    </div>
-
-                    <Button
-                      type="submit"
-                      disabled={otpSending}
-                      className="w-full bg-terracotta hover:bg-terracotta-dark text-white py-3 rounded-xl font-bold font-sans text-sm transition-all hover:scale-[1.02] shadow-lg shadow-terracotta/20 flex items-center justify-center gap-2"
-                    >
-                      {otpSending ? "Sending OTP..." : <><Mail className="w-4 h-4" /> Send OTP Code</>}
-                    </Button>
-
-                    <div className="relative my-4">
-                      <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-terracotta/10" /></div>
-                      <div className="relative flex justify-center text-xs uppercase"><span className="bg-white px-2 text-brown-light/40 font-sans">Or continue with</span></div>
-                    </div>
-                    <div id="google-signin-btn" className="w-full min-h-[40px] flex justify-center" />
-                  </form>
-                ) : (
-                  // ─── STEP 2: VERIFY OTP + FULL DETAILS ───
-                  <form onSubmit={handleSubmit} className="space-y-4">
-                    {/* Display active phone with back/edit option */}
-                    <div className="flex items-center justify-between p-3 rounded-xl bg-cream border border-terracotta/10 text-xs font-sans text-brown">
-                      <div className="flex flex-col gap-1 min-w-0">
-                        <div className="flex items-center gap-2 truncate">
-                          <Phone className="w-3.5 h-3.5 text-terracotta flex-shrink-0" />
-                          <span className="font-semibold">{form.phone}</span>
-                        </div>
-                        {form.email && (
-                          <div className="flex items-center gap-2 truncate text-brown-light/60">
-                            <Mail className="w-3 h-3 text-terracotta/60 flex-shrink-0" />
-                            <span>{form.email}</span>
-                          </div>
-                        )}
-                      </div>
-                      <button
-                        type="button"
-                        onClick={() => { setRegisterStep(1); setOtp(""); }}
-                        className="flex items-center gap-1 text-terracotta hover:text-terracotta-dark hover:underline font-semibold flex-shrink-0 ml-2"
-                      >
-                        <Edit2 className="w-3 h-3" /> Change
-                      </button>
-                    </div>
-
-                    {/* OTP input */}
-                    <div className="relative">
-                      <ShieldCheck className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brown-light/40" />
-                      <input
-                        name="otp"
-                        type="text"
-                        required
-                        maxLength={6}
-                        placeholder="6-Digit OTP Code"
-                        value={otp}
-                        onChange={(e) => setOtp(e.target.value.replace(/\D/g, ""))}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-cream border border-terracotta/20 text-brown text-sm font-sans placeholder:text-brown-light/40 focus:outline-none focus:border-terracotta/40 tracking-wider font-semibold"
-                      />
-                    </div>
-
-                    {/* Full Name */}
-                    <div className="relative">
-                      <LogIn className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brown-light/40" />
-                      <input
-                        name="name"
-                        type="text"
-                        required
-                        placeholder="Full name"
-                        value={form.name}
-                        onChange={handleChange}
-                        className="w-full pl-10 pr-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown text-sm font-sans placeholder:text-brown-light/40 focus:outline-none focus:border-terracotta/40"
-                      />
-                    </div>
-
-                    {/* Password */}
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brown-light/40" />
-                      <input
-                        name="password"
-                        type={showPassword ? "text" : "password"}
-                        required
-                        minLength={6}
-                        placeholder="Password (min 6 chars)"
-                        value={form.password}
-                        onChange={handleChange}
-                        className="w-full pl-10 pr-10 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown text-sm font-sans placeholder:text-brown-light/40 focus:outline-none focus:border-terracotta/40"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3 top-1/2 -translate-y-1/2 text-brown-light/40 hover:text-brown-light transition-colors"
-                      >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                      </button>
-                    </div>
-
-                    <Button
-                      type="submit"
-                      disabled={loading}
-                      className="w-full bg-terracotta hover:bg-terracotta-dark text-white py-3 rounded-xl font-bold font-sans text-sm transition-all hover:scale-[1.02] shadow-lg shadow-terracotta/20"
-                    >
-                      {loading ? "Please wait..." : "Verify & Create Account"}
-                    </Button>
-
-                    {/* Resend OTP button or timer */}
-                    <div className="text-center mt-3">
-                      {countdown > 0 ? (
-                        <p className="text-xs font-sans text-brown-light/50">
-                          Resend OTP in <span className="font-semibold text-terracotta">{countdown}s</span>
-                        </p>
-                      ) : (
-                        <button
-                          type="button"
-                          onClick={() => handleSendOtp("register")}
-                          disabled={otpSending}
-                          className="text-xs font-sans text-terracotta font-semibold hover:underline hover:text-terracotta-dark transition-colors"
-                        >
-                          Resend OTP Code
-                        </button>
-                      )}
-                    </div>
-                  </form>
-                )}
-
-                <p className="text-center text-brown-light/50 text-xs font-sans mt-4">
-                  Already have an account?{" "}
-                  <button
-                    type="button"
-                    onClick={() => { setMode("login"); setRegisterStep(1); }}
-                    className="text-terracotta font-semibold hover:underline"
-                  >
-                    Sign In
+                    Create Account
                   </button>
                 </p>
               </motion.div>
@@ -751,7 +584,7 @@ export default function LoginPage() {
                 <div className="text-center pt-2">
                   <button
                     type="button"
-                    onClick={() => { setMode("login"); }}
+                    onClick={() => { setMode("login"); setLoginStep(1); }}
                     className="text-xs font-semibold text-brown-light/60 hover:text-terracotta transition-colors font-sans"
                   >
                     ← Back to Sign In

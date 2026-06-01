@@ -127,443 +127,201 @@ export default function AdminOrdersPage() {
     const subtotal = (order.items || []).reduce((sum, item) => sum + item.price * item.qty, 0);
     const rows = (order.items || []).map((item, idx) => `
       <tr class="${idx % 2 === 0 ? '' : 'alt-row'}">
-        <td class="item-desc">${escapeHtml(item.name)}</td>
-        <td class="text-right">${item.qty}</td>
-        <td class="text-right">₹${item.price.toFixed(2)}</td>
-        <td class="text-right">₹${(item.price * item.qty).toFixed(2)}</td>
+        <td style="text-align: center;">${idx + 1}</td>
+        <td><span style="font-weight: bold; color: #222222;">${escapeHtml(item.name)}</span></td>
+        <td style="text-align: center;">-</td>
+        <td style="text-align: center;">${item.qty} Packs</td>
+        <td style="text-align: right;">₹${item.price.toFixed(2)}</td>
       </tr>
     `).join("");
 
-    const statusBadge = order.status === 'delivered' 
-      ? `<span style="background:#dcfce7;color:#166534;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600;display:inline-flex;align-items:center;gap:4px;">✓ ${escapeHtml(order.status)}</span>`
-      : order.status === 'cancelled'
-      ? `<span style="background:#fee2e2;color:#991b1b;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600;">✕ ${escapeHtml(order.status)}</span>`
-      : `<span style="background:#fef3c7;color:#92400e;padding:4px 12px;border-radius:9999px;font-size:12px;font-weight:600;">${escapeHtml(order.status)}</span>`;
-
     return `<!doctype html>
-      <html>
-        <head>
+      <html lang="en">
+      <head>
+          <meta charset="UTF-8">
           <title>Snakzee Invoice #${order.id}</title>
-          <link rel="preconnect" href="https://fonts.googleapis.com">
-          <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-          <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
           <style>
-            :root {
-              --terracotta: #C8401A;
-              --terracotta-dark: #A33215;
-              --brown: #3D1A08;
-              --cream: #FDF6EC;
-              --cream-dark: #F5E6D3;
-              --gold: #D4A017;
-            }
-            * { margin: 0; padding: 0; box-sizing: border-box; }
-            body { 
-              font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif; 
-              color: var(--brown); 
-              background: #FDF6EC;
-              line-height: 1.6;
-              -webkit-font-smoothing: antialiased;
-            }
-            .invoice-container {
-              max-width: 800px;
-              margin: 32px auto;
-              background: white;
-              border-radius: 16px;
-              overflow: hidden;
-              box-shadow: 0 8px 30px rgba(0,0,0,0.08);
-            }
-            .invoice-header {
-              background: linear-gradient(135deg, var(--terracotta) 0%, var(--terracotta-dark) 100%);
-              padding: 32px 40px;
-              color: white;
-              display: flex;
-              justify-content: space-between;
-              align-items: flex-start;
-              gap: 24px;
-            }
-            .invoice-header h1 {
-              font-family: 'Playfair Display', serif;
-              font-size: 32px;
-              font-weight: 700;
-              margin: 0 0 4px 0;
-            }
-            .invoice-header .tagline {
-              font-size: 13px;
-              opacity: 0.85;
-            }
-            .invoice-meta {
-              text-align: right;
-              min-width: 180px;
-            }
-            .invoice-meta .invoice-num {
-              font-weight: 600;
-              font-size: 15px;
-              margin-bottom: 4px;
-            }
-            .invoice-meta .invoice-date {
-              font-size: 13px;
-              opacity: 0.85;
-            }
-            .invoice-body {
-              padding: 32px 40px;
-            }
-            .addresses {
-              display: grid;
-              grid-template-columns: 1fr 1fr;
-              gap: 24px;
-              margin-bottom: 32px;
-            }
-            .address-card {
-              background: var(--cream);
-              border-radius: 12px;
-              padding: 20px;
-              border: 1px solid rgba(200,64,26,0.1);
-            }
-            .address-card h3 {
-              font-size: 11px;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-              color: var(--brown);
-              opacity: 0.5;
-              margin-bottom: 8px;
-              display: flex;
-              align-items: center;
-              gap: 6px;
-            }
-            .address-card p {
-              font-size: 14px;
-              margin: 3px 0;
-              color: var(--brown);
-            }
-            .address-card p:first-of-type {
-              font-weight: 600;
-            }
-            .company-banner {
-              background: linear-gradient(135deg, var(--cream) 0%, rgba(245,230,211,0.5) 100%);
-              border-radius: 12px;
-              padding: 16px 20px;
-              margin-bottom: 32px;
-              display: flex;
-              align-items: center;
-              justify-content: space-between;
-              gap: 16px;
-              border: 1px solid rgba(200,64,26,0.1);
-            }
-            .company-info {
-              display: flex;
-              align-items: center;
-              gap: 12px;
-            }
-            .company-logo {
-              width: 40px;
-              height: 40px;
-              background: var(--terracotta);
-              border-radius: 50%;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              color: white;
-              font-weight: 700;
-              font-size: 14px;
-              flex-shrink: 0;
-            }
-            .company-details p {
-              font-size: 13px;
-              margin: 1px 0;
-            }
-            .company-details p:first-child {
-              font-weight: 600;
-            }
-            .company-details p:last-child {
-              opacity: 0.6;
-              font-size: 12px;
-            }
-            .company-contact {
-              display: flex;
-              gap: 16px;
-              font-size: 13px;
-              opacity: 0.7;
-            }
-            .section-title {
-              font-size: 11px;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-              color: var(--brown);
-              opacity: 0.5;
-              margin-bottom: 12px;
-              display: flex;
-              align-items: center;
-              gap: 6px;
-            }
-            .items-table {
-              width: 100%;
-              border-collapse: collapse;
-              border-radius: 12px;
-              overflow: hidden;
-              border: 1px solid rgba(200,64,26,0.1);
-              margin-bottom: 32px;
-            }
-            .items-table thead th {
-              background: var(--terracotta);
-              color: white;
-              padding: 12px 16px;
-              text-align: left;
-              font-size: 13px;
-              font-weight: 600;
-            }
-            .items-table thead th.text-right {
-              text-align: right;
-            }
-            .items-table tbody td {
-              padding: 12px 16px;
-              font-size: 14px;
-              border-bottom: 1px solid rgba(200,64,26,0.08);
-            }
-            .items-table tbody td.text-right {
-              text-align: right;
-            }
-            .items-table tbody tr.alt-row {
-              background: var(--cream);
-            }
-            .items-table tbody tr:last-child td {
-              border-bottom: none;
-            }
-            .item-desc {
-              font-weight: 500;
-            }
-            .summary-section {
-              display: flex;
-              justify-content: flex-end;
-              margin-bottom: 32px;
-            }
-            .summary-card {
-              background: var(--cream);
-              border-radius: 12px;
-              padding: 20px 24px;
-              min-width: 280px;
-              border: 1px solid rgba(200,64,26,0.1);
-            }
-            .summary-row {
-              display: flex;
-              justify-content: space-between;
-              padding: 6px 0;
-              font-size: 14px;
-            }
-            .summary-row.total {
-              border-top: 2px solid rgba(200,64,26,0.2);
-              margin-top: 8px;
-              padding-top: 12px;
-              font-size: 18px;
-              font-weight: 700;
-            }
-            .summary-row.total span:last-child {
-              color: var(--terracotta);
-              font-family: 'Playfair Display', serif;
-            }
-            .info-grid {
-              display: grid;
-              grid-template-columns: 1fr 1fr;
-              gap: 16px;
-              margin-bottom: 24px;
-            }
-            .info-card {
-              background: rgba(253,246,236,0.5);
-              border-radius: 12px;
-              padding: 16px 20px;
-              border: 1px solid rgba(200,64,26,0.1);
-            }
-            .info-card h3 {
-              font-size: 11px;
-              text-transform: uppercase;
-              letter-spacing: 0.5px;
-              color: var(--brown);
-              opacity: 0.5;
-              margin-bottom: 8px;
-              display: flex;
-              align-items: center;
-              gap: 6px;
-            }
-            .info-card p {
-              font-size: 13px;
-              margin: 2px 0;
-              opacity: 0.7;
-            }
-            .invoice-footer {
-              background: var(--cream);
-              border-top: 1px solid rgba(200,64,26,0.1);
-              padding: 20px 40px;
-              display: flex;
-              flex-wrap: wrap;
-              justify-content: space-between;
-              align-items: center;
-              gap: 16px;
-            }
-            .footer-info {
-              font-size: 12px;
-              opacity: 0.6;
-              display: flex;
-              align-items: center;
-              gap: 6px;
-            }
-            .footer-actions {
-              display: flex;
-              gap: 8px;
-            }
-            .btn {
-              padding: 8px 20px;
-              border-radius: 9999px;
-              font-size: 13px;
-              font-weight: 600;
-              cursor: pointer;
-              border: none;
-              display: inline-flex;
-              align-items: center;
-              gap: 6px;
-              transition: all 0.2s;
-            }
-            .btn-primary {
-              background: var(--terracotta);
-              color: white;
-            }
-            .btn-primary:hover {
-              background: var(--terracotta-dark);
-            }
-            .btn-secondary {
-              background: white;
-              color: var(--terracotta);
-              border: 1px solid var(--terracotta);
-            }
-            .btn-secondary:hover {
-              background: rgba(200,64,26,0.05);
-            }
-            @media print {
-              body { background: white; }
-              .invoice-container { margin: 0; border-radius: 0; box-shadow: none; }
-              .print-btn, .invoice-footer { display: none !important; }
-            }
-            @media (max-width: 640px) {
-              .invoice-container { margin: 0; border-radius: 0; }
-              .invoice-header { padding: 24px; }
-              .invoice-body { padding: 20px; }
-              .addresses { grid-template-columns: 1fr; }
-              .company-banner { flex-direction: column; align-items: flex-start; }
-              .info-grid { grid-template-columns: 1fr; }
-              .invoice-footer { flex-direction: column; align-items: flex-start; }
-            }
+              *, *::before, *::after { box-sizing: border-box; }
+              @page {
+                  size: A4;
+                  margin: 15mm 12mm 20mm 12mm;
+                  @bottom-right {
+                      content: "Page 1 of 1";
+                      font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                      font-size: 8.5pt;
+                      color: #777777;
+                  }
+              }
+              body {
+                  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+                  color: #333333;
+                  margin: 0; padding: 0;
+                  font-size: 10pt; line-height: 1.4;
+                  background-color: #ffffff;
+              }
+              .invoice-container { width: 100%; max-width: 100%; }
+              .invoice-header { border-bottom: 3px solid #E63A12; padding-bottom: 18px; margin-bottom: 20px; }
+              .header-table { width: 100%; border-collapse: collapse; }
+              .header-table td { vertical-align: top; padding: 0; }
+              .brand-title { font-size: 28pt; font-weight: bold; color: #E63A12; margin: 0; line-height: 0.95; }
+              .brand-tagline { font-size: 8.5pt; font-weight: bold; color: #4A1204; margin-top: 4px; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 0.5px; }
+              .invoice-title-block { text-align: right; }
+              .invoice-title { font-size: 22pt; font-weight: bold; color: #E63A12; margin: 0; text-transform: uppercase; letter-spacing: 0.5px; }
+              .invoice-meta { margin-top: 8px; font-size: 9.5pt; color: #444444; line-height: 1.5; }
+              .addresses-table { width: 100%; border-collapse: collapse; margin-bottom: 25px; }
+              .addresses-table td { width: 50%; vertical-align: top; padding: 12px; border: 1px solid #FFE4DE; }
+              .addresses-table td.from-box { background-color: #FFFDFD; border-right: none; }
+              .addresses-table td.ship-box { background-color: #FFFAF9; }
+              .section-heading { font-size: 9.5pt; font-weight: bold; color: #E63A12; text-transform: uppercase; border-bottom: 1px solid #FFE4DE; padding-bottom: 5px; margin-bottom: 8px; letter-spacing: 0.5px; }
+              .address-box { font-size: 9.5pt; color: #555555; line-height: 1.5; }
+              .items-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; margin-top: 10px; }
+              .items-table th { background-color: #E63A12; color: #ffffff; font-weight: bold; font-size: 9.5pt; text-align: left; padding: 10px 12px; text-transform: uppercase; }
+              .items-table td { padding: 11px 12px; border-bottom: 1px solid #F6EFEF; font-size: 9.5pt; vertical-align: middle; }
+              .items-table tr:nth-child(even) td { background-color: #FFFAF9; }
+              .totals-table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+              .totals-table td { padding: 0; vertical-align: top; }
+              .terms-cell { width: 55%; padding-right: 25px; }
+              .summary-cell { width: 45%; }
+              .inner-summary-table { width: 100%; border-collapse: collapse; }
+              .inner-summary-table td { padding: 8px 12px; font-size: 10pt; border-bottom: 1px solid #F6EFEF; }
+              .inner-summary-table td.label { text-align: right; color: #555555; }
+              .inner-summary-table td.value { text-align: right; font-weight: bold; width: 120px; }
+              .inner-summary-table tr.grand-total td { background-color: #FFEBE7; border-top: 2px solid #E63A12; border-bottom: 2px double #E63A12; font-weight: bold; color: #E63A12; font-size: 12pt; }
+              .terms-title { font-size: 9pt; font-weight: bold; color: #4A1204; margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.3px; }
+              .terms-list { margin: 0; padding-left: 14px; font-size: 8pt; color: #555555; line-height: 1.5; }
+              .terms-list li { margin-bottom: 4px; }
+              .amount-words { margin-top: 12px; font-size: 8.5pt; font-style: italic; color: #444444; background-color: #FFFAF9; padding: 7px 11px; border-left: 3px solid #E63A12; border-radius: 2px; }
+              .footer-note { margin-top: 45px; text-align: center; font-size: 9pt; color: #777777; border-top: 1px solid #F6EFEF; padding-top: 15px; }
+              .thank-you { font-family: Georgia, serif; font-size: 15pt; color: #E63A12; font-style: italic; margin-top: 4px; font-weight: bold; }
+              .logo-svg-container { display: inline-block; margin-right: 12px; vertical-align: top; }
+              .status-badge { display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; margin-bottom: 15px; }
+              .status-badge.delivered { background: #dcfce7; color: #166534; }
+              .status-badge.cancelled { background: #fee2e2; color: #991b1b; }
+              .status-badge.other { background: #fef3c7; color: #92400e; }
+              .print-btn { margin-top: 20px; text-align: center; }
+              .print-btn button { padding: 8px 24px; margin: 0 8px; border-radius: 9999px; font-size: 13px; font-weight: 600; cursor: pointer; border: none; }
+              .btn-primary { background: #E63A12; color: white; }
+              .btn-secondary { background: white; color: #E63A12; border: 1px solid #E63A12; }
+              @media print {
+                  body { background: white; }
+                  .invoice-container { margin: 0; box-shadow: none; }
+                  .print-btn { display: none !important; }
+                  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+              }
           </style>
-        </head>
-        <body>
-          <div class="invoice-container">
-            <!-- Header -->
-            <div class="invoice-header">
-              <div>
-                <h1>Invoice</h1>
-                <p class="tagline">Authentic Telangana Flavors</p>
-              </div>
-              <div class="invoice-meta">
-                <p class="invoice-num">#${order.id}</p>
-                <p class="invoice-date">${new Date(order.created_at).toLocaleDateString("en-IN", { day: 'numeric', month: 'long', year: 'numeric' })}</p>
-              </div>
-            </div>
-
-            <div class="invoice-body">
-              <!-- Status Badge -->
-              <div style="margin-bottom:24px;">${statusBadge}</div>
-
-              <!-- Addresses -->
-              <div class="addresses">
-                <div class="address-card">
-                  <h3>🏢 Ship From</h3>
-                  <p>${escapeHtml(FROM_ADDRESS.name)}</p>
-                  <p>${escapeHtml(FROM_ADDRESS.line1)}</p>
-                  <p>${escapeHtml(FROM_ADDRESS.city)}, ${escapeHtml(FROM_ADDRESS.state)} — ${escapeHtml(FROM_ADDRESS.pincode)}</p>
-                  <p>${escapeHtml(FROM_ADDRESS.phone)}</p>
-                </div>
-                <div class="address-card">
-                  <h3>👤 Bill To</h3>
-                  <p>${escapeHtml(order.address?.name)}</p>
-                  <p>${escapeHtml(order.address?.line1)}${order.address?.line2 ? `, ${escapeHtml(order.address.line2)}` : ""}</p>
-                  <p>${escapeHtml(order.address?.city)}, ${escapeHtml(order.address?.state)} — ${escapeHtml(order.address?.pincode)}</p>
-                  ${order.address?.phone ? `<p>${escapeHtml(order.address.phone)}</p>` : ""}
-                </div>
-              </div>
-
-              <!-- Company Banner -->
-              <div class="company-banner">
-                <div class="company-info">
-                  <div class="company-logo">SZ</div>
-                  <div class="company-details">
-                    <p>Snakzee Foods India Pvt Ltd</p>
-                    <p>FSSAI Lic. No.: 20126191000174</p>
-                  </div>
-                </div>
-                <div class="company-contact">
-                  <span>📧 support@snakzee.com</span>
-                  <span>📞 +91 8464919366</span>
-                </div>
-              </div>
-
-              <!-- Items Table -->
-              <div class="section-title">📦 Order Items</div>
-              <table class="items-table">
-                <thead>
+      </head>
+      <body>
+      <div class="invoice-container">
+          <div class="invoice-header">
+              <table class="header-table">
                   <tr>
-                    <th>Item Description</th>
-                    <th class="text-right">Qty</th>
-                    <th class="text-right">Rate (₹)</th>
-                    <th class="text-right">Amount (₹)</th>
+                      <td>
+                          <div class="logo-svg-container">
+                              <svg width="60" height="45" viewBox="0 0 100 75" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M85,30 C95,20 98,5 85,2 C72,-1 65,15 62,25 C55,20 45,22 40,28 C32,25 20,30 18,38 C15,45 22,55 35,58 C45,60 55,55 60,48 C65,58 78,60 85,52 C95,42 90,35 85,30 Z" fill="#E63A12"/>
+                                  <circle cx="48" cy="32" r="3" fill="#ffffff"/>
+                                  <circle cx="72" cy="35" r="4" fill="#E63A12"/>
+                                  <circle cx="78" cy="28" r="3" fill="#E63A12"/>
+                              </svg>
+                          </div>
+                          <div class="logo-text-group">
+                              <div class="brand-title">Snakzee</div>
+                              <div class="brand-tagline">Art of Authentic Snacking</div>
+                          </div>
+                          <div style="font-size: 9pt; color: #555555; margin-top: 8px; line-height: 1.5;">
+                              <strong>Snakzee Foods India Pvt Ltd</strong><br>
+                              FSSAI Lic. No.: 20126191000174<br>
+                              Phone: +91 95055 50051 | Email: support@snakzee.com<br>
+                              Website: www.snakzee.com
+                          </div>
+                      </td>
+                      <td class="invoice-title-block">
+                          <div class="invoice-title">Order Invoice</div>
+                          <div class="invoice-meta">
+                              <strong>Invoice No:</strong> #${order.id}<br>
+                              <strong>Date:</strong> ${new Date(order.created_at).toLocaleDateString("en-IN", { day: 'numeric', month: 'long', year: 'numeric' })}<br>
+                              <strong>Status:</strong> ${escapeHtml(order.status)}
+                          </div>
+                      </td>
                   </tr>
-                </thead>
-                <tbody>${rows}</tbody>
               </table>
-
-              <!-- Summary -->
-              <div class="summary-section">
-                <div class="summary-card">
-                  <div class="summary-row">
-                    <span>Subtotal</span>
-                    <span>₹${subtotal.toFixed(2)}</span>
-                  </div>
-                  ${order.discount ? `<div class="summary-row"><span>Discount ${order.coupon ? "(" + escapeHtml(order.coupon) + ")" : ""}</span><span style="color:#16a34a;">-₹${order.discount.toFixed(2)}</span></div>` : ""}
-                  ${order.delivery_fee ? `<div class="summary-row"><span>Delivery</span><span>₹${order.delivery_fee.toFixed(2)}</span></div>` : ""}
-                  <div class="summary-row"><span>Tax (10%)</span><span>₹${(subtotal * 0.1).toFixed(2)}</span></div>
-                  <div class="summary-row total">
-                    <span>Total</span>
-                    <span>₹${order.total.toFixed(2)}</span>
-                  </div>
-                </div>
-              </div>
-
-              <!-- Info Cards -->
-              <div class="info-grid">
-                ${order.payment_id ? `
-                <div class="info-card">
-                  <h3>💳 Payment</h3>
-                  <p>${escapeHtml(order.payment_id)}</p>
-                </div>` : ""}
-                <div class="info-card">
-                  <h3>📝 Notes</h3>
-                  <p>Thank you for shopping with Snakzee!</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Footer -->
-            <div class="invoice-footer">
-              <div class="footer-info">
-                🕐 Generated on ${new Date().toLocaleDateString('en-IN', { dateStyle: 'long' })}
-              </div>
-              <div class="footer-actions print-btn">
-                <button class="btn btn-secondary" onclick="window.print()">
-                  🖨️ Print
-                </button>
-                <button class="btn btn-primary" onclick="window.print()">
-                  📥 Download PDF
-                </button>
-              </div>
-            </div>
           </div>
-        </body>
+
+          <table class="addresses-table">
+              <tr>
+                  <td class="from-box">
+                      <div class="section-heading">From Address</div>
+                      <div class="address-box">
+                          <strong>Snakzee Foods India Pvt Ltd</strong><br>
+                          57/14-A Sri Raghavendra Swamy Temple,<br>
+                          Kurnool, Andhra Pradesh – 518001, India<br>
+                          <strong>Phone:</strong> +91 95055 50051
+                      </div>
+                  </td>
+                  <td class="ship-box">
+                      <div class="section-heading">Shipping Address</div>
+                      <div class="address-box">
+                          <strong>${escapeHtml(order.address?.name || "")}</strong><br>
+                          ${escapeHtml(order.address?.line1 || "")}${order.address?.line2 ? `, ${escapeHtml(order.address.line2)}` : ""}<br>
+                          ${escapeHtml(order.address?.city || "")}, ${escapeHtml(order.address?.state || "")} — ${escapeHtml(order.address?.pincode || "")}, India<br>
+                          ${order.address?.phone ? `<strong>Mobile:</strong> ${escapeHtml(order.address.phone)}` : ""}
+                      </div>
+                  </td>
+              </tr>
+          </table>
+
+          <table class="items-table">
+              <thead>
+                  <tr>
+                      <th style="width: 8%; text-align: center;">S.No.</th>
+                      <th style="width: 44%;">Item Name</th>
+                      <th style="width: 18%; text-align: center;">Pack Size</th>
+                      <th style="width: 12%; text-align: center;">Quantity</th>
+                      <th style="width: 18%; text-align: right;">Price (₹)</th>
+                  </tr>
+              </thead>
+              <tbody>
+                  ${rows}
+              </tbody>
+          </table>
+
+          <table class="totals-table">
+              <tr>
+                  <td class="terms-cell">
+                      <div class="terms-title">Terms & Conditions</div>
+                      <ul class="terms-list">
+                          <li>Once we receive the order, we will start preparing it.</li>
+                          <li>It will take 3-4 days to prepare the order based on the order size.</li>
+                          <li>Your order will be dispatched the next day once it is packed safely.</li>
+                          <li>We will share the tracking details through WhatsApp once we ship the order.</li>
+                          <li>Estimated delivery time will depend on your shipping location and courier availability.</li>
+                      </ul>
+                      <div class="amount-words">
+                          <strong>Total Amount:</strong> ₹${order.total.toFixed(2)}
+                      </div>
+                  </td>
+                  <td class="summary-cell">
+                      <table class="inner-summary-table">
+                          <tr><td class="label">Subtotal</td><td class="value">₹${subtotal.toFixed(2)}</td></tr>
+                          ${order.discount ? `<tr><td class="label">Discount ${order.coupon ? "(" + escapeHtml(order.coupon) + ")" : ""}</td><td class="value" style="color: green;">-₹${order.discount.toFixed(2)}</td></tr>` : ""}
+                          ${order.delivery_fee ? `<tr><td class="label">Delivery Charges</td><td class="value">₹${order.delivery_fee.toFixed(2)}</td></tr>` : '<tr><td class="label">Delivery Charges</td><td class="value" style="color: green;">FREE</td></tr>'}
+                          <tr class="grand-total"><td class="label">TOTAL PAYABLE:</td><td class="value">₹${order.total.toFixed(2)}</td></tr>
+                      </table>
+                  </td>
+              </tr>
+          </table>
+
+          <div class="footer-note">
+              This is an electronically generated invoice and requires no physical signature.<br>
+              <div class="thank-you">Thank you!!</div>
+          </div>
+
+          <div class="print-btn">
+              <button class="btn-secondary" onclick="window.print()">🖨️ Print</button>
+              <button class="btn-primary" onclick="window.print()">📥 Download PDF</button>
+          </div>
+      </div>
+      </body>
       </html>`;
   };
 

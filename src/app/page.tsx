@@ -750,7 +750,7 @@ function CategoryGrid({ products, onCategorySelect }: { products: Product[]; onC
           </p>
         </motion.div>
 
-        <div className="grid grid-cols-2 lg:grid-cols-4 gap-2.5 sm:gap-3 md:gap-4">
+        <div className="grid grid-cols-2 lg:grid-cols-5 gap-2.5 sm:gap-3 md:gap-4">
           {categories.map((cat, index) => (
             <motion.button
               key={cat.id}
@@ -1113,26 +1113,22 @@ function ProductCard({
   // Build a unified options list: value="base" or "v-{i}"
   const [selectedOption, setSelectedOption] = useState<string>("base");
   const [quantity, setQuantity] = useState(1);
-  // Fallback gram state
-  const [selectedGram, setSelectedGram] = useState<GramOption>("500g");
 
   const selectedPrice = hasVariants
     ? (selectedOption === "base"
         ? product.price
         : variants![Number(selectedOption.replace("v-", ""))].price)
-    : priceForGramOption(product, selectedGram);
+    : product.price;
 
   const selectedUnit = hasVariants
     ? (selectedOption === "base"
         ? product.priceUnit
         : variants![Number(selectedOption.replace("v-", ""))].quantity)
-    : selectedGram;
+    : product.priceUnit;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const cartProduct = hasVariants
-      ? { ...product, price: selectedPrice, priceUnit: selectedUnit }
-      : productForGramOption(product, selectedGram);
+    const cartProduct = { ...product, price: selectedPrice, priceUnit: selectedUnit };
     addItem(cartProduct, quantity);
     toast({
       title: "Added to cart! 🛒",
@@ -1272,17 +1268,10 @@ function ProductCard({
                 ))}
               </select>
             ) : (
-              // Fallback: static gram options
-              <select
-                value={selectedGram}
-                onChange={(e) => setSelectedGram(e.target.value as GramOption)}
-                className="min-w-0 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
-                aria-label="Select weight"
-              >
-                {GRAM_OPTIONS.map((option) => (
-                  <option key={option} value={option}>{option}</option>
-                ))}
-              </select>
+              // No variants: just show the base unit as a label-like box
+              <div className="min-w-0 rounded-xl border border-terracotta/10 bg-cream/50 px-3 py-2 text-sm font-semibold text-brown/70 flex items-center">
+                {product.priceUnit}
+              </div>
             )}
             <input
               type="number" min={1} max={10} value={quantity}
@@ -3651,7 +3640,7 @@ function HomeContent() {
       {compareIds.length >= 2 && (
         <button
           onClick={() => setCompareOpen(true)}
-          className="fixed bottom-[8.5rem] left-5 z-50 bg-terracotta hover:bg-terracotta-dark text-cream px-4 py-2.5 rounded-full font-semibold text-sm shadow-lg transition-all hover:scale-105 flex items-center gap-2 wa-ripple"
+          className="fixed bottom-32 left-5 z-40 bg-terracotta hover:bg-terracotta-dark text-cream px-4 py-2.5 rounded-full font-semibold text-sm shadow-lg transition-all hover:scale-105 flex items-center gap-2 wa-ripple"
         >
           <BarChart3 className="w-4 h-4" />
           Compare ({compareIds.length})
@@ -3668,7 +3657,7 @@ function HomeContent() {
       {quickOrderItems.size > 0 && (
         <button
           onClick={() => setQuickOrderOpen(true)}
-          className="fixed bottom-24 right-5 z-50 bg-gold hover:bg-gold-light text-brown w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-gold/30 transition-all hover:scale-110 font-sans"
+          className="fixed bottom-[calc(208px+env(safe-area-inset-bottom,0px))] sm:bottom-40 right-5 z-40 bg-gold hover:bg-gold-light text-brown w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-gold/30 transition-all hover:scale-110 font-sans"
         >
           <Package className="w-6 h-6" />
           <span className="absolute -top-1 -right-1 w-5 h-5 bg-terracotta text-white text-[10px] font-bold rounded-full flex items-center justify-center">
