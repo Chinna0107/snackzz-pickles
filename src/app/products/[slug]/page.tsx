@@ -5,7 +5,7 @@ import { useParams, useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
 import { motion } from "framer-motion";
-import { ShoppingCart, Heart, Share2, Clock, Users, Flame, ArrowLeft, Star } from "lucide-react";
+import { ShoppingCart, Heart, Share2, Clock, Users, Flame, ArrowLeft, Star, Plus, Minus } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/context/CartContext";
 import Header from "@/components/Header";
@@ -176,7 +176,8 @@ export default function ProductDetailPage() {
   const allImages = [product.image, ...(product.images || [])].filter(Boolean);
   const currentPrice = selectedQuantity !== null ? product.quantity_prices[selectedQuantity].price : product.price;
   const currentMRP = selectedQuantity !== null ? product.quantity_prices[selectedQuantity].mrp : product.mrp;
-  const discount = currentMRP ? Math.round(((currentMRP - currentPrice) / currentMRP) * 100) : 0;
+  const hasValidMRP = currentMRP && Number(currentMRP) > currentPrice;
+  const discount = hasValidMRP ? Math.round(((Number(currentMRP) - currentPrice) / Number(currentMRP)) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-cream">
@@ -242,7 +243,7 @@ export default function ProductDetailPage() {
               
               <div className="flex items-baseline gap-3 mb-2">
                 <span className="font-sans text-4xl font-bold text-terracotta">₹{currentPrice}</span>
-                {currentMRP && currentMRP > currentPrice && (
+                {Boolean(hasValidMRP) && (
                   <>
                     <span className="text-brown-light/40 text-xl line-through">₹{currentMRP}</span>
                     <span className="text-green-600 text-sm font-bold font-sans">{discount}% OFF</span>
@@ -279,7 +280,7 @@ export default function ProductDetailPage() {
                       }`}>
                       <p className="font-sans font-bold text-brown text-sm">{qp.quantity}</p>
                       <p className="font-sans font-bold text-terracotta">₹{qp.price}</p>
-                      {qp.mrp && qp.mrp > qp.price && (
+                      {Boolean(qp.mrp && qp.mrp > qp.price) && (
                         <p className="text-brown-light/40 text-xs line-through">₹{qp.mrp}</p>
                       )}
                     </button>
@@ -291,15 +292,33 @@ export default function ProductDetailPage() {
             {/* Action Buttons */}
             <div>
               <label htmlFor="product-cart-quantity" className="block font-sans font-bold text-brown mb-2">Quantity</label>
-              <input
-                id="product-cart-quantity"
-                type="number"
-                min={1}
-                max={10}
-                value={cartQuantity}
-                onChange={(e) => setCartQuantity(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
-                className="w-28 rounded-xl border border-terracotta/10 bg-white px-4 py-3 text-center text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
-              />
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => setCartQuantity(Math.min(10, Math.max(1, cartQuantity - 1)))}
+                  disabled={cartQuantity <= 1}
+                  className="w-12 h-12 rounded-xl border border-terracotta/10 bg-white flex items-center justify-center text-brown hover:bg-terracotta/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  aria-label="Decrease quantity"
+                >
+                  <Minus className="w-4 h-4" />
+                </button>
+                <input
+                  id="product-cart-quantity"
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={cartQuantity}
+                  onChange={(e) => setCartQuantity(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
+                  className="w-20 rounded-xl border border-terracotta/10 bg-white px-4 py-3 text-center text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+                />
+                <button
+                  onClick={() => setCartQuantity(Math.min(10, Math.max(1, cartQuantity + 1)))}
+                  disabled={cartQuantity >= 10}
+                  className="w-12 h-12 rounded-xl border border-terracotta/10 bg-white flex items-center justify-center text-brown hover:bg-terracotta/5 disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                  aria-label="Increase quantity"
+                >
+                  <Plus className="w-4 h-4" />
+                </button>
+              </div>
             </div>
             <div className="flex gap-3">
               <button onClick={addToCart}

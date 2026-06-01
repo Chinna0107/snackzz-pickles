@@ -23,8 +23,8 @@ const TEAM = [
 ];
 
 const STATS = [
-  { value: "500+", label: "Happy Customers" },
-  { value: "44+", label: "Authentic Products" },
+  { value: "1500+", label: "Happy Customers" },
+  { value: "100+", label: "Authentic Products" },
   { value: "3", label: "Generations of Recipes" },
   { value: "100%", label: "No Preservatives" },
 ];
@@ -146,7 +146,7 @@ export default function AboutPage() {
                 },
                 {
                   title: "Fresh Farm Ingredients",
-                  snakzee: "Directly sourced from partner farms in Jagtial and Warangal.",
+                  snakzee: "Directly sourced from partner farms in Telangana and Andhra Pradesh.",
                   commercial: "Sourced from old wholesale storage stocks and synthetic substitutes.",
                   badge: "🌱 Pure vs Processed"
                 },

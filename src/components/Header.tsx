@@ -257,7 +257,7 @@ export default function Header() {
 
                         {[
                           { href: "/cook-with-snakzee", label: "Cook with Snakzee (Recipes)", icon: "🍳" },
-                          {href: "/cook-with-snakzee#heritage", label: "Our Heritage Products", icon: "🧈" },
+                          {href: "/cook-with-snakzee#heritage", label: "Our Heritage Ingredients", icon: "🧈" },
                           { href: "/cook-with-snakzee#festival-calendar", label: "Festival Specials", icon: "🪔" },
                           { href: "/cook-with-snakzee#rewards", label: "Snakzee Rewards", icon: "🎁" }
                         ].map((item) => (
@@ -499,6 +499,7 @@ export default function Header() {
 
                         {[
                           { href: "/cook-with-snakzee", label: "Cook with Snakzee (Recipes)" },
+                          {href: "/cook-with-snakzee#heritage", label: "Our Heritage Ingredients", icon: "🧈" },
                           { href: "/cook-with-snakzee#festival-calendar", label: "Festival Specials" },
                           { href: "/cook-with-snakzee#rewards", label: "Snakzee Rewards" }
                         ].map((sub) => (
@@ -521,7 +522,7 @@ export default function Header() {
                 {/* Account mobile */}
                 {user ? (
                   <div className="border-t border-terracotta/10 pt-3 space-y-1 bg-cream/10 rounded-b-xl">
-                    <span className="text-[9px] font-sans font-bold text-brown-light/40 uppercase tracking-widest px-3 block mb-1">My Account Menu</span>
+                    {/* <span className="text-[9px] font-sans font-bold text-brown-light/40 uppercase tracking-widest px-3 block mb-1">My Account Menu</span>
                     {[
                       { href: "/orders", label: "My Orders" },
                       { href: "/orders", label: "Orders Tracking" },
@@ -535,7 +536,7 @@ export default function Header() {
                     ))}
                     <button onClick={handleLogout} className="px-4 py-2 text-xs font-sans font-semibold text-red-500 hover:bg-red-50 transition-colors w-full text-left rounded-xl mt-1">
                       Logout
-                    </button>
+                    </button> */}
                   </div>
                 ) : (
                   <Link href="/login" onClick={() => setMobileMenuOpen(false)}>

@@ -253,10 +253,6 @@ function ProductsContent() {
         const res = await fetch(`${BACKEND_URL}/products`);
         const data = await res.json();
         if (data.products && Array.isArray(data.products)) {
-          // Debug: Log first product's quantity_prices
-          if (data.products.length > 0) {
-            console.log('Products page - first product quantity_prices:', data.products[0].quantity_prices);
-          }
           const mapped = data.products.map((p: any) => {
             // Extract available quantities from quantity_prices array - normalize format
             let availableQuantities: string[] = [];

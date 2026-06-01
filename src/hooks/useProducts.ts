@@ -30,6 +30,7 @@ function mapProduct(p: any): MappedProduct {
     })(),
     description: p.description || "",
     price: p.price,
+    mrp: p.mrp && Number(p.mrp) > 0 ? Number(p.mrp) : null,
     priceUnit: p.price_unit && p.price_unit !== "per pack" ? p.price_unit : "500g",
     image: p.image || "/placeholder.jpg",
     badge: p.badge,
@@ -42,7 +43,7 @@ function mapProduct(p: any): MappedProduct {
     tags: Array.isArray(p.tags) ? p.tags : [],
     slug: p.slug || String(p.id),
     couponApplicable: p.coupon_applicable !== false,
-    quantity_prices: Array.isArray(p.quantity_prices) ? p.quantity_prices.map((qp: { quantity: string }) => {
+    quantity_prices: Array.isArray(p.quantity_prices) ? p.quantity_prices.map((qp: { quantity: string; price: number; mrp?: any }) => {
       // Normalize quantity format: "250grms" -> "250g", "100" -> "100g", "1kg" -> "1kg"
       let qty = qp.quantity.trim().toLowerCase();
       // Replace various gram suffixes with 'g'
@@ -51,7 +52,11 @@ function mapProduct(p: any): MappedProduct {
       if (/^\d+$/.test(qty)) {
         qty = `${qty}g`;
       }
-      return { ...qp, quantity: qty };
+      return { 
+        ...qp, 
+        quantity: qty, 
+        mrp: qp.mrp && Number(qp.mrp) > 0 ? Number(qp.mrp) : null 
+      };
     }) : [],
   };
 }
@@ -76,12 +81,6 @@ async function fetchFromAPI(): Promise<MappedProduct[]> {
   const res = await fetch(`${BACKEND_URL}/products`);
   const data = await res.json();
   if (!data.products || !Array.isArray(data.products)) return [];
-  
-  // Debug: Log first product's quantity_prices
-  if (data.products.length > 0) {
-    console.log('Backend response - first product quantity_prices:', data.products[0].quantity_prices);
-  }
-  
   return data.products.map(mapProduct);
 }
 

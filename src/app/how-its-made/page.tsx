@@ -31,9 +31,9 @@ const STEP_IDS = [
 // Rich specific details for each step to blow the user away
 const STEP_DETAILS = [
   {
-    subtitle: "From Telangana Farms",
+    subtitle: "From Telangana and Andhra Farms",
     highlights: ["Sourced from Jagtial & Warangal local farmers", "100% natural, pesticide-free fresh chilies", "Strict selection of premium oilseeds"],
-    story: "We believe great food starts with authentic ingredients. Our team works directly with traditional farmers across Telangana, sourcing premium wood-dried Guntur red chilies, freshly harvested peanuts, organic jaggery, and unrefined grains. No cold storages, no mass wholesale markets — only pure, raw goodness from soil to stove."
+    story: "We believe great food starts with authentic ingredients. Our team works directly with traditional farmers across Telangana and Andhra, sourcing premium wood-dried Guntur red chilies, freshly harvested peanuts, organic jaggery, and unrefined grains. No cold storages, no mass wholesale markets — only pure, raw goodness from soil to stove."
   },
   {
     subtitle: "Stone Grinding & Hand Rolling",
@@ -48,7 +48,7 @@ const STEP_DETAILS = [
   {
     subtitle: "The Sun-Drying Vadiyalu Process",
     highlights: ["100% natural solar heat dehydration", "Strict dust-protected solar terraces", "Traditional cotton-cloth peeling technique"],
-    story: "The authentic crunch of a vadiyam cannot be recreated in a commercial dehydrator machine. Our vadiyalu and papads are laid out on clean cotton sheets on raised solar terraces under the intense Telangana sun. This gradual, natural heat-locking process ensures they bloom into light, crispy perfection when fried."
+    story: "The authentic crunch of a vadiyam cannot be recreated in a commercial dehydrator machine. Our vadiyalu and papads are laid out on clean cotton sheets on raised solar terraces under the intense Telangana and Andhra sun. This gradual, natural heat-locking process ensures they bloom into light, crispy perfection when fried."
   },
   {
     subtitle: "Uncompromised Hygiene Standards",
@@ -241,7 +241,7 @@ export default function HowItsMadePage() {
               {[
                 { title: "No Industrial Machinery", desc: "No mass automation, no conveyor belts. Every item is cooked carefully by hand in heavy brass & iron kadhais to capture traditional depth of flavor.", icon: "🧑‍🍳" },
                 { title: "100% Zero Preservatives", desc: "We use strictly traditional preservative methods (like sun drying and natural oil seal) without chemical stabilizers, artificial food colorings, or MSG.", icon: "🌿" },
-                { title: "Direct Farm Support", desc: "By purchasing directly from rural Telangana farming families, we ensure maximum freshness for you and fair compensation for our hard-working growers.", icon: "🏡" }
+                { title: "Direct Farm Support", desc: "By purchasing directly from rural Telangana and Andhra farming families, we ensure maximum freshness for you and fair compensation for our hard-working growers.", icon: "🏡" }
               ].map((item, i) => (
                 <div key={i} className="bg-cream rounded-2xl border border-terracotta/10 p-6 sm:p-8 hover:shadow-lg transition-all text-center">
                   <div className="text-4xl mb-4">{item.icon}</div>

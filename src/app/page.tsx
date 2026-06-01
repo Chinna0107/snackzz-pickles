@@ -3634,8 +3634,12 @@ function HomeContent() {
       </main>
       <Footer />
 
-      <ChatbotWidget />
-      <FloatingWhatsApp />
+      {!quickOrderOpen && (
+        <>
+          <ChatbotWidget />
+          <FloatingWhatsApp />
+        </>
+      )}
       <SocialProofNotification products={products} />
       {compareIds.length >= 2 && (
         <button
@@ -3654,7 +3658,7 @@ function HomeContent() {
         compareIds={compareIds}
       />
       {/* Quick Order List floating button */}
-      {quickOrderItems.size > 0 && (
+      {quickOrderItems.size > 0 && !quickOrderOpen && (
         <button
           onClick={() => setQuickOrderOpen(true)}
           className="fixed bottom-[calc(208px+env(safe-area-inset-bottom,0px))] sm:bottom-40 right-5 z-40 bg-gold hover:bg-gold-light text-brown w-14 h-14 rounded-full flex items-center justify-center shadow-lg shadow-gold/30 transition-all hover:scale-110 font-sans"

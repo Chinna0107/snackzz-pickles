@@ -322,12 +322,12 @@ export default function AdminProductsPage() {
                 <h3 className="font-sans font-bold text-brown mb-3">Basic Information</h3>
                 <div className="grid sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="text-xs font-sans font-semibold text-brown-light/70 mb-1 block">Name (Hindi)</label>
+                    <label className="text-xs font-sans font-semibold text-brown-light/70 mb-1 block">Name (English)</label>
                     <input value={formData.name} onChange={(e) => handleChange("name", e.target.value)}
                       className="w-full px-3 py-2 rounded-lg bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30" />
                   </div>
                   <div>
-                    <label className="text-xs font-sans font-semibold text-brown-light/70 mb-1 block">Name (English)</label>
+                    <label className="text-xs font-sans font-semibold text-brown-light/70 mb-1 block">Name (Telugu)</label>
                     <input value={formData.name_english} onChange={(e) => handleChange("name_english", e.target.value)}
                       className="w-full px-3 py-2 rounded-lg bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30" />
                   </div>

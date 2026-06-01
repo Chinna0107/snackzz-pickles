@@ -16,6 +16,7 @@ export interface Product {
   category: Category;
   description: string;
   price: number;
+  mrp?: number | null;   // Maximum Retail Price (optional)
   priceUnit: string;
   image: string;
   badge?: string;
@@ -769,7 +770,8 @@ export const products: Product[] = [
   {
     id: "majjiga-mirchi",
     name: "మజ్జిగ మిర్చి",
-        category: "hot-items",
+    nameEnglish: "Majjiga Mirchi",
+    category: "hot-items",
           description: "Buttermilk-marinated green chilies, sun-dried to perfection — fry for a tangy, spicy side dish",
             price: 200,
               priceUnit: "250g",
@@ -1217,7 +1219,7 @@ export const CHATBOT_QA = [
 export const PROCESS_STEPS = [
   {
     step: 1,
-    title: "Sourcing (Telangana farms)",
+    title: "Sourcing (Telangana and Andhra farms )",
     description: "Handpicked fresh ingredients directly from local Telangana farms — fresh chilies, peanuts, spices, and premium grains.",
     icon: "🌱",
   },
