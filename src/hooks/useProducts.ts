@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { type Product } from "@/lib/products";
 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 const CACHE_KEY = "snackzee_products_cache";
 const CACHE_TTL = 5 * 60 * 1000; // 5 minutes
 

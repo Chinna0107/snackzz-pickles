@@ -10,7 +10,7 @@ import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/context/CartContext";
 import Header from "@/components/Header";
 
-const BACKEND_URL = "http://localhost:5000";
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
 const SPICE_LABELS = [
   { label: "No Spice", emoji: "😊", color: "bg-green-100 text-green-700" },
