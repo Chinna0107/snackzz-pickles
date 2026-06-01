@@ -658,10 +658,9 @@ function BestSellers({ products, onCategorySelect }: { products: Product[]; onCa
   const scrollRef = useRef<HTMLDivElement>(null);
   const [addedId, setAddedId] = useState<string | null>(null);
 
-  const catIds = ["snacks", "sweet-items", "masalas-powders", "vadiyalu-papads", "pickles", "fryums"];
-  const bestsellers = catIds.flatMap(catId =>
-    products.filter(p => p.category === catId).slice(0, 2)
-  );
+  const bestsellers = products
+  .filter(product => product.badge?.toLowerCase() === "bestseller")
+  .slice(0, 10);
   if (bestsellers.length === 0) return null;
 
   const handleAdd = (e: React.MouseEvent, product: Product) => {
