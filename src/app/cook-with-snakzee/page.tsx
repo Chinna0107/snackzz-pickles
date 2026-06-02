@@ -323,7 +323,7 @@ export default function CookWithSnakzee() {
               ))}
             </div>
             <div className="text-center mt-8">
-              <a href="https://wa.me/918897586142?text=I want to join Snakzee Rewards!" target="_blank" rel="noopener noreferrer"
+              <a href="https://wa.me/919505550051?text=I want to join Snakzee Rewards!" target="_blank" rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-full font-bold font-sans transition-all hover:scale-105">
                 <MessageCircle className="w-5 h-5" /> Join Rewards on WhatsApp
               </a>

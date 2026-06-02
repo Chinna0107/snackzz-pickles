@@ -108,7 +108,7 @@ export default function AdminOrdersPage() {
   };
 
   const notifyWhatsApp = (order: Order) => {
-    const phone = (order.address?.phone || "").replace(/\D/g, "") || "918897586142";
+    const phone = (order.address?.phone || "").replace(/\D/g, "") || "919505550051";
     const t = tracking[order.id];
     const trackMsg = t?.id ? ` Your tracking ID is ${t.id}.${t.link ? ` Track here: ${t.link}` : ""}` : "";
     const msg = encodeURIComponent(`Hi ${order.address?.name}! 🙏 Your Snakzee order #${order.id} status: *${order.status}*.${trackMsg} Thank you! 🍿`);
@@ -222,10 +222,10 @@ export default function AdminOrdersPage() {
                           </div>
                           <div class="logo-text-group">
                               
-                              <div class="brand-tagline">Art of Authentic Snacking</div>
+                             
                           </div>
                           <div style="font-size: 9pt; color: #555555; margin-top: 8px; line-height: 1.5;">
-                              <strong>Snakzee Foods India Pvt Ltd</strong><br>
+                              <strong style="font-size: 20px;">Snakzee Foods India Pvt Ltd</strong><br>
                               FSSAI Lic. No.: 20126191000174<br>
                               Phone: +91 95055 50051 | Email: support@snakzee.com<br>
                               Website: www.snakzee.com
@@ -332,7 +332,7 @@ export default function AdminOrdersPage() {
   };
 
   const sendInvoiceWhatsApp = (order: Order) => {
-    const phone = (order.address?.phone || "").replace(/\D/g, "") || "918897586142";
+    const phone = (order.address?.phone || "").replace(/\D/g, "") || "919505550051";
     const items = (order.items || []).map((i) => `• ${i.name} ×${i.qty} — ₹${i.price * i.qty}`).join("\n");
     const msg = encodeURIComponent(
       `Hi ${order.address?.name}! 🙏 Please find your *Snakzee Invoice* for Order *#${order.id}* below:\n\n` +

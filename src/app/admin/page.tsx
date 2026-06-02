@@ -6,7 +6,7 @@ import { motion } from "framer-motion";
 import { products } from "@/lib/products";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
-const WA_NUMBER = "918897586142";
+const WA_NUMBER = "919505550051";
 
 interface Order {
   id: number;

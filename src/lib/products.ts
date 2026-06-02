@@ -998,7 +998,7 @@ export const VIDEO_TESTIMONIALS: VideoTestimonial[] = [
 
 // ─── EXISTING EXPORTS (preserved) ─────────────────────────────────────
 
-export const WHATSAPP_NUMBER = "918897586142";
+export const WHATSAPP_NUMBER = "919505550051";
 
 export function getWhatsAppLink(product?: Product | string, quantity?: number): string {
   const base = `https://wa.me/${WHATSAPP_NUMBER}`;

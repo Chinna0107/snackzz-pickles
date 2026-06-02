@@ -265,7 +265,7 @@ export default function HowItsMadePage() {
                 <Link href="/shop" className="bg-white hover:bg-cream text-terracotta font-sans font-bold px-8 py-3.5 rounded-full transition-all shadow-lg hover:scale-105">
                   Browse Products
                 </Link>
-                <a href="https://wa.me/918897586142?text=Hi! I want to order some fresh homemade snacks from Snakzee!" target="_blank" rel="noopener noreferrer" className="border-2 border-white/40 hover:bg-white/10 text-white font-sans font-bold px-8 py-3.5 rounded-full transition-all hover:scale-105">
+                <a href="https://wa.me/919505550051?text=Hi! I want to order some fresh homemade snacks from Snakzee!" target="_blank" rel="noopener noreferrer" className="border-2 border-white/40 hover:bg-white/10 text-white font-sans font-bold px-8 py-3.5 rounded-full transition-all hover:scale-105">
                   WhatsApp Support
                 </a>
               </div>

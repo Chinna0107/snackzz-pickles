@@ -2607,7 +2607,7 @@ function OrderTrackingSection() {
             WhatsApp us your order date and we&apos;ll send you an instant update.
           </p>
           <a
-            href={`https://wa.me/918897586142?text=${encodeURIComponent("Hi! I want to track my Snakzee order. Can you share the status?")}`}
+            href={`https://wa.me/919505550051?text=${encodeURIComponent("Hi! I want to track my Snakzee order. Can you share the status?")}`}
             target="_blank"
             rel="noopener noreferrer"
             className="inline-flex items-center gap-2 bg-whatsapp hover:bg-whatsapp-dark text-white px-8 py-4 rounded-full font-bold text-base transition-all hover:scale-105 shadow-xl shadow-whatsapp/20 font-sans wa-ripple"

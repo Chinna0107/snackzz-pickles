@@ -49,7 +49,7 @@ Deploying live takes seconds:
 
 ## 🌿 The Structure
 
-- `/src/lib/products.ts`: Single-Source-of-Truth database housing 44 catalogue products, FAQ mappings, combis, and global constants (like the active WhatsApp redirect URI `+91 8897586142`).
+- `/src/lib/products.ts`: Single-Source-of-Truth database housing 44 catalogue products, FAQ mappings, combis, and global constants (like the active WhatsApp redirect URI `+91 9505550051`).
 - `/src/app/page.tsx`: A hyper-customized monolithic home component containing modular structural chunks (Navbars, Heroes, How It's Made timelines, etc.).
 - `/src/app/globals.css`: Powerful styling system overriding standard Tailwind sets with advanced Glassmorphic rules and animations natively scoped to `.glass-card`, `.process-dot`, `.badge-shimmer`, etc.
 
