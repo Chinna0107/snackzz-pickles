@@ -193,7 +193,8 @@ export default function AdminOrdersPage() {
               .amount-words { margin-top: 12px; font-size: 8.5pt; font-style: italic; color: #444444; background-color: #FFFAF9; padding: 7px 11px; border-left: 3px solid #E63A12; border-radius: 2px; }
               .footer-note { margin-top: 45px; text-align: center; font-size: 9pt; color: #777777; border-top: 1px solid #F6EFEF; padding-top: 15px; }
               .thank-you { font-family: Georgia, serif; font-size: 15pt; color: #E63A12; font-style: italic; margin-top: 4px; font-weight: bold; }
-              .logo-svg-container { display: inline-block; margin-right: 12px; vertical-align: top; }
+              .logo-img-container { display: inline-block; margin-right: 12px; vertical-align: top; }
+              .logo-img-container img { display: block; }
               .status-badge { display: inline-block; padding: 4px 12px; border-radius: 9999px; font-size: 12px; font-weight: 600; margin-bottom: 15px; }
               .status-badge.delivered { background: #dcfce7; color: #166534; }
               .status-badge.cancelled { background: #fee2e2; color: #991b1b; }
@@ -216,16 +217,11 @@ export default function AdminOrdersPage() {
               <table class="header-table">
                   <tr>
                       <td>
-                          <div class="logo-svg-container">
-                              <svg width="60" height="45" viewBox="0 0 100 75" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                  <path d="M85,30 C95,20 98,5 85,2 C72,-1 65,15 62,25 C55,20 45,22 40,28 C32,25 20,30 18,38 C15,45 22,55 35,58 C45,60 55,55 60,48 C65,58 78,60 85,52 C95,42 90,35 85,30 Z" fill="#E63A12"/>
-                                  <circle cx="48" cy="32" r="3" fill="#ffffff"/>
-                                  <circle cx="72" cy="35" r="4" fill="#E63A12"/>
-                                  <circle cx="78" cy="28" r="3" fill="#E63A12"/>
-                              </svg>
+                          <div class="logo-img-container">
+                              <img src="/snakzee-logo.jpg" alt="Snakzee Logo" width="140" height="45" style="object-fit: contain;">
                           </div>
                           <div class="logo-text-group">
-                              <div class="brand-title">Snakzee</div>
+                              
                               <div class="brand-tagline">Art of Authentic Snacking</div>
                           </div>
                           <div style="font-size: 9pt; color: #555555; margin-top: 8px; line-height: 1.5;">

@@ -3,6 +3,7 @@
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { Download, Printer } from "lucide-react";
+import Image from "next/image";
 
 export default function InvoicePage() {
   const invoice = {
@@ -59,13 +60,15 @@ export default function InvoicePage() {
               {/* Left Side - Brand & Company Info */}
               <div className="flex-1">
                 <div className="flex items-center gap-3 mb-2">
-                  {/* Logo SVG matching PDF */}
-                  <svg width="60" height="45" viewBox="0 0 100 75" fill="none" xmlns="http://www.w3.org/2000/svg" className="flex-shrink-0">
-                    <path d="M85,30 C95,20 98,5 85,2 C72,-1 65,15 62,25 C55,20 45,22 40,28 C32,25 20,30 18,38 C15,45 22,55 35,58 C45,60 55,55 60,48 C65,58 78,60 85,52 C95,42 90,35 85,30 Z" fill="#E63A12"/>
-                    <circle cx="48" cy="32" r="3" fill="#ffffff"/>
-                    <circle cx="72" cy="35" r="4" fill="#E63A12"/>
-                    <circle cx="78" cy="28" r="3" fill="#E63A12"/>
-                  </svg>
+                  {/* Logo */}
+                  <div className="relative w-16 h-12 flex-shrink-0">
+                    <Image
+                      src="/snakzee-logo.jpg"
+                      alt="Snakzee Logo"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
                   <div>
                     <h1 className="font-serif text-4xl font-bold text-[#E63A12] leading-tight">Snakzee</h1>
                     <p className="text-xs font-bold text-[#4A1204] uppercase tracking-wider mt-1">Art of Authentic Snacking</p>
