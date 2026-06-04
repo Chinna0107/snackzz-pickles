@@ -109,7 +109,10 @@ export default function MyOrdersPage() {
               <div className="space-y-1 mb-3 max-h-28 overflow-y-auto">
                 {(order.items || []).map((item, j) => (
                   <div key={j} className="flex justify-between text-xs sm:text-sm font-sans text-brown-light/70">
-                    <span className="truncate pr-2">{item.name} × {item.qty}</span>
+                    <span className="truncate pr-2">
+                      {item.name} <span className="font-semibold text-brown">×{item.qty}</span>
+                      {(item as any).unit && <span className="text-xs text-brown-light/40 ml-1">({(item as any).unit})</span>}
+                    </span>
                     <span className="flex-shrink-0">₹{item.price * item.qty}</span>
                   </div>
                 ))}

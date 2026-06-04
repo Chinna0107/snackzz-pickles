@@ -368,32 +368,32 @@ function ProductsContent() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Category Tabs */}
-          <div className="flex flex-wrap gap-2 sm:gap-3 mb-6 justify-center">
+          {/* Category Tabs — horizontally scrollable on mobile */}
+          <div className="flex gap-2 sm:gap-3 mb-6 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
             <button
               onClick={() => handleCategoryChange("all")}
-              className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all font-sans flex items-center gap-2 border ${
+              className={`flex-shrink-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all font-sans flex items-center gap-1.5 sm:gap-2 border ${
                 activeCategory === "all"
                   ? "bg-terracotta text-white border-terracotta shadow-lg shadow-terracotta/20"
                   : "bg-white text-brown-light border-terracotta/10 hover:border-terracotta/30"
               }`}
             >
-              <div className="flex items-center justify-center w-5 h-5 rounded-full bg-cream text-[10px] flex-shrink-0 shadow-sm border border-terracotta/5">
+              <div className="flex items-center justify-center w-4 h-4 sm:w-5 sm:h-5 rounded-full bg-cream text-[9px] sm:text-[10px] flex-shrink-0 shadow-sm border border-terracotta/5">
                 🛍️
               </div>
-              <span>All Products ({products.length})</span>
+              <span>All ({products.length})</span>
             </button>
             {categories.map((cat) => (
               <button
                 key={cat.id}
                 onClick={() => handleCategoryChange(cat.id)}
-                className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all font-sans flex items-center gap-2 border ${
+                className={`flex-shrink-0 px-4 sm:px-5 py-2 sm:py-2.5 rounded-full font-semibold text-xs sm:text-sm transition-all font-sans flex items-center gap-1.5 sm:gap-2 border ${
                   activeCategory === cat.id
                     ? "bg-terracotta text-white border-terracotta shadow-lg shadow-terracotta/20"
                     : "bg-white text-brown-light border-terracotta/10 hover:border-terracotta/30"
                 }`}
               >
-                <div className={`relative w-5 h-5 rounded-full overflow-hidden flex-shrink-0 bg-cream-dark ${activeCategory === cat.id ? "border border-white/30" : "border border-terracotta/10"}`}>
+                <div className={`relative w-4 h-4 sm:w-5 sm:h-5 rounded-full overflow-hidden flex-shrink-0 bg-cream-dark ${activeCategory === cat.id ? "border border-white/30" : "border border-terracotta/10"}`}>
                   <Image
                     src={cat.image}
                     alt={cat.name}
@@ -403,7 +403,7 @@ function ProductsContent() {
                   />
                 </div>
                 <span>{cat.name}</span>
-                <span className={`text-[10px] ${activeCategory === cat.id ? "text-white/70" : "text-brown-light/40"}`}>
+                <span className={`text-[9px] sm:text-[10px] ${activeCategory === cat.id ? "text-white/70" : "text-brown-light/40"}`}>
                   ({products.filter((p) => p.category === cat.id).length})
                 </span>
               </button>

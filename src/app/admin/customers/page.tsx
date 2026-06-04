@@ -104,9 +104,9 @@ export default function CustomersPage() {
   return (
     <div>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-6">
+      <div className="flex flex-col gap-3 mb-6">
         <h1 className="font-serif text-2xl sm:text-3xl font-bold text-brown">Customers</h1>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-2 sm:gap-3">
           <div className="flex items-center gap-2 bg-white px-3 py-2 rounded-xl border border-terracotta/10">
             <Users className="w-4 h-4 text-terracotta" />
             <span className="font-serif font-bold text-brown text-sm">{users.length}</span>
@@ -150,16 +150,16 @@ export default function CustomersPage() {
           </p>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-xs sm:text-sm font-sans">
+            <table className="w-full text-xs sm:text-sm font-sans min-w-[640px]">
               <thead className="bg-cream/50">
                 <tr className="text-brown-light/50 text-[10px] uppercase tracking-wider">
-                  <th className="text-left py-3 px-4">Customer</th>
-                  <th className="text-left py-3 px-4">Contact</th>
-                  <th className="text-left py-3 px-4">Orders</th>
-                  <th className="text-left py-3 px-4">Spent</th>
-                  <th className="text-left py-3 px-4">Role</th>
-                  <th className="text-left py-3 px-4">Joined</th>
-                  <th className="text-left py-3 px-4">Actions</th>
+                  <th className="text-left py-3 px-3 sm:px-4">Customer</th>
+                  <th className="text-left py-3 px-3 sm:px-4">Contact</th>
+                  <th className="text-left py-3 px-3 sm:px-4">Orders</th>
+                  <th className="text-left py-3 px-3 sm:px-4">Spent</th>
+                  <th className="text-left py-3 px-3 sm:px-4">Role</th>
+                  <th className="text-left py-3 px-3 sm:px-4">Joined</th>
+                  <th className="text-left py-3 px-3 sm:px-4">Actions</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-terracotta/5">

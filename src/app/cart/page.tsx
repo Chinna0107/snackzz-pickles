@@ -29,16 +29,16 @@ export default function CartPage() {
   return (
     <div className="min-h-screen bg-cream pt-20">
       <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-8">
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-brown">Your Cart</h1>
-          <button onClick={clearCart} className="text-sm text-red-400 hover:text-red-600 font-sans transition-colors">
+        <div className="flex items-center justify-between mb-6 sm:mb-8">
+          <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-brown">Your Cart</h1>
+          <button onClick={clearCart} className="text-xs sm:text-sm text-red-400 hover:text-red-600 font-sans transition-colors">
             Clear all
           </button>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-8">
+        <div className="grid lg:grid-cols-3 gap-5 lg:gap-8">
           {/* Items */}
-          <div className="lg:col-span-2 space-y-4">
+          <div className="lg:col-span-2 space-y-3 sm:space-y-4">
             <AnimatePresence>
               {items.map((item) => {
                 const itemKey = getCartItemKey(item);
@@ -48,26 +48,26 @@ export default function CartPage() {
                   initial={{ opacity: 0, x: -20 }}
                   animate={{ opacity: 1, x: 0 }}
                   exit={{ opacity: 0, x: -20, height: 0 }}
-                  className="bg-white rounded-2xl border border-terracotta/10 p-4 flex gap-4 items-center"
+                  className="bg-white rounded-2xl border border-terracotta/10 p-3 sm:p-4 flex gap-3 sm:gap-4 items-center"
                 >
-                  <div className="w-20 h-20 rounded-xl overflow-hidden flex-shrink-0 bg-cream-dark relative">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden flex-shrink-0 bg-cream-dark relative">
                     <Image src={item.product.image} alt={item.product.name} fill className="object-cover" sizes="80px" />
                   </div>
                   <div className="flex-1 min-w-0">
-                    <p className="font-serif font-bold text-brown text-lg leading-tight">{item.product.name}</p>
-                    <p className="text-brown-light/50 text-xs font-sans">{item.product.nameEnglish} · {item.product.priceUnit}</p>
-                    <p className="text-gold font-sans font-bold text-lg mt-1">₹{item.product.price * item.quantity}</p>
+                    <p className="font-serif font-bold text-brown text-sm sm:text-lg leading-tight line-clamp-1">{item.product.name}</p>
+                    <p className="text-brown-light/50 text-[10px] sm:text-xs font-sans">{item.product.nameEnglish} · {item.product.priceUnit}</p>
+                    <p className="text-gold font-sans font-bold text-base sm:text-lg mt-0.5">₹{item.product.price * item.quantity}</p>
                   </div>
-                  <div className="flex items-center gap-2 flex-shrink-0">
-                    <button onClick={() => updateQty(itemKey, item.quantity - 1)} className="w-8 h-8 rounded-full border border-terracotta/20 flex items-center justify-center hover:bg-terracotta/10 transition-colors">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-shrink-0">
+                    <button onClick={() => updateQty(itemKey, item.quantity - 1)} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-terracotta/20 flex items-center justify-center hover:bg-terracotta/10 transition-colors">
                       <Minus className="w-3 h-3" />
                     </button>
-                    <span className="w-8 text-center font-bold text-brown font-sans">{item.quantity}</span>
-                    <button onClick={() => updateQty(itemKey, item.quantity + 1)} className="w-8 h-8 rounded-full border border-terracotta/20 flex items-center justify-center hover:bg-terracotta/10 transition-colors">
+                    <span className="w-6 sm:w-8 text-center font-bold text-brown font-sans text-sm">{item.quantity}</span>
+                    <button onClick={() => updateQty(itemKey, item.quantity + 1)} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full border border-terracotta/20 flex items-center justify-center hover:bg-terracotta/10 transition-colors">
                       <Plus className="w-3 h-3" />
                     </button>
-                    <button onClick={() => removeItem(itemKey)} className="w-8 h-8 rounded-full hover:bg-red-50 flex items-center justify-center transition-colors ml-1">
-                      <Trash2 className="w-4 h-4 text-red-400" />
+                    <button onClick={() => removeItem(itemKey)} className="w-7 h-7 sm:w-8 sm:h-8 rounded-full hover:bg-red-50 flex items-center justify-center transition-colors ml-1">
+                      <Trash2 className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-red-400" />
                     </button>
                   </div>
                 </motion.div>

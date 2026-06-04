@@ -48,6 +48,7 @@ export default function AdminOrdersPage() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
   const [expanded, setExpanded] = useState<number | null>(null);
+  const [statusFilter, setStatusFilter] = useState("all");
   const [tracking, setTracking] = useState<Record<number, { id: string; link: string }>>({});
 
   useEffect(() => {
@@ -129,7 +130,7 @@ export default function AdminOrdersPage() {
       <tr class="${idx % 2 === 0 ? '' : 'alt-row'}">
         <td style="text-align: center;">${idx + 1}</td>
         <td><span style="font-weight: bold; color: #222222;">${escapeHtml(item.name)}</span></td>
-        <td style="text-align: center;">-</td>
+        <td style="text-align: center;">${(item as any).unit ? escapeHtml((item as any).unit) : '-'}</td>
         <td style="text-align: center;">${item.qty} Packs</td>
         <td style="text-align: right;">₹${item.price.toFixed(2)}</td>
       </tr>
@@ -362,36 +363,60 @@ export default function AdminOrdersPage() {
     </div>
   );
 
+  const filtered = orders.filter(o => statusFilter === "all" || o.status === statusFilter);
+
   return (
-    <div>
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-8">
+    <div className="w-full max-w-5xl mx-auto">
+      {/* Page Header */}
+      <div className="flex flex-col xs:flex-row xs:items-center justify-between gap-3 mb-4">
         <div>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-brown">Orders</h1>
+          <h1 className="font-serif text-xl sm:text-2xl lg:text-3xl font-bold text-brown">Orders</h1>
           <p className="text-brown-light/40 text-xs font-sans mt-0.5">{orders.length} total</p>
         </div>
         <Link href="/admin/orders/new"
-          className="flex items-center gap-2 bg-terracotta hover:bg-terracotta-dark text-white px-5 py-2.5 rounded-xl font-bold font-sans text-sm transition-colors shadow-md shadow-terracotta/20">
-          <Plus className="w-4 h-4" /> Record External Order
+          className="inline-flex items-center justify-center gap-2 bg-terracotta hover:bg-terracotta-dark text-white px-4 py-2.5 rounded-xl font-bold font-sans text-xs sm:text-sm transition-colors shadow-md shadow-terracotta/20 w-full xs:w-auto">
+          <Plus className="w-4 h-4 flex-shrink-0" /> Record External Order
         </Link>
       </div>
 
-      {orders.length === 0 ? (
-        <div className="bg-white rounded-2xl border border-terracotta/10 p-12 text-center">
-          <p className="text-brown-light/50 font-sans">No orders yet.</p>
+      {/* Status Filter Buttons — horizontally scrollable on mobile */}
+      <div className="flex gap-2 mb-5 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
+        {["all", ...STATUSES].map((s) => (
+          <button key={s} onClick={() => setStatusFilter(s)}
+            className={`flex-shrink-0 px-3 py-1.5 rounded-full text-xs font-bold font-sans capitalize transition-colors ${
+              statusFilter === s
+                ? "bg-terracotta text-white shadow-sm"
+                : "bg-white border border-terracotta/20 text-brown-light/60 hover:border-terracotta/40"
+            }`}>
+            {s === "all" ? `All (${orders.length})` : `${s} (${orders.filter(o => o.status === s).length})`}
+          </button>
+        ))}
+      </div>
+
+      {filtered.length === 0 ? (
+        <div className="bg-white rounded-2xl border border-terracotta/10 p-10 sm:p-12 text-center">
+          <p className="text-brown-light/50 font-sans text-sm">
+            {orders.length === 0 ? "No orders yet." : `No ${statusFilter} orders.`}
+          </p>
         </div>
       ) : (
-        <div className="space-y-4">
-          {orders.map((order, i) => (
+        <div className="space-y-3 sm:space-y-4">
+          {filtered.map((order, i) => (
             <motion.div key={order.id} initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: i * 0.04 }}
               className="bg-white rounded-2xl border border-terracotta/10 overflow-hidden">
+
               {/* Header Row */}
-              <div className="flex items-center gap-2 sm:gap-4 p-4 sm:p-5 cursor-pointer hover:bg-cream/30 transition-colors"
+              <div className="flex items-center gap-2 sm:gap-3 p-3 sm:p-4 lg:p-5 cursor-pointer hover:bg-cream/30 transition-colors"
                 onClick={() => setExpanded(expanded === order.id ? null : order.id)}>
                 <div className="flex-1 min-w-0">
-                  <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
+                  <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                     <span className="font-serif font-bold text-brown text-sm sm:text-base">#{order.id}</span>
-                    <span className="text-brown-light/50 text-[10px] sm:text-xs font-sans">{new Date(order.created_at).toLocaleDateString("en-IN")}</span>
-                    <span className={`text-[9px] sm:text-[10px] font-bold font-sans px-2 py-0.5 rounded-full ${STATUS_COLORS[order.status] || "bg-cream text-brown-light"}`}>{order.status}</span>
+                    <span className="text-brown-light/50 text-[10px] sm:text-xs font-sans">
+                      {new Date(order.created_at).toLocaleDateString("en-IN")}
+                    </span>
+                    <span className={`text-[9px] sm:text-[10px] font-bold font-sans px-2 py-0.5 rounded-full ${STATUS_COLORS[order.status] || "bg-cream text-brown-light"}`}>
+                      {order.status}
+                    </span>
                     {order.source && order.source !== "website" && (
                       <span className={`text-[9px] font-bold font-sans px-2 py-0.5 rounded-full flex items-center gap-1 ${
                         order.source === "whatsapp" ? "bg-green-100 text-green-700" : "bg-purple-100 text-purple-700"
@@ -401,28 +426,31 @@ export default function AdminOrdersPage() {
                       </span>
                     )}
                   </div>
-                  <p className="text-brown-light/60 text-[10px] sm:text-xs font-sans mt-0.5 truncate">{order.address?.name} · {order.address?.city}</p>
+                  <p className="text-brown-light/60 text-[10px] sm:text-xs font-sans mt-0.5 truncate">
+                    {order.address?.name} · {order.address?.city}
+                  </p>
                 </div>
-                <span className="font-serif font-bold text-gold text-base sm:text-lg flex-shrink-0">₹{order.total}</span>
+                <span className="font-serif font-bold text-gold text-sm sm:text-base lg:text-lg flex-shrink-0">₹{order.total}</span>
                 <ChevronDown className={`w-4 h-4 text-brown-light/40 transition-transform flex-shrink-0 ${expanded === order.id ? "rotate-180" : ""}`} />
               </div>
 
               {/* Expanded Details */}
               {expanded === order.id && (
-                <div className="border-t border-terracotta/5 p-5 space-y-5">
+                <div className="border-t border-terracotta/5 p-3 sm:p-4 lg:p-5 space-y-4">
+
                   {/* Addresses */}
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    <div className="bg-cream/50 rounded-xl p-4">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="bg-cream/50 rounded-xl p-3 sm:p-4">
                       <p className="text-[10px] font-sans text-brown-light/40 uppercase tracking-wider mb-2">From (Seller)</p>
                       <p className="font-sans font-bold text-brown text-sm">{FROM_ADDRESS.name}</p>
-                      <p className="text-brown-light/60 text-xs font-sans">{FROM_ADDRESS.line1}</p>
+                      <p className="text-brown-light/60 text-xs font-sans leading-relaxed">{FROM_ADDRESS.line1}</p>
                       <p className="text-brown-light/60 text-xs font-sans">{FROM_ADDRESS.city}, {FROM_ADDRESS.state} — {FROM_ADDRESS.pincode}</p>
                       <p className="text-brown-light/60 text-xs font-sans">{FROM_ADDRESS.phone}</p>
                     </div>
-                    <div className="bg-cream/50 rounded-xl p-4">
+                    <div className="bg-cream/50 rounded-xl p-3 sm:p-4">
                       <p className="text-[10px] font-sans text-brown-light/40 uppercase tracking-wider mb-2">To (Customer)</p>
                       <p className="font-sans font-bold text-brown text-sm">{order.address?.name}</p>
-                      <p className="text-brown-light/60 text-xs font-sans">{order.address?.line1}{order.address?.line2 ? `, ${order.address.line2}` : ""}</p>
+                      <p className="text-brown-light/60 text-xs font-sans leading-relaxed">{order.address?.line1}{order.address?.line2 ? `, ${order.address.line2}` : ""}</p>
                       <p className="text-brown-light/60 text-xs font-sans">{order.address?.city}, {order.address?.state} — {order.address?.pincode}</p>
                       {order.address?.phone && <p className="text-brown-light/60 text-xs font-sans">{order.address.phone}</p>}
                     </div>
@@ -431,22 +459,24 @@ export default function AdminOrdersPage() {
                   {/* Items */}
                   <div>
                     <p className="text-[10px] font-sans text-brown-light/40 uppercase tracking-wider mb-2">Order Items</p>
-                    <div className="space-y-1">
+                    <div className="space-y-1.5">
                       {(order.items || []).map((item, j) => (
-                        <div key={j} className="flex justify-between text-sm font-sans text-brown-light/70">
-                          <span>{item.name} × {item.qty}</span>
-                          <span>₹{item.price * item.qty}</span>
+                        <div key={j} className="flex justify-between gap-2 text-xs sm:text-sm font-sans text-brown-light/70">
+                          <span className="min-w-0 truncate">
+                            {item.name} <span className="font-semibold text-brown">×{item.qty}</span>
+                            {(item as any).unit && <span className="text-[10px] text-brown-light/40 ml-1">({(item as any).unit})</span>}
+                          </span>
+                          <span className="flex-shrink-0">₹{item.price * item.qty}</span>
                         </div>
                       ))}
                     </div>
-                    {order.discount ? <p className="text-green-600 text-xs font-sans mt-1">Coupon ({order.coupon}): −₹{order.discount}</p> : null}
+                    {order.discount ? <p className="text-green-600 text-xs font-sans mt-1.5">Coupon ({order.coupon}): −₹{order.discount}</p> : null}
                     {order.delivery_fee ? <p className="text-brown-light/50 text-xs font-sans">Delivery: ₹{order.delivery_fee}</p> : null}
-                    <p className="font-serif font-bold text-gold text-lg mt-2">Total: ₹{order.total}</p>
+                    <p className="font-serif font-bold text-gold text-base sm:text-lg mt-2">Total: ₹{order.total}</p>
                   </div>
 
-                  {/* Status + Tracking + Actions */}
-                  <div className="grid sm:grid-cols-2 gap-4">
-                    {/* Status */}
+                  {/* Status + Tracking */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                     <div>
                       <p className="text-[10px] font-sans text-brown-light/40 uppercase tracking-wider mb-2">Update Status</p>
                       <select value={order.status} onChange={(e) => updateStatus(order.id, e.target.value)}
@@ -454,17 +484,15 @@ export default function AdminOrdersPage() {
                         {STATUSES.map((s) => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </div>
-
-                    {/* Tracking */}
                     <div>
                       <p className="text-[10px] font-sans text-brown-light/40 uppercase tracking-wider mb-2">Delhivery Shipment</p>
                       {order.tracking_id && order.tracking_id.trim() !== "" ? (
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 bg-green-50 border border-green-200 rounded-xl px-3 py-2">
-                            <span className="text-green-700 font-bold font-sans text-xs">AWB: {order.tracking_id}</span>
+                            <span className="text-green-700 font-bold font-sans text-xs truncate">AWB: {order.tracking_id}</span>
                             {order.tracking_link && (
                               <a href={order.tracking_link} target="_blank" rel="noopener noreferrer"
-                                className="ml-auto text-terracotta hover:text-terracotta-dark transition-colors">
+                                className="ml-auto flex-shrink-0 text-terracotta hover:text-terracotta-dark transition-colors">
                                 <ExternalLink className="w-3.5 h-3.5" />
                               </a>
                             )}
@@ -483,25 +511,30 @@ export default function AdminOrdersPage() {
                     </div>
                   </div>
 
-                  {/* Action Buttons */}
-                  <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 pt-2 border-t border-terracotta/5">
+                  {/* Action Buttons — 2-col on mobile, row on tablet+ */}
+                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 pt-2 border-t border-terracotta/5">
                     <button onClick={() => printLabel(order.id, order.tracking_id)}
-                      className="flex items-center justify-center gap-2 bg-brown text-cream px-4 py-2.5 rounded-xl text-sm font-semibold font-sans hover:bg-brown-light transition-colors">
-                      <Printer className="w-4 h-4" /> Print Shipping Label
+                      className="flex items-center justify-center gap-1.5 bg-brown text-cream px-3 py-2.5 rounded-xl text-xs font-semibold font-sans hover:bg-brown-light transition-colors">
+                      <Printer className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span className="truncate">Print Label</span>
                     </button>
                     <button onClick={() => notifyWhatsApp(order)}
-                      className="flex items-center justify-center gap-2 bg-green-500 hover:bg-green-600 text-white px-4 py-2.5 rounded-xl text-sm font-semibold font-sans transition-colors">
-                      <MessageCircle className="w-4 h-4" /> Notify on WhatsApp
+                      className="flex items-center justify-center gap-1.5 bg-green-500 hover:bg-green-600 text-white px-3 py-2.5 rounded-xl text-xs font-semibold font-sans transition-colors">
+                      <MessageCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span className="truncate">Notify WA</span>
                     </button>
                     <button onClick={() => openInvoice(order)}
-                      className="flex items-center justify-center gap-2 bg-gold hover:bg-amber-500 text-brown px-4 py-2.5 rounded-xl text-sm font-semibold font-sans transition-colors">
-                      <FileText className="w-4 h-4" /> Open Invoice
+                      className="flex items-center justify-center gap-1.5 bg-gold hover:bg-amber-500 text-brown px-3 py-2.5 rounded-xl text-xs font-semibold font-sans transition-colors">
+                      <FileText className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span className="truncate">Invoice</span>
                     </button>
                     <button onClick={() => sendInvoiceWhatsApp(order)}
-                      className="flex items-center justify-center gap-2 bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2.5 rounded-xl text-sm font-semibold font-sans transition-colors">
-                      <MessageCircle className="w-4 h-4" /> Send Invoice via WhatsApp
+                      className="flex items-center justify-center gap-1.5 bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-2.5 rounded-xl text-xs font-semibold font-sans transition-colors">
+                      <MessageCircle className="w-3.5 h-3.5 flex-shrink-0" />
+                      <span className="truncate">Send Invoice</span>
                     </button>
                   </div>
+
                   {/* Notes */}
                   {order.notes && (
                     <div className="bg-gold/5 border border-gold/20 rounded-xl p-3">

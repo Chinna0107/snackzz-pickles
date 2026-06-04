@@ -3008,3 +3008,81 @@ body {
 .scrollbar-hide::-webkit-scrollbar {
   display: none;
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   XS BREAKPOINT (360px) — smallest phones
+   ═══════════════════════════════════════════════════════════════ */
+@media (min-width: 360px) {
+  .xs\:inline { display: inline; }
+  .xs\:flex { display: flex; }
+  .xs\:hidden { display: none; }
+  .xs\:w-auto { width: auto; }
+  .xs\:flex-row { flex-direction: row; }
+  .xs\:items-center { align-items: center; }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   RESPONSIVE TABLE WRAPPER — prevents horizontal overflow
+   ═══════════════════════════════════════════════════════════════ */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.table-responsive::-webkit-scrollbar {
+  display: none;
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN PANEL MOBILE IMPROVEMENTS
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 767px) {
+  /* Ensure admin content never clips under mobile header */
+  .admin-content-area {
+    padding-top: max(64px, env(safe-area-inset-top, 0px));
+  }
+
+  /* Make modal forms scroll properly on mobile */
+  .modal-form-scroll {
+    max-height: calc(100dvh - 160px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   PRODUCT GRID RESPONSIVE
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 380px) {
+  /* Tighten product card padding on very small phones */
+  .product-card-tight {
+    padding: 0.5rem;
+  }
+
+  .product-card-tight .product-name {
+    font-size: 0.9rem;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   CHECKOUT RESPONSIVE HELPERS
+   ═══════════════════════════════════════════════════════════════ */
+@media (max-width: 480px) {
+  /* Coupon grid on small screens */
+  .coupon-grid-mobile {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   SAFE AREA HELPERS
+   ═══════════════════════════════════════════════════════════════ */
+.pb-safe {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+.pt-safe {
+  padding-top: env(safe-area-inset-top, 0px);
+}

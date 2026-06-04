@@ -12,6 +12,8 @@ import { CheckCircle2, ChevronDown, ChevronRight, Mail, MapPin, Phone, CreditCar
 import { useToast } from "@/hooks/use-toast";
 import { LOYALTY_TIERS, type LoyaltyTier, type LoyaltyTierName } from "@/lib/loyalty";
 
+import OrderSuccessModal from "@/components/OrderSuccessModal";
+
 declare global {
   interface Window {
     Razorpay: new (options: RazorpayOptions) => { open: () => void };
@@ -57,6 +59,8 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [orderSuccessDetails, setOrderSuccessDetails] = useState<any>(null);
 
   // Step 2 state
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; pct?: number; discountAmount?: number; type?: 'percentage' | 'fixed' } | null>(null);
@@ -253,7 +257,7 @@ export default function CheckoutPage() {
             method: "POST",
             headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
             body: JSON.stringify({
-              items: items.map((i) => ({ productId: i.product.id, name: i.product.nameEnglish, qty: i.quantity, price: i.product.price })),
+              items: items.map((i) => ({ productId: i.product.id, name: i.product.nameEnglish, qty: i.quantity, price: i.product.price, unit: i.product.priceUnit })),
               address: { ...address, state: address.state === "Other" ? address.customState : address.state },
               coupon: appliedCoupon?.code,
               discount,
@@ -266,8 +270,17 @@ export default function CheckoutPage() {
         } catch {}
 
         clearCart();
-        toast({ title: "Order Placed! 🎉", description: `Payment ID: ${response.razorpay_payment_id}` });
-        router.push("/orders");
+        setOrderSuccessDetails({
+          paymentId: response.razorpay_payment_id,
+          total: grandTotal,
+          items: items.length,
+          address: {
+            name: address.name,
+            city: address.city,
+            pincode: address.pincode,
+          },
+        });
+        setShowSuccessModal(true);
       },
       prefill: { name: address.name, email: address.email, contact: address.phone },
       theme: { color: "#C8401A" },
@@ -293,18 +306,18 @@ export default function CheckoutPage() {
         <h1 className="font-serif text-3xl font-bold text-brown mb-8 text-center">Checkout</h1>
 
         {/* Step Indicator */}
-        <div className="flex items-center justify-center mb-10">
+        <div className="flex items-center justify-center mb-8 sm:mb-10 overflow-x-auto pb-1">
           {STEPS.map((s, i) => (
-            <div key={s.id} className="flex items-center">
-              <div className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-sans font-semibold transition-all ${
+            <div key={s.id} className="flex items-center flex-shrink-0">
+              <div className={`flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-sans font-semibold transition-all ${
                 step === s.id ? "bg-terracotta text-white shadow-lg" :
                 step > s.id ? "bg-green-100 text-green-700" : "bg-white text-brown-light/50 border border-terracotta/10"
               }`}>
-                {step > s.id ? <CheckCircle2 className="w-4 h-4" /> : s.icon}
-                <span className="hidden sm:inline">{s.label}</span>
+                {step > s.id ? <CheckCircle2 className="w-3.5 h-3.5 sm:w-4 sm:h-4" /> : s.icon}
+                <span className="hidden xs:inline sm:inline">{s.label}</span>
               </div>
               {i < STEPS.length - 1 && (
-                <ChevronRight className={`w-5 h-5 mx-1 ${step > s.id ? "text-green-400" : "text-brown-light/20"}`} />
+                <ChevronRight className={`w-4 h-4 mx-0.5 sm:mx-1 flex-shrink-0 ${step > s.id ? "text-green-400" : "text-brown-light/20"}`} />
               )}
             </div>
           ))}
@@ -754,6 +767,11 @@ export default function CheckoutPage() {
           )}
         </AnimatePresence>
       </div>
+      <OrderSuccessModal
+        isOpen={showSuccessModal}
+        onClose={() => setShowSuccessModal(false)}
+        orderDetails={orderSuccessDetails}
+      />
       <Footer />
     </div>
   );

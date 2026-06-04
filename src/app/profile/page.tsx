@@ -155,12 +155,12 @@ export default function CustomerProfilePage() {
                   >
                     <Save className="w-4 h-4" /> Save Changes
                   </button>
-                  <Link
+                  {/* <Link
                     href="/dashboard"
                     className="inline-flex items-center justify-center gap-2 border border-terracotta/20 text-terracotta hover:bg-terracotta/5 px-6 py-3 rounded-full font-bold font-sans text-sm transition-colors"
                   >
                     Go to Dashboard <ArrowRight className="w-4 h-4" />
-                  </Link>
+                  </Link> */}
                 </div>
               </form>
             </section>

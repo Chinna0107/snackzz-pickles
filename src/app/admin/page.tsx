@@ -71,27 +71,27 @@ export default function AdminDashboard() {
       </div>
 
       {/* Recent Orders with WhatsApp Notify */}
-      <div className="bg-white rounded-xl sm:rounded-2xl border border-terracotta/10 p-4 sm:p-6">
+      <div className="bg-white rounded-xl sm:rounded-2xl border border-terracotta/10 p-3 sm:p-6">
         <h2 className="font-serif text-base sm:text-lg font-bold text-brown mb-3 sm:mb-4">Recent Orders</h2>
         {orders.length === 0 ? (
           <p className="text-brown-light/50 font-sans text-sm text-center py-8">No orders yet.</p>
         ) : (
-          <div className="overflow-x-auto -mx-4 sm:mx-0">
-            <div className="inline-block min-w-full align-middle">
-              <table className="w-full text-sm font-sans">
+          <div className="overflow-x-auto -mx-3 sm:mx-0">
+            <div className="inline-block min-w-full align-middle px-3 sm:px-0">
+              <table className="w-full text-sm font-sans min-w-[480px]">
                 <thead>
                   <tr className="text-brown-light/50 text-[10px] sm:text-xs uppercase tracking-wider border-b border-terracotta/5">
-                    <th className="text-left py-3 pr-2 sm:pr-4 pl-4 sm:pl-0">Order</th>
+                    <th className="text-left py-3 pr-2 sm:pr-4">Order</th>
                     <th className="text-left py-3 pr-2 sm:pr-4">Customer</th>
                     <th className="text-left py-3 pr-2 sm:pr-4">Total</th>
                     <th className="text-left py-3 pr-2 sm:pr-4">Status</th>
-                    <th className="text-left py-3 pr-4 sm:pr-0">Notify</th>
+                    <th className="text-left py-3">Notify</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-terracotta/5">
                   {orders.slice(0, 8).map((order) => (
                     <tr key={order.id} className="hover:bg-cream/30 transition-colors">
-                      <td className="py-3 pr-2 sm:pr-4 pl-4 sm:pl-0 font-semibold text-brown text-xs sm:text-sm">#{order.id}</td>
+                      <td className="py-3 pr-2 sm:pr-4 font-semibold text-brown text-xs sm:text-sm">#{order.id}</td>
                       <td className="py-3 pr-2 sm:pr-4 text-brown-light/70 text-xs sm:text-sm truncate max-w-[100px] sm:max-w-none">{order.address?.name || "—"}</td>
                       <td className="py-3 pr-2 sm:pr-4 font-serif font-bold text-gold text-xs sm:text-sm">₹{order.total}</td>
                       <td className="py-3 pr-2 sm:pr-4">
@@ -101,7 +101,7 @@ export default function AdminDashboard() {
                           order.status === "shipped" ? "bg-purple-100 text-purple-700" : "bg-gold/10 text-gold"
                         }`}>{order.status}</span>
                       </td>
-                      <td className="py-3 pr-4 sm:pr-0">
+                      <td className="py-3">
                         <button onClick={() => notifyWhatsApp(order)}
                           className="flex items-center gap-1 text-[10px] sm:text-[11px] bg-green-500 hover:bg-green-600 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-full font-semibold transition-colors whitespace-nowrap">
                           <MessageCircle className="w-3 h-3" /> <span className="hidden sm:inline">WhatsApp</span><span className="sm:hidden">WA</span>

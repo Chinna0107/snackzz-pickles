@@ -53,11 +53,11 @@ export default function Footer() {
   return (
     <footer className="bg-terracotta text-white pt-12 sm:pt-16 pb-6 sm:pb-8 shadow-[0_20px_60px_rgba(0,0,0,0.12)] border border-black/10 rounded-t-3xl">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid sm:grid-cols-2 lg:grid-cols-6 gap-8 sm:gap-12 mb-8 sm:mb-12">
+        <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-6 gap-6 sm:gap-8 lg:gap-12 mb-8 sm:mb-12">
           {/* Brand */}
-          <div className="sm:col-span-2 lg:col-span-2">
-            <Link href="/" className="inline-block mb-5 group">
-              <div className="relative h-20 w-[240px]">
+          <div className="col-span-2 sm:col-span-2 lg:col-span-2">
+            <Link href="/" className="inline-block mb-4 sm:mb-5 group">
+              <div className="relative h-14 sm:h-20 w-[180px] sm:w-[240px]">
                 <Image
                   src="/logo-removebg-preview.png"
                   alt="Snakzee"
