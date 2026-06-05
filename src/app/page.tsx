@@ -588,7 +588,7 @@ function HeroSection() {
   const slides = banners.length > 0 ? banners : fallbackImages;
 
   return (
-    <section className="relative w-full px-4 sm:px-6 lg:px-8 h-[35vh] sm:h-[40vh] md:h-[62vh] lg:h-[58vh] xl:h-[60vh] overflow-hidden py-4 md:py-0">
+    <section className="relative w-full px-4 sm:px-6 lg:px-8 h-[20vh] sm:h-[33vh] md:h-[50vh] lg:h-[48vh] xl:h-[50vh] overflow-hidden py-2 md:py-0">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentBanner}

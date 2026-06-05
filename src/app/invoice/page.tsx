@@ -150,7 +150,7 @@ export default function InvoicePage() {
                       <td className="px-4 py-3 text-center text-[#555]">{item.sNo}</td>
                       <td className="px-4 py-3 text-[#222] font-medium">{item.itemName}</td>
                       <td className="px-4 py-3 text-center text-[#555]">{item.packSize}</td>
-                      <td className="px-4 py-3 text-center text-[#555]">{item.quantity} Packs</td>
+                      <td className="px-4 py-3 text-center text-[#555]">{item.quantity} </td>
                       <td className="px-4 py-3 text-right font-semibold text-[#333]">₹{item.price.toFixed(2)}</td>
                     </tr>
                   ))}

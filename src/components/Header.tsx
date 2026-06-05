@@ -124,6 +124,12 @@ export default function Header() {
   return (
     <div ref={headerRootRef} className="fixed top-0 left-0 right-0 z-[100] w-full mb-6">
       <TopAnnouncementBar hidden={false} />
+      {/* Preload category images so dropdown shows instantly */}
+      <div className="hidden">
+        {categories.map((cat) => (
+          <Image key={cat.id} src={cat.image} alt="" width={32} height={32} loading="eager" priority />
+        ))}
+      </div>
       
       <nav className={`w-full transition-all duration-300 ${
         scrolled ? "bg-white/98 backdrop-blur-xl shadow-xl border-b-2 border-terracotta/20" : "bg-cream/95 backdrop-blur-md border-b border-transparent"
@@ -170,7 +176,7 @@ export default function Header() {
                 </motion.button>
                 <AnimatePresence>
                   {productsOpen && (
-                    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.15 }}
+                    <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} transition={{ duration: 0.08 }}
                       className="absolute top-full left-0 mt-1 w-56 bg-white rounded-2xl shadow-2xl border border-terracotta/10 overflow-hidden z-50">
                       <div className="p-2">
                         <Link href="/products" onClick={() => setProductsOpen(false)}>
@@ -184,7 +190,7 @@ export default function Header() {
                           <Link href={`/products?category=${cat.id}`} key={cat.id} onClick={() => setProductsOpen(false)}>
                             <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-terracotta/5 active:bg-terracotta/10 transition-colors cursor-pointer group">
                               <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0">
-                                <Image src={cat.image} alt={cat.name} width={32} height={32} className="w-full h-full object-cover" />
+                                <Image src={cat.image} alt={cat.name} width={32} height={32} loading="eager" className="w-full h-full object-cover" />
                               </div>
                               <div>
                                 <p className="font-sans font-semibold text-brown text-sm group-hover:text-terracotta">{cat.name}</p>
@@ -210,7 +216,7 @@ export default function Header() {
                 </motion.button>
                 <AnimatePresence>
                   {aboutOpen && (
-                    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.15 }}
+                    <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} transition={{ duration: 0.08 }}
                       className="absolute top-full left-0 mt-1 w-60 bg-white rounded-2xl shadow-2xl border border-terracotta/10 overflow-hidden z-50">
                       <div className="p-2 space-y-0.5">
                         {[
@@ -244,7 +250,7 @@ export default function Header() {
                 </motion.button>
                 <AnimatePresence>
                   {moreOpen && (
-                    <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.15 }}
+                    <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 4 }} transition={{ duration: 0.08 }}
                       className="absolute top-full left-0 mt-2 w-64 bg-white rounded-2xl shadow-2xl border border-terracotta/10 overflow-hidden z-50">
                       <div className="p-2 space-y-0.5">
                         

@@ -131,7 +131,7 @@ export default function AdminOrdersPage() {
         <td style="text-align: center;">${idx + 1}</td>
         <td><span style="font-weight: bold; color: #222222;">${escapeHtml(item.name)}</span></td>
         <td style="text-align: center;">${(item as any).unit ? escapeHtml((item as any).unit) : '-'}</td>
-        <td style="text-align: center;">${item.qty} Packs</td>
+        <td style="text-align: center;">${item.qty} </td>
         <td style="text-align: right;">₹${item.price.toFixed(2)}</td>
       </tr>
     `).join("");

@@ -37,7 +37,7 @@ export async function POST(req: NextRequest) {
           <td style="text-align: center;">${item.sNo}</td>
           <td><span style="font-weight: bold; color: #222222;">${item.itemName}</span></td>
           <td style="text-align: center;">${item.packSize}</td>
-          <td style="text-align: center;">${item.quantity} Packs</td>
+          <td style="text-align: center;">${item.quantity} </td>
           <td style="text-align: right;">${item.price.toFixed(2)}</td>
         </tr>
       `

@@ -72,21 +72,23 @@ export default function CheckoutPage() {
     name: "", email: "", phone: "", line1: "", line2: "", city: "", state: "Telangana", customState: "", pincode: "",
   });
 
-  // Load saved address from localStorage on mount
+  // Load saved address from localStorage on mount, then try backend for logged-in users
   useEffect(() => {
+    // 1. Pre-fill from localStorage user profile
     try {
       const stored = localStorage.getItem("snackzee_user");
-      if (!stored) return;
-      const user = JSON.parse(stored) as { name?: string; email?: string; phone?: string };
-      setAddress((prev) => ({
-        ...prev,
-        name: prev.name || user.name || "",
-        email: prev.email || user.email || "",
-        phone: prev.phone || user.phone || "",
-      }));
+      if (stored) {
+        const user = JSON.parse(stored) as { name?: string; email?: string; phone?: string };
+        setAddress((prev) => ({
+          ...prev,
+          name: prev.name || user.name || "",
+          email: prev.email || user.email || "",
+          phone: prev.phone || user.phone || "",
+        }));
+      }
     } catch {}
 
-    // Also load saved delivery address
+    // 2. Load saved delivery address from localStorage
     try {
       const savedAddr = localStorage.getItem("snackzee_address");
       if (savedAddr) {
@@ -94,6 +96,32 @@ export default function CheckoutPage() {
         setAddress((prev) => ({ ...prev, ...addr }));
       }
     } catch {}
+
+    // 3. If logged in, fetch last order address from backend and override
+    const token = localStorage.getItem("snackzee_token");
+    if (!token) return;
+    fetch(`${BACKEND_URL}/orders/my`, {
+      headers: { Authorization: `Bearer ${token}` },
+    })
+      .then((r) => r.json())
+      .then((data) => {
+        const orders = data.orders || [];
+        if (orders.length === 0) return;
+        const lastAddr = orders[0].address;
+        if (!lastAddr) return;
+        setAddress((prev) => ({
+          name: lastAddr.name || prev.name || "",
+          email: lastAddr.email || prev.email || "",
+          phone: lastAddr.phone || prev.phone || "",
+          line1: lastAddr.line1 || prev.line1 || "",
+          line2: lastAddr.line2 || prev.line2 || "",
+          city: lastAddr.city || prev.city || "",
+          state: lastAddr.state || prev.state || "Telangana",
+          customState: prev.customState || "",
+          pincode: lastAddr.pincode || prev.pincode || "",
+        }));
+      })
+      .catch(() => {});
   }, []);
 
   // Fetch loyalty tier when email or phone is filled
