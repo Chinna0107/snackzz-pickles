@@ -430,7 +430,9 @@ export default function Header() {
 
                 {/* PRODUCTS Accordion */}
                 <div className="border border-terracotta/5 rounded-xl overflow-hidden">
-                  <button onClick={() => setMobileProductsOpen(!mobileProductsOpen)} className="w-full flex items-center justify-between px-3 py-2.5 text-brown text-sm font-semibold hover:bg-terracotta/5 transition-colors">
+                  <button
+                    onClick={() => setMobileProductsOpen(!mobileProductsOpen)}
+                    className="w-full flex items-center justify-between px-3 py-2.5 text-brown text-sm font-semibold hover:bg-terracotta/5 transition-colors">
                     <span>🛍️ Products</span>
                     <ChevronDown className={`w-4 h-4 text-brown-light/50 transition-transform ${mobileProductsOpen ? "rotate-180" : ""}`} />
                   </button>
