@@ -183,7 +183,9 @@ export default function Header() {
                         {categories.map((cat) => (
                           <Link href={`/products?category=${cat.id}`} key={cat.id} onClick={() => setProductsOpen(false)}>
                             <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-terracotta/5 active:bg-terracotta/10 transition-colors cursor-pointer group">
-                              <span className="text-lg">{cat.icon}</span>
+                              <div className="w-8 h-8 rounded-lg overflow-hidden flex-shrink-0">
+                                <Image src={cat.image} alt={cat.name} width={32} height={32} className="w-full h-full object-cover" />
+                              </div>
                               <div>
                                 <p className="font-sans font-semibold text-brown text-sm group-hover:text-terracotta">{cat.name}</p>
                                 <p className="text-brown-light/40 text-[10px] font-sans">{cat.nameTelugu}</p>
@@ -445,7 +447,9 @@ export default function Header() {
                         {categories.map((cat) => (
                           <Link href={`/products?category=${cat.id}`} key={cat.id} onClick={() => setMobileMenuOpen(false)}>
                             <div className="px-3 py-2 text-xs text-brown-light font-sans font-semibold hover:text-terracotta flex items-center gap-2">
-                              <span className="text-lg">{cat.icon}</span>
+                              <div className="w-7 h-7 rounded-md overflow-hidden flex-shrink-0">
+                                <Image src={cat.image} alt={cat.name} width={28} height={28} className="w-full h-full object-cover" />
+                              </div>
                               {cat.name}
                             </div>
                           </Link>
