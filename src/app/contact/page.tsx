@@ -117,20 +117,21 @@ export default function ContactPage() {
                 <h2 className="font-serif text-2xl sm:text-3xl font-bold text-brown mb-6">Reach Us Directly</h2>
                 <div className="space-y-4">
                   {CONTACT_METHODS.map((method, i) => (
-                    <div key={i} className={`flex items-start gap-4 p-4 rounded-2xl border ${method.color} bg-white`}>
-                      <div className={`flex-shrink-0 w-12 h-12 rounded-xl flex items-center justify-center ${method.color}`}>
+                    <div key={i} className={`flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 p-4 rounded-2xl border ${method.color} bg-white`}>
+                      <div className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center ${method.color}`}>
                         {method.icon}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <p className="font-serif font-bold text-brown text-lg">{method.title}</p>
+                        <p className="font-serif font-bold text-brown text-base sm:text-lg">{method.title}</p>
                         <p className="font-sans font-semibold text-brown-light text-sm">{method.value}</p>
                         <p className="text-brown-light/50 text-xs font-sans mt-0.5">{method.desc}</p>
+                        {method.href && method.btnLabel && (
+                          <a href={method.href} target="_blank" rel="noopener noreferrer"
+                            className={`inline-flex items-center mt-2 px-4 py-1.5 rounded-full font-semibold text-xs font-sans transition-all hover:scale-105 ${method.btnColor}`}>
+                            {method.btnLabel}
+                          </a>
+                        )}
                       </div>
-                      {method.href && method.btnLabel && (
-                        <a href={method.href} target="_blank" rel="noopener noreferrer" className={`flex-shrink-0 px-4 py-2 rounded-full font-semibold text-xs font-sans transition-all hover:scale-105 ${method.btnColor}`}>
-                          {method.btnLabel}
-                        </a>
-                      )}
                     </div>
                   ))}
                 </div>

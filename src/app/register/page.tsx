@@ -222,7 +222,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Back to Sign In Link */}
-        <div className="px-8 py-4 bg-cream/50 border-b border-terracotta/10">
+        <div className="px-4 sm:px-8 py-4 bg-cream/50 border-b border-terracotta/10">
           <button
             onClick={() => router.push("/login")}
             className="flex items-center gap-2 text-sm text-terracotta font-semibold hover:text-terracotta-dark transition-colors"
@@ -233,7 +233,7 @@ export default function RegisterPage() {
         </div>
 
         {/* Form Container */}
-        <div className="px-8 py-7">
+        <div className="px-4 sm:px-8 py-5 sm:py-7">
           <AnimatePresence mode="wait">
             {registerStep === 1 ? (
               // ─── STEP 1: PHONE & EMAIL ───

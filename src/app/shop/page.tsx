@@ -57,7 +57,7 @@ function ProductCard({ product }: {
       className="group bg-white rounded-2xl border border-terracotta/10 overflow-hidden cursor-pointer hover:shadow-lg hover:border-terracotta/20 transition-all duration-300 flex flex-col sm:flex-row"
     >
       {/* Image */}
-      <div className="relative w-full h-56 sm:w-44 sm:h-auto flex-shrink-0 overflow-hidden bg-cream-dark">
+      <div className="relative w-full h-44 sm:h-auto sm:w-44 flex-shrink-0 overflow-hidden bg-cream-dark">
         <Image src={product.image} alt={product.name} fill
           className="object-cover group-hover:scale-105 transition-transform duration-500"
           sizes="(max-width: 640px) 100vw, 176px" />
@@ -208,10 +208,10 @@ function ShopContent() {
     <div className="min-h-screen bg-cream">
       <Header />
       <div className="pt-16 sm:pt-20">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+        <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-10">
           {/* Title */}
-          <div className="text-center mb-8">
-            <h1 className="font-serif text-3xl sm:text-4xl font-bold text-brown mb-2">Our Collection</h1>
+          <div className="text-center mb-6 sm:mb-8">
+            <h1 className="font-serif text-2xl sm:text-4xl font-bold text-brown mb-2">Our Collection</h1>
             <p className="text-brown-light/70 text-base font-sans">Handmade with traditional recipes. Fresh, authentic, no preservatives.</p>
           </div>
 

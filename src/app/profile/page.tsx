@@ -65,8 +65,8 @@ export default function CustomerProfilePage() {
   return (
     <div className="min-h-screen bg-cream">
       <Header />
-      <main className="pt-20">
-        <div className="max-w-5xl mx-auto px-4 sm:px-6 py-8 sm:py-10">
+      <main className="pt-16 sm:pt-20">
+        <div className="max-w-5xl mx-auto px-3 sm:px-6 py-6 sm:py-10">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
             <div>
               <p className="text-terracotta text-xs font-sans font-bold uppercase tracking-widest mb-2">Customer Account</p>

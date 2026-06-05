@@ -417,17 +417,13 @@ export default function ProductDetailPage() {
           </div>
         </div>
 
-        {/* Ratings & Reviews */}
+        {/* Ratings */}
         {product.reviews && product.reviews.length > 0 && (() => {
           const avg = product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length;
           return (
             <div className="mt-10">
-              <h2 className="font-serif text-2xl font-bold text-brown mb-6">
-                Ratings & Reviews
-                <span className="ml-3 text-base font-sans font-normal text-brown-light/50">({product.reviews.length})</span>
-              </h2>
-              {/* Average */}
-              <div className="flex items-center gap-4 mb-6 bg-white rounded-2xl border border-terracotta/10 p-5 w-fit">
+              <h2 className="font-serif text-2xl font-bold text-brown mb-4">Ratings</h2>
+              <div className="flex items-center gap-4 bg-white rounded-2xl border border-terracotta/10 p-5 w-fit">
                 <div className="text-center">
                   <p className="font-sans text-5xl font-bold text-terracotta">{avg.toFixed(1)}</p>
                   <div className="flex gap-0.5 mt-1 justify-center">
@@ -435,25 +431,8 @@ export default function ProductDetailPage() {
                       <Star key={s} className={`w-4 h-4 ${s <= Math.round(avg) ? "fill-amber-400 text-amber-400" : "text-brown-light/20"}`} />
                     ))}
                   </div>
-                  <p className="text-brown-light/50 text-xs font-sans mt-1">{product.reviews.length} reviews</p>
+                  <p className="text-brown-light/50 text-xs font-sans mt-1">{product.reviews.length} ratings</p>
                 </div>
-              </div>
-              {/* Review Cards */}
-              <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                {product.reviews.map((review, i) => (
-                  <div key={i} className="bg-white rounded-2xl border border-terracotta/10 p-5">
-                    <div className="flex items-center justify-between mb-2">
-                      <p className="font-sans font-bold text-brown text-sm">{review.name}</p>
-                      <p className="text-brown-light/40 text-xs font-sans">{review.date}</p>
-                    </div>
-                    <div className="flex gap-0.5 mb-3">
-                      {[1,2,3,4,5].map(s => (
-                        <Star key={s} className={`w-3.5 h-3.5 ${s <= review.rating ? "fill-amber-400 text-amber-400" : "text-brown-light/20"}`} />
-                      ))}
-                    </div>
-                    <p className="text-brown-light/70 text-sm font-sans leading-relaxed">{review.comment}</p>
-                  </div>
-                ))}
               </div>
             </div>
           );

@@ -272,7 +272,7 @@ export default function LoginPage() {
         </div>
 
         {/* Form Container */}
-        <div className="px-8 py-7">
+        <div className="px-4 sm:px-8 py-5 sm:py-7">
           <AnimatePresence mode="wait">
             {mode === "login" ? (
               // ─── LOGIN FLOW ──────────────────────────────────────────

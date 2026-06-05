@@ -348,13 +348,76 @@ export default function AdminOrdersPage() {
   };
 
 
-  const printLabel = async (orderId: number, trackingId?: string) => {
-    if (!trackingId || trackingId.trim() === "") {
-      toast({ title: "No AWB", description: "Create a Delhivery shipment first.", variant: "destructive" });
-      return;
-    }
-    // Open Delhivery tracking/label page directly
-    window.open(`https://www.delhivery.com/track/package/${trackingId}`, "_blank");
+  const printLabel = (order: Order) => {
+    const itemRows = (order.items || []).map((item: any) => {
+      const unitStr = item.unit ? ` (${escapeHtml(item.unit)})` : '';
+      return `<div style="display:flex;justify-content:space-between;padding:1.5mm 0;border-bottom:1px solid #eee;">
+        <div style="font-size:8pt;font-weight:600;flex:1;padding-right:3mm;">${escapeHtml(item.name)}${unitStr}</div>
+        <div style="font-size:8pt;color:#555;white-space:nowrap;">x${item.qty}</div>
+      </div>`;
+    }).join('');
+
+    const html = `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Shipping Label - Order #${order.id}</title>
+<style>
+  *{box-sizing:border-box;margin:0;padding:0}
+  @page{size:100mm 160mm;margin:0}
+  body{font-family:Arial,Helvetica,sans-serif;width:100mm;background:#fff;font-size:9pt}
+  .box{border:2.5px solid #111;margin:3mm;border-radius:2mm;overflow:hidden}
+  .hdr{background:#C8401A;color:#fff;padding:3.5mm 4mm;display:flex;justify-content:space-between;align-items:center}
+  .brand{font-size:16pt;font-weight:900;letter-spacing:-0.5px}
+  .oid{background:#fff;color:#C8401A;font-size:10pt;font-weight:900;padding:1px 8px;border-radius:999px}
+  .sec{padding:2.5mm 4mm;border-bottom:1px dashed #bbb}
+  .lbl{font-size:5.5pt;text-transform:uppercase;letter-spacing:1px;color:#888;font-weight:700;margin-bottom:1mm}
+  .val{font-size:10.5pt;font-weight:700;color:#111;line-height:1.35}
+  .sm{font-size:8pt;color:#444;line-height:1.5}
+  .items{padding:2.5mm 4mm}
+  .ftr{background:#fef6f3;padding:3mm 4mm;border-top:1px solid #ddd;display:flex;justify-content:flex-end;align-items:center}
+  .total{font-size:13pt;font-weight:900;color:#C8401A}
+  .dt{font-size:7pt;color:#aaa;text-align:right;line-height:1.6}
+  .no-print{text-align:center;padding:10px}
+  @media print{.no-print{display:none!important}*{-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important}}
+</style>
+</head>
+<body>
+<div class="box">
+  <div class="hdr">
+    <div class="brand">Snakzee</div>
+    <div class="oid">#${order.id}</div>
+  </div>
+  <div class="sec">
+    <div class="lbl">Ship To</div>
+    <div class="val">${escapeHtml(order.address?.name || '')}</div>
+    <div class="sm">${escapeHtml(order.address?.line1 || '')}${order.address?.line2 ? ', ' + escapeHtml(order.address.line2) : ''}</div>
+    <div class="sm">${escapeHtml(order.address?.city || '')}, ${escapeHtml(order.address?.state || '')} - ${escapeHtml(order.address?.pincode || '')}</div>
+    ${order.address?.phone ? '<div class="sm" style="font-weight:700;margin-top:1mm;">Ph: ' + escapeHtml(order.address.phone) + '</div>' : ''}
+  </div>
+ 
+  <div class="items">
+    <div class="lbl" style="margin-bottom:2mm;">Order Items (${(order.items || []).length})</div>
+    ${itemRows}
+  </div>
+  <div class="ftr">
+    <div class="dt">
+      ${new Date(order.created_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })}
+      ${order.tracking_id ? '<br>AWB: ' + escapeHtml(order.tracking_id) : ''}
+    </div>
+  </div>
+</div>
+<div class="no-print">
+  <button onclick="window.print()" style="background:#C8401A;color:#fff;border:none;padding:8px 28px;border-radius:999px;font-size:13px;font-weight:700;cursor:pointer;margin-top:4px;">
+    Print Label
+  </button>
+</div>
+</body>
+</html>`;
+
+    const w = window.open('', '_blank', 'width=440,height=640');
+    if (w) { w.document.open(); w.document.write(html); w.document.close(); }
+    toast({ title: 'Label ready', description: `Shipping label for order #${order.id} opened.` });
   };
 
   if (loading) return (
@@ -512,8 +575,8 @@ export default function AdminOrdersPage() {
                   </div>
 
                   {/* Action Buttons — 2-col on mobile, row on tablet+ */}
-                  <div className="grid grid-cols-2 lg:grid-cols-4 gap-2 pt-2 border-t border-terracotta/5">
-                    <button onClick={() => printLabel(order.id, order.tracking_id)}
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 border-t border-terracotta/5">
+                    <button onClick={() => printLabel(order)}
                       className="flex items-center justify-center gap-1.5 bg-brown text-cream px-3 py-2.5 rounded-xl text-xs font-semibold font-sans hover:bg-brown-light transition-colors">
                       <Printer className="w-3.5 h-3.5 flex-shrink-0" />
                       <span className="truncate">Print Label</span>

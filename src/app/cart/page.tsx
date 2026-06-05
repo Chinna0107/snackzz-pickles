@@ -27,18 +27,18 @@ export default function CartPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream pt-20">
-      <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="flex items-center justify-between mb-6 sm:mb-8">
-          <h1 className="font-serif text-2xl sm:text-3xl lg:text-4xl font-bold text-brown">Your Cart</h1>
+    <div className="min-h-screen bg-cream pt-16 sm:pt-20">
+      <div className="max-w-6xl mx-auto px-3 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <div className="flex items-center justify-between mb-5 sm:mb-8">
+          <h1 className="font-serif text-xl sm:text-3xl lg:text-4xl font-bold text-brown">Your Cart</h1>
           <button onClick={clearCart} className="text-xs sm:text-sm text-red-400 hover:text-red-600 font-sans transition-colors">
             Clear all
           </button>
         </div>
 
-        <div className="grid lg:grid-cols-3 gap-5 lg:gap-8">
+        <div className="grid lg:grid-cols-3 gap-4 lg:gap-8">
           {/* Items */}
-          <div className="lg:col-span-2 space-y-3 sm:space-y-4">
+          <div className="lg:col-span-2 space-y-3">
             <AnimatePresence>
               {items.map((item) => {
                 const itemKey = getCartItemKey(item);

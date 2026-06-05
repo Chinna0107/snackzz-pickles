@@ -78,17 +78,22 @@ export default function Header() {
     return () => window.removeEventListener("storage", updateWishlistCount);
   }, []);
 
-  // Click outside to close dropdowns
+  // Click outside to close dropdowns — use both mousedown and touchstart for iOS
   useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) setProductsOpen(false);
-      if (aboutDropdownRef.current && !aboutDropdownRef.current.contains(e.target as Node)) setAboutOpen(false);
-      if (moreDropdownRef.current && !moreDropdownRef.current.contains(e.target as Node)) setMoreOpen(false);
-      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) setUserMenuOpen(false);
-      if (mobileMenuOpen && headerRootRef.current && !headerRootRef.current.contains(e.target as Node)) setMobileMenuOpen(false);
+    const handleClickOutside = (e: MouseEvent | TouchEvent) => {
+      const target = e.target as Node;
+      if (dropdownRef.current && !dropdownRef.current.contains(target)) setProductsOpen(false);
+      if (aboutDropdownRef.current && !aboutDropdownRef.current.contains(target)) setAboutOpen(false);
+      if (moreDropdownRef.current && !moreDropdownRef.current.contains(target)) setMoreOpen(false);
+      if (userMenuRef.current && !userMenuRef.current.contains(target)) setUserMenuOpen(false);
+      if (mobileMenuOpen && headerRootRef.current && !headerRootRef.current.contains(target)) setMobileMenuOpen(false);
     };
     document.addEventListener("mousedown", handleClickOutside);
-    return () => document.removeEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside, { passive: true });
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
   }, [mobileMenuOpen]);
 
   const handleCategoryClick = (catId: string) => {
@@ -129,7 +134,7 @@ export default function Header() {
             {/* Logo */}
             <Link href="/">
               <motion.div className="cursor-pointer" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <div className="relative h-10 sm:h-14 w-[140px] sm:w-[200px]">
+                <div className="relative h-9 sm:h-12 lg:h-14 w-[120px] sm:w-[160px] lg:w-[200px]">
                   <Image
                     src="/logo-removebg-preview.png"
                     alt="Snakzee"
@@ -144,7 +149,7 @@ export default function Header() {
             </Link>
 
             {/* Desktop Navigation Links */}
-            <div className="hidden md:flex items-center gap-0.5 lg:gap-1.5">
+            <div className="hidden lg:flex items-center gap-0.5 lg:gap-1.5">
               
               {/* HOME */}
               <Link href="/" onMouseEnter={prefetchProducts}>
@@ -155,31 +160,34 @@ export default function Header() {
               </Link>
 
               {/* PRODUCTS Dropdown */}
-              <div className="relative" ref={dropdownRef} onMouseEnter={() => setProductsOpen(true)} onMouseLeave={() => setProductsOpen(false)}>
-                <motion.button whileHover={{ scale: 1.03 }} onClick={() => setProductsOpen(!productsOpen)}
-                  className="relative group flex items-center gap-1 px-2.5 py-2 text-brown hover:text-terracotta transition-colors font-medium text-xs lg:text-sm tracking-wide uppercase">
+              <div className="relative" ref={dropdownRef}>
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  onClick={() => { setProductsOpen(!productsOpen); setAboutOpen(false); setMoreOpen(false); }}
+                  className="relative group flex items-center gap-1 px-2.5 py-2 text-brown hover:text-terracotta transition-colors font-medium text-xs lg:text-sm tracking-wide uppercase select-none">
                   Products <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${productsOpen ? "rotate-180" : ""}`} />
                   <span className="absolute bottom-0 left-2.5 right-2.5 h-0.5 bg-terracotta scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
                 </motion.button>
                 <AnimatePresence>
                   {productsOpen && (
                     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.15 }}
-                      className="absolute top-full left-0 mt-2 w-56 bg-white rounded-2xl shadow-2xl border border-terracotta/10 overflow-hidden z-50">
+                      className="absolute top-full left-0 mt-1 w-56 bg-white rounded-2xl shadow-2xl border border-terracotta/10 overflow-hidden z-50">
                       <div className="p-2">
                         <Link href="/products" onClick={() => setProductsOpen(false)}>
-                          <div className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-terracotta/5 transition-colors cursor-pointer group">
+                          <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-terracotta/5 active:bg-terracotta/10 transition-colors cursor-pointer group">
                             <span className="text-xl">🛍️</span>
-                            <div>
-                              <p className="font-sans font-semibold text-brown text-sm group-hover:text-terracotta">All Products</p>
-                            </div>
+                            <p className="font-sans font-semibold text-brown text-sm group-hover:text-terracotta">All Products</p>
                           </div>
                         </Link>
                         <div className="h-px bg-terracotta/10 my-1" />
                         {categories.map((cat) => (
                           <Link href={`/products?category=${cat.id}`} key={cat.id} onClick={() => setProductsOpen(false)}>
-                            <div className="flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-terracotta/5 transition-colors cursor-pointer group">
-                              <img src={cat.image} alt={cat.name} className="h-5 w-5 object-cover rounded" />
-                              <div className="font-sans font-semibold text-brown text-sm group-hover:text-terracotta">{cat.name}</div>
+                            <div className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-terracotta/5 active:bg-terracotta/10 transition-colors cursor-pointer group">
+                              <span className="text-lg">{cat.icon}</span>
+                              <div>
+                                <p className="font-sans font-semibold text-brown text-sm group-hover:text-terracotta">{cat.name}</p>
+                                <p className="text-brown-light/40 text-[10px] font-sans">{cat.nameTelugu}</p>
+                              </div>
                             </div>
                           </Link>
                         ))}
@@ -190,16 +198,18 @@ export default function Header() {
               </div>
 
               {/* ABOUT Dropdown */}
-              <div className="relative" ref={aboutDropdownRef} onMouseEnter={() => setAboutOpen(true)} onMouseLeave={() => setAboutOpen(false)}>
-                <motion.button whileHover={{ scale: 1.03 }} onClick={() => setAboutOpen(!aboutOpen)}
-                  className="relative group flex items-center gap-1 px-2.5 py-2 text-brown hover:text-terracotta transition-colors font-medium text-xs lg:text-sm tracking-wide uppercase">
+              <div className="relative" ref={aboutDropdownRef}>
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  onClick={() => { setAboutOpen(!aboutOpen); setProductsOpen(false); setMoreOpen(false); }}
+                  className="relative group flex items-center gap-1 px-2.5 py-2 text-brown hover:text-terracotta transition-colors font-medium text-xs lg:text-sm tracking-wide uppercase select-none">
                   About <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${aboutOpen ? "rotate-180" : ""}`} />
                   <span className="absolute bottom-0 left-2.5 right-2.5 h-0.5 bg-terracotta scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
                 </motion.button>
                 <AnimatePresence>
                   {aboutOpen && (
                     <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0, y: 8 }} transition={{ duration: 0.15 }}
-                      className="absolute top-full left-0 mt-2 w-60 bg-white rounded-2xl shadow-2xl border border-terracotta/10 overflow-hidden z-50">
+                      className="absolute top-full left-0 mt-1 w-60 bg-white rounded-2xl shadow-2xl border border-terracotta/10 overflow-hidden z-50">
                       <div className="p-2 space-y-0.5">
                         {[
                           { href: "/about#our-story", label: "Our Story", icon: "📖" },
@@ -209,7 +219,7 @@ export default function Header() {
                           { href: "/about#testimonials", label: "Customer Love", icon: "♡" }
                         ].map((item) => (
                           <Link key={item.href} href={item.href} onClick={() => setAboutOpen(false)}>
-                            <div className="flex items-center gap-2.5 px-3 py-2 rounded-xl hover:bg-terracotta/5 transition-colors cursor-pointer group text-left">
+                            <div className="flex items-center gap-2.5 px-3 py-2.5 rounded-xl hover:bg-terracotta/5 active:bg-terracotta/10 transition-colors cursor-pointer group">
                               <span className="text-sm">{item.icon}</span>
                               <span className="font-sans font-semibold text-brown text-sm group-hover:text-terracotta">{item.label}</span>
                             </div>
@@ -222,9 +232,11 @@ export default function Header() {
               </div>
 
               {/* MORE Dropdown */}
-              <div className="relative" ref={moreDropdownRef} onMouseEnter={() => setMoreOpen(true)} onMouseLeave={() => setMoreOpen(false)}>
-                <motion.button whileHover={{ scale: 1.03 }} onClick={() => setMoreOpen(!moreOpen)}
-                  className="relative group flex items-center gap-1 px-2.5 py-2 text-brown hover:text-terracotta transition-colors font-medium text-xs lg:text-sm tracking-wide uppercase">
+              <div className="relative" ref={moreDropdownRef}>
+                <motion.button
+                  whileHover={{ scale: 1.03 }}
+                  onClick={() => { setMoreOpen(!moreOpen); setProductsOpen(false); setAboutOpen(false); }}
+                  className="relative group flex items-center gap-1 px-2.5 py-2 text-brown hover:text-terracotta transition-colors font-medium text-xs lg:text-sm tracking-wide uppercase select-none">
                   More <ChevronDown className={`w-3.5 h-3.5 transition-transform duration-200 ${moreOpen ? "rotate-180" : ""}`} />
                   <span className="absolute bottom-0 left-2.5 right-2.5 h-0.5 bg-terracotta scale-x-0 group-hover:scale-x-100 transition-transform origin-left" />
                 </motion.button>
@@ -284,17 +296,17 @@ export default function Header() {
             </div>
 
             {/* Right Side Controls Bar */}
-            <div className="flex items-center gap-1.5 sm:gap-3">
+            <div className="flex items-center gap-1 sm:gap-1.5 md:gap-2">
               
               {/* 🔍 Interactive Search Overlay Toggle */}
               <motion.button
                 onClick={() => setSearchOpen(true)}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-brown hover:bg-terracotta/10 transition-colors"
+                className="w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-brown hover:bg-terracotta/10 transition-colors"
                 title="Search products"
               >
-                <Search className="w-5 h-5" />
+                <Search className="w-4 h-4 sm:w-5 sm:h-5" />
               </motion.button>
 
               {/* ♡ Wishlist Navigation Icon */}
@@ -302,13 +314,13 @@ export default function Header() {
                 <motion.div
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
-                  className="relative w-9 h-9 sm:w-10 sm:h-10 rounded-full flex items-center justify-center text-brown hover:bg-terracotta/10 transition-colors cursor-pointer"
+                  className="relative w-8 h-8 sm:w-9 sm:h-9 rounded-full flex items-center justify-center text-brown hover:bg-terracotta/10 transition-colors cursor-pointer"
                   title="My Wishlist"
                 >
-                  <Heart className="w-5 h-5" />
+                  <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
                   {wishlistCount > 0 && (
                     <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
-                      className="absolute top-0.5 right-0.5 w-4 h-4 bg-terracotta text-white text-[9px] font-bold rounded-full flex items-center justify-center shadow-md">
+                      className="absolute top-0 right-0 w-3.5 h-3.5 bg-terracotta text-white text-[8px] font-bold rounded-full flex items-center justify-center shadow-md">
                       {wishlistCount}
                     </motion.span>
                   )}
@@ -316,29 +328,29 @@ export default function Header() {
               </Link>
 
               {/* 🛒 Shopping Cart Mini Button */}
-                <Link href="/cart">
-                  <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
-                    className="relative flex items-center justify-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 sm:py-2.5 bg-terracotta hover:bg-terracotta-dark text-white rounded-full transition-all shadow-md hover:shadow-lg cursor-pointer">
-                    <ShoppingCart className="w-4.5 h-4.5 sm:w-5 sm:h-5" />
-                    {cartCount > 0 && (
-                      <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
-                        className="absolute -top-1 -right-1 w-4.5 h-4.5 bg-gold text-brown text-[9px] font-bold rounded-full flex items-center justify-center shadow-md">
-                        {cartCount}
-                      </motion.span>
-                    )}
-                  </motion.div>
-                </Link>
+              <Link href="/cart">
+                <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}
+                  className="relative flex items-center justify-center gap-1 sm:gap-1.5 px-2.5 sm:px-3 py-1.5 sm:py-2 bg-terracotta hover:bg-terracotta-dark text-white rounded-full transition-all shadow-md hover:shadow-lg cursor-pointer">
+                  <ShoppingCart className="w-4 h-4 sm:w-4.5 sm:h-4.5" />
+                  {cartCount > 0 && (
+                    <motion.span initial={{ scale: 0 }} animate={{ scale: 1 }}
+                      className="absolute -top-1 -right-1 w-4 h-4 bg-gold text-brown text-[8px] font-bold rounded-full flex items-center justify-center shadow-md">
+                      {cartCount}
+                    </motion.span>
+                  )}
+                </motion.div>
+              </Link>
 
               {/* 👤 Account Options Controller */}
               {user ? (
                 <div className="relative" ref={userMenuRef}>
                   <button onClick={() => setUserMenuOpen(!userMenuOpen)}
-                    className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-full border border-terracotta/20 hover:bg-terracotta/5 transition-colors">
-                    <div className="w-6 h-6 sm:w-7 sm:h-7 bg-terracotta text-white rounded-full flex items-center justify-center text-[10px] sm:text-xs font-bold font-sans">
+                    className="flex items-center gap-1 sm:gap-1.5 px-1.5 sm:px-2 py-1 sm:py-1.5 rounded-full border border-terracotta/20 hover:bg-terracotta/5 transition-colors">
+                    <div className="w-6 h-6 bg-terracotta text-white rounded-full flex items-center justify-center text-[10px] font-bold font-sans flex-shrink-0">
                       {user.name.charAt(0).toUpperCase()}
                     </div>
-                    <span className="text-brown font-sans font-semibold text-xs sm:text-sm max-w-[70px] truncate hidden sm:inline">{user.name.split(" ")[0]}</span>
-                    <ChevronDown className={`w-3 h-3 text-brown-light/50 transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
+                    <span className="text-brown font-sans font-semibold text-xs max-w-[60px] truncate hidden md:inline">{user.name.split(" ")[0]}</span>
+                    <ChevronDown className={`w-3 h-3 text-brown-light/50 transition-transform hidden md:block ${userMenuOpen ? "rotate-180" : ""}`} />
                   </button>
                   <AnimatePresence>
                     {userMenuOpen && (
@@ -377,13 +389,13 @@ export default function Header() {
                   </AnimatePresence>
                 </div>
               ) : (
-                <Link href="/login" className="hidden sm:flex items-center gap-1.5 border-2 border-terracotta/30 text-terracotta hover:bg-terracotta hover:text-white px-3.5 py-2 rounded-full font-semibold text-xs sm:text-sm transition-all font-sans">
+                <Link href="/login" className="hidden md:flex items-center gap-1.5 border-2 border-terracotta/30 text-terracotta hover:bg-terracotta hover:text-white px-3 py-1.5 rounded-full font-semibold text-xs transition-all font-sans">
                   Sign In
                 </Link>
               )}
 
               {/* Mobile menu toggle */}
-              <button className="md:hidden p-1.5 text-brown hover:bg-terracotta/10 rounded-full transition-colors" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
+              <button className="lg:hidden p-1.5 text-brown hover:bg-terracotta/10 rounded-full transition-colors" onClick={() => setMobileMenuOpen(!mobileMenuOpen)}>
                 {mobileMenuOpen ? <X className="w-5.5 h-5.5" /> : <Menu className="w-5.5 h-5.5" />}
               </button>
             </div>
@@ -394,7 +406,7 @@ export default function Header() {
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }}
-              className="md:hidden bg-cream/98 backdrop-blur-lg border-b border-terracotta/10 overflow-hidden">
+              className="lg:hidden bg-cream/98 backdrop-blur-lg border-b border-terracotta/10 overflow-hidden max-h-[80vh] overflow-y-auto">
               <div className="px-4 py-4 space-y-2.5">
                 
                 {user && (
@@ -431,7 +443,7 @@ export default function Header() {
                         {categories.map((cat) => (
                           <Link href={`/products?category=${cat.id}`} key={cat.id} onClick={() => setMobileMenuOpen(false)}>
                             <div className="px-3 py-2 text-xs text-brown-light font-sans font-semibold hover:text-terracotta flex items-center gap-2">
-                              <img src={cat.image} alt={cat.name} className="h-4 w-4 object-cover rounded" />
+                              <span className="text-lg">{cat.icon}</span>
                               {cat.name}
                             </div>
                           </Link>

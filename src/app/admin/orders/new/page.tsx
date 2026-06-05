@@ -68,6 +68,14 @@ export default function NewManualOrderPage() {
       toast({ title: "Missing fields", description: "Fill in customer name, phone, address and pincode.", variant: "destructive" });
       return;
     }
+    if (address.phone.replace(/\D/g, "").length !== 10) {
+      toast({ title: "Invalid phone", description: "Phone number must be exactly 10 digits.", variant: "destructive" });
+      return;
+    }
+    if (address.pincode.replace(/\D/g, "").length !== 6) {
+      toast({ title: "Invalid pincode", description: "Pincode must be exactly 6 digits.", variant: "destructive" });
+      return;
+    }
     if (items.length === 0) {
       toast({ title: "No items", description: "Add at least one product.", variant: "destructive" });
       return;
@@ -129,17 +137,24 @@ export default function NewManualOrderPage() {
           <div className="grid sm:grid-cols-2 gap-3">
             {[
               { key: "name", label: "Full Name *", type: "text", placeholder: "Customer name" },
-              { key: "phone", label: "Phone *", type: "tel", placeholder: "10-digit mobile" },
+              { key: "phone", label: "Phone *", type: "tel", placeholder: "10-digit mobile", inputMode: "numeric", maxLength: 10 },
               { key: "email", label: "Email", type: "email", placeholder: "optional" },
               { key: "line1", label: "Address Line 1 *", type: "text", placeholder: "House/Street" },
               { key: "line2", label: "Address Line 2", type: "text", placeholder: "Landmark (optional)" },
               { key: "city", label: "City *", type: "text", placeholder: "City" },
-              { key: "pincode", label: "Pincode *", type: "text", placeholder: "6-digit pincode" },
-            ].map(({ key, label, type, placeholder }) => (
+              { key: "pincode", label: "Pincode *", type: "text", placeholder: "6-digit pincode", inputMode: "numeric", maxLength: 6 },
+            ].map(({ key, label, type, placeholder, inputMode, maxLength }: any) => (
               <div key={key} className={key === "line1" || key === "line2" ? "sm:col-span-2" : ""}>
                 <label className="text-[11px] font-sans text-brown-light/50 uppercase tracking-wider mb-1 block">{label}</label>
                 <input type={type} placeholder={placeholder} value={(address as any)[key]}
-                  onChange={(e) => setAddress((p) => ({ ...p, [key]: e.target.value }))}
+                  inputMode={inputMode}
+                  maxLength={maxLength}
+                  onChange={(e) => {
+                    let val = e.target.value;
+                    if (key === 'phone') val = val.replace(/\D/g, '').slice(0, 10);
+                    if (key === 'pincode') val = val.replace(/\D/g, '').slice(0, 6);
+                    setAddress((p) => ({ ...p, [key]: val }));
+                  }}
                   className="w-full px-3 py-2.5 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30" />
               </div>
             ))}

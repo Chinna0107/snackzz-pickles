@@ -59,8 +59,6 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
-  const [showSuccessModal, setShowSuccessModal] = useState(false);
-  const [orderSuccessDetails, setOrderSuccessDetails] = useState<any>(null);
 
   // Step 2 state
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; pct?: number; discountAmount?: number; type?: 'percentage' | 'fixed' } | null>(null);
@@ -74,11 +72,11 @@ export default function CheckoutPage() {
     name: "", email: "", phone: "", line1: "", line2: "", city: "", state: "Telangana", customState: "", pincode: "",
   });
 
+  // Load saved address from localStorage on mount
   useEffect(() => {
     try {
       const stored = localStorage.getItem("snackzee_user");
       if (!stored) return;
-
       const user = JSON.parse(stored) as { name?: string; email?: string; phone?: string };
       setAddress((prev) => ({
         ...prev,
@@ -87,12 +85,21 @@ export default function CheckoutPage() {
         phone: prev.phone || user.phone || "",
       }));
     } catch {}
+
+    // Also load saved delivery address
+    try {
+      const savedAddr = localStorage.getItem("snackzee_address");
+      if (savedAddr) {
+        const addr = JSON.parse(savedAddr);
+        setAddress((prev) => ({ ...prev, ...addr }));
+      }
+    } catch {}
   }, []);
 
   // Fetch loyalty tier when email or phone is filled
   useEffect(() => {
     const email = address.email.trim();
-    const phone = address.phone.replace(/\D/g, '').slice(-10);
+    const phone = address.phone;
     if (!email && phone.length < 10) {
       setLoyaltyTier(null);
       setAppliedCoupon(null);
@@ -209,7 +216,14 @@ export default function CheckoutPage() {
     }
   }, [address.pincode, afterDiscount]);
 
-  const isAddressValid = address.name && address.email && address.phone && address.line1 && address.city && address.pincode && (address.state !== "Other" || address.customState);
+  const isAddressValid = 
+    address.name.trim().length >= 2 &&
+    address.email.trim().includes('@') &&
+    address.phone.length === 10 &&
+    address.line1.trim().length >= 3 &&
+    address.city.trim().length >= 2 &&
+    address.pincode.replace(/\D/g, '').length === 6 &&
+    (address.state !== "Other" || address.customState.trim().length >= 2);
 
   const loadRazorpay = (): Promise<boolean> =>
     new Promise((resolve) => {
@@ -252,8 +266,9 @@ export default function CheckoutPage() {
       order_id: orderId,
       handler: async (response) => {
         // Save order to backend
+        let savedOrderId: number | undefined;
         try {
-          await fetch(`${BACKEND_URL}/orders`, {
+          const orderRes = await fetch(`${BACKEND_URL}/orders`, {
             method: "POST",
             headers: { "Content-Type": "application/json", ...(token ? { Authorization: `Bearer ${token}` } : {}) },
             body: JSON.stringify({
@@ -267,20 +282,62 @@ export default function CheckoutPage() {
               status: "paid",
             }),
           });
+          const orderData = await orderRes.json();
+          savedOrderId = orderData?.order?.id;
+
+          // Send email confirmation
+          try {
+            await fetch(`${BACKEND_URL}/orders/confirm-email`, {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                orderId: savedOrderId,
+                email: address.email,
+                name: address.name,
+                items: items.map((i) => ({ name: i.product.nameEnglish, qty: i.quantity, price: i.product.price, unit: i.product.priceUnit })),
+                total: grandTotal,
+                address: { ...address, state: address.state === "Other" ? address.customState : address.state },
+                paymentId: response.razorpay_payment_id,
+              }),
+            });
+          } catch {}
+        } catch {}
+
+        // Save address for future use
+        try {
+          const addrToSave = {
+            name: address.name,
+            email: address.email,
+            phone: address.phone,
+            line1: address.line1,
+            line2: address.line2,
+            city: address.city,
+            state: address.state,
+            customState: address.customState,
+            pincode: address.pincode,
+          };
+          localStorage.setItem("snackzee_address", JSON.stringify(addrToSave));
         } catch {}
 
         clearCart();
-        setOrderSuccessDetails({
+        const confirmationData = {
+          orderId: savedOrderId,
           paymentId: response.razorpay_payment_id,
           total: grandTotal,
-          items: items.length,
+          items: items.map((i) => ({ name: i.product.nameEnglish, image: i.product.image, qty: i.quantity, price: i.product.price, unit: i.product.priceUnit })),
           address: {
             name: address.name,
+            email: address.email,
+            phone: address.phone,
+            line1: address.line1,
+            line2: address.line2,
             city: address.city,
+            state: address.state === "Other" ? address.customState : address.state,
             pincode: address.pincode,
           },
-        });
-        setShowSuccessModal(true);
+        };
+        try { sessionStorage.setItem("snackzee_order_confirmation", JSON.stringify(confirmationData)); } catch {}
+        router.push("/order-confirmation");
       },
       prefill: { name: address.name, email: address.email, contact: address.phone },
       theme: { color: "#C8401A" },
@@ -301,9 +358,9 @@ export default function CheckoutPage() {
   }
 
   return (
-    <div className="min-h-screen bg-cream pt-20">
-      <div className="max-w-3xl mx-auto px-4 sm:px-6 py-8">
-        <h1 className="font-serif text-3xl font-bold text-brown mb-8 text-center">Checkout</h1>
+    <div className="min-h-screen bg-cream pt-16 sm:pt-20">
+      <div className="max-w-3xl mx-auto px-3 sm:px-6 py-6 sm:py-8">
+        <h1 className="font-serif text-2xl sm:text-3xl font-bold text-brown mb-6 sm:mb-8 text-center">Checkout</h1>
 
         {/* Step Indicator */}
         <div className="flex items-center justify-center mb-8 sm:mb-10 overflow-x-auto pb-1">
@@ -619,11 +676,55 @@ export default function CheckoutPage() {
                 <h2 className="font-serif text-xl font-bold text-brown mb-4 flex items-center gap-2">
                   <MapPin className="w-5 h-5 text-terracotta" /> Delivery Address
                 </h2>
+                {/* Show saved address info if phone/email already filled */}
+                {(address.phone || address.email) && (
+                  <div className="mb-4 flex items-start gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
+                    <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
+                    <div className="text-xs font-sans text-green-700">
+                      <p className="font-bold">Saved details loaded</p>
+                      {address.email && <p className="mt-0.5">{address.email}</p>}
+                      {address.phone && <p>{address.phone}</p>}
+                    </div>
+                  </div>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   {[
-                    { key: "name", label: "Full Name", placeholder: "Your full name", col: 1 },
-                    { key: "email", label: "Email Address", placeholder: "you@example.com", col: 1 },
-                    { key: "phone", label: "Phone Number", placeholder: "+91 XXXXX XXXXX", col: 1 },
+                    { key: "name", label: "Full Name", placeholder: "Your full name", col: 1, type: "text" },
+                    { key: "email", label: "Email Address", placeholder: "you@example.com", col: 1, type: "email" },
+                  ].map((field) => (
+                    <div key={field.key}>
+                      <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">{field.label}</label>
+                      <input
+                        type={field.type}
+                        value={address[field.key as keyof typeof address]}
+                        onChange={(e) => setAddress((p) => ({ ...p, [field.key]: e.target.value }))}
+                        placeholder={field.placeholder}
+                        className="w-full px-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30"
+                      />
+                    </div>
+                  ))}
+                  {/* Phone with 10-digit validation */}
+                  <div>
+                    <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">Phone Number</label>
+                    <input
+                      type="tel"
+                      inputMode="numeric"
+                      value={address.phone}
+                      onChange={(e) => setAddress((p) => ({ ...p, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }))}
+                      placeholder="10-digit mobile number"
+                      maxLength={10}
+                      className={`w-full px-4 py-3 rounded-xl bg-cream border text-brown font-sans text-sm focus:outline-none ${
+                        address.phone && address.phone.length !== 10
+                          ? "border-red-300 focus:border-red-400"
+                          : "border-terracotta/10 focus:border-terracotta/30"
+                      }`}
+                    />
+                    {address.phone && address.phone.length !== 10 && (
+                      <p className="text-red-500 text-[11px] font-sans mt-1">Must be exactly 10 digits</p>
+                    )}
+                  </div>
+                  {/* Address lines */}
+                  {[
                     { key: "line1", label: "Address Line 1", placeholder: "House/Flat No, Street", col: 2 },
                     { key: "line2", label: "Address Line 2 (optional)", placeholder: "Landmark, Area", col: 2 },
                     { key: "city", label: "City", placeholder: "Hyderabad", col: 1 },
@@ -641,11 +742,16 @@ export default function CheckoutPage() {
                   <div>
                     <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">Pincode</label>
                     <input
+                      inputMode="numeric"
                       value={address.pincode}
-                      onChange={(e) => setAddress((p) => ({ ...p, pincode: e.target.value }))}
-                      placeholder="500001"
+                      onChange={(e) => setAddress((p) => ({ ...p, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) }))}
+                      placeholder="6-digit pincode"
                       maxLength={6}
-                      className="w-full px-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30"
+                      className={`w-full px-4 py-3 rounded-xl bg-cream border text-brown font-sans text-sm focus:outline-none ${
+                        address.pincode && address.pincode.length !== 6
+                          ? "border-red-300 focus:border-red-400"
+                          : "border-terracotta/10 focus:border-terracotta/30"
+                      }`}
                     />
                     {address.pincode.length === 6 && (
                       <p className="text-xs font-sans mt-1 font-semibold">
@@ -767,11 +873,6 @@ export default function CheckoutPage() {
           )}
         </AnimatePresence>
       </div>
-      <OrderSuccessModal
-        isOpen={showSuccessModal}
-        onClose={() => setShowSuccessModal(false)}
-        orderDetails={orderSuccessDetails}
-      />
       <Footer />
     </div>
   );
