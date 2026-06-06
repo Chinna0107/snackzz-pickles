@@ -1,6 +1,7 @@
 "use client";
 
 import { createContext, useContext, useEffect, useState, useCallback, ReactNode } from "react";
+import { useRouter } from "next/navigation";
 import { Product } from "@/lib/products";
 
 export interface CartItem {
@@ -27,6 +28,7 @@ export function getCartItemKey(item: CartItem): string {
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [items, setItems] = useState<CartItem[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
     try {
@@ -42,6 +44,15 @@ export function CartProvider({ children }: { children: ReactNode }) {
   }, [items]);
 
   const addItem = useCallback((product: Product, qty = 1) => {
+    const token = localStorage.getItem("snackzee_token");
+    if (!token) {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("login_redirect_url", window.location.pathname + window.location.search);
+        try { sessionStorage.setItem("snackzee_pending_cart", JSON.stringify({ productId: product.id })); } catch {}
+      }
+      router.push("/login");
+      return;
+    }
     setItems((prev) => {
       const variantKey = `${product.id}:${product.priceUnit}`;
       const existing = prev.find((i) => getCartItemKey(i) === variantKey);
@@ -52,7 +63,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       }
       return [...prev, { product, quantity: qty, variantKey }];
     });
-  }, []);
+  }, [router]);
 
   const removeItem = useCallback((id: string) => {
     setItems((prev) => prev.filter((i) => getCartItemKey(i) !== id && i.product.id !== id));

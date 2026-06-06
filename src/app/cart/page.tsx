@@ -1,15 +1,22 @@
 "use client";
 
 import Footer from "@/components/Footer";
-
+import { useEffect } from "react";
 import { getCartItemKey, useCart } from "@/context/CartContext";
 import { motion, AnimatePresence } from "framer-motion";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { Minus, Plus, Trash2, ShoppingCart, ArrowRight } from "lucide-react";
 
 export default function CartPage() {
   const { items, removeItem, updateQty, total, clearCart } = useCart();
+  const router = useRouter();
+
+  useEffect(() => {
+    const token = localStorage.getItem("snackzee_token");
+    if (!token) router.push("/login");
+  }, [router]);
 
   if (items.length === 0) {
     return (

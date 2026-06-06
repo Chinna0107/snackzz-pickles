@@ -11,6 +11,13 @@ import { useCart } from "@/context/CartContext";
 import { prefetchProducts } from "@/hooks/useProducts";
 import { categories } from "@/lib/products";
 
+const handleLoginClick = (router: any) => {
+  if (typeof window !== "undefined") {
+    sessionStorage.setItem("login_redirect_url", window.location.pathname + window.location.search);
+  }
+  router.push("/login");
+};
+
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -257,7 +264,7 @@ export default function Header() {
                         {/* Interactive How It's Made Mega item */}
                         <div className="px-3 py-2 border-b border-terracotta/5 mb-1 bg-cream/30 rounded-xl">
                           <Link href="/how-its-made" onClick={() => setMoreOpen(false)} className="flex items-center gap-2 font-serif font-bold text-sm text-terracotta hover:underline">
-                            💡 How It’s Made
+                            💡 How It's Made
                           </Link>
                           <div className="grid grid-cols-2 gap-x-3 gap-y-1.5 mt-2 pl-2 border-l border-terracotta/15">
                             {[
@@ -397,9 +404,9 @@ export default function Header() {
                   </AnimatePresence>
                 </div>
               ) : (
-                <Link href="/login" className="hidden md:flex items-center gap-1.5 border-2 border-terracotta/30 text-terracotta hover:bg-terracotta hover:text-white px-3 py-1.5 rounded-full font-semibold text-xs transition-all font-sans">
+                <button onClick={() => handleLoginClick(router)} className="hidden md:flex items-center gap-1.5 border-2 border-terracotta/30 text-terracotta hover:bg-terracotta hover:text-white px-3 py-1.5 rounded-full font-semibold text-xs transition-all font-sans">
                   Sign In
-                </Link>
+                </button>
               )}
 
               {/* Mobile menu toggle */}
@@ -436,59 +443,19 @@ export default function Header() {
                   </div>
                 </Link>
 
-                {/* PRODUCTS Accordion */}
-                <div className="border border-terracotta/5 rounded-xl overflow-hidden">
-                  <button
-                    onClick={() => setMobileProductsOpen(!mobileProductsOpen)}
-                    className="w-full flex items-center justify-between px-3 py-2.5 text-brown text-sm font-semibold hover:bg-terracotta/5 transition-colors">
-                    <span>🛍️ Products</span>
-                    <ChevronDown className={`w-4 h-4 text-brown-light/50 transition-transform ${mobileProductsOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  <AnimatePresence>
-                    {mobileProductsOpen && (
-                      <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden bg-white/40 pl-3 pr-2 py-1 space-y-0.5">
-                        <Link href="/products" onClick={() => setMobileMenuOpen(false)}>
-                          <div className="px-3 py-2 text-xs text-brown-light font-sans font-semibold hover:text-terracotta">All Products</div>
-                        </Link>
-                        {categories.map((cat) => (
-                          <Link href={`/products?category=${cat.id}`} key={cat.id} onClick={() => setMobileMenuOpen(false)}>
-                            <div className="px-3 py-2 text-xs text-brown-light font-sans font-semibold hover:text-terracotta flex items-center gap-2">
-                              <div className="w-7 h-7 rounded-md overflow-hidden flex-shrink-0">
-                                <Image src={cat.image} alt={cat.name} width={28} height={28} className="w-full h-full object-cover" />
-                              </div>
-                              {cat.name}
-                            </div>
-                          </Link>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                {/* ALL PRODUCTS */}
+                <Link href="/products" onClick={() => setMobileMenuOpen(false)}>
+                  <div className="flex items-center gap-2 px-3 py-2.5 text-brown hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-semibold text-sm">
+                    🛍️ All Products
+                  </div>
+                </Link>
 
-                {/* ABOUT Accordion */}
-                <div className="border border-terracotta/5 rounded-xl overflow-hidden">
-                  <button onClick={() => setMobileAboutOpen(!mobileAboutOpen)} className="w-full flex items-center justify-between px-3 py-2.5 text-brown text-sm font-semibold hover:bg-terracotta/5 transition-colors">
-                    <span>📖 About</span>
-                    <ChevronDown className={`w-4 h-4 text-brown-light/50 transition-transform ${mobileAboutOpen ? "rotate-180" : ""}`} />
-                  </button>
-                  <AnimatePresence>
-                    {mobileAboutOpen && (
-                      <motion.div initial={{ height: 0 }} animate={{ height: "auto" }} exit={{ height: 0 }} className="overflow-hidden bg-white/40 pl-3 pr-2 py-1 space-y-0.5">
-                        {[
-                          { href: "/about#our-story", label: "Our Story" },
-                          { href: "/about#team", label: "Team Behind Snakzee" },
-                          { href: "/about#values", label: "Mission & Values" },
-                          { href: "/about#why-different", label: "Why Snakzee is Different" },
-                          { href: "/about#testimonials", label: "Customer Love" }
-                        ].map((sub) => (
-                          <Link key={sub.href} href={sub.href} onClick={() => setMobileMenuOpen(false)}>
-                            <div className="px-3 py-2 text-xs text-brown-light font-sans font-semibold hover:text-terracotta">{sub.label}</div>
-                          </Link>
-                        ))}
-                      </motion.div>
-                    )}
-                  </AnimatePresence>
-                </div>
+                {/* ABOUT US */}
+                <Link href="/about" onClick={() => setMobileMenuOpen(false)}>
+                  <div className="flex items-center gap-2 px-3 py-2.5 text-brown hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-semibold text-sm">
+                    📖 About Us
+                  </div>
+                </Link>
 
                 {/* MORE Accordion */}
                 <div className="border border-terracotta/5 rounded-xl overflow-hidden">
@@ -503,7 +470,7 @@ export default function Header() {
                         {/* How It's Made nested */}
                         <div className="bg-cream/40 p-2 rounded-lg text-left">
                           <Link href="/how-its-made" onClick={() => setMobileMenuOpen(false)} className="text-xs font-serif font-bold text-terracotta block mb-1">
-                            💡 How It’s Made
+                            💡 How It's Made
                           </Link>
                           <div className="grid grid-cols-2 gap-1.5 pl-2 border-l border-terracotta/15">
                             {[
@@ -546,28 +513,14 @@ export default function Header() {
                 {/* Account mobile */}
                 {user ? (
                   <div className="border-t border-terracotta/10 pt-3 space-y-1 bg-cream/10 rounded-b-xl">
-                    {/* <span className="text-[9px] font-sans font-bold text-brown-light/40 uppercase tracking-widest px-3 block mb-1">My Account Menu</span>
-                    {[
-                      { href: "/orders", label: "My Orders" },
-                      { href: "/orders", label: "Orders Tracking" },
-                      { href: "/wishlist", label: "My Wishlist" },
-                      { href: "/cook-with-snakzee#rewards", label: "My Rewards" },
-                      { href: "/profile", label: "My Profile" }
-                    ].map((opt) => (
-                      <Link key={`${opt.href}:${opt.label}`} href={opt.href} onClick={() => setMobileMenuOpen(false)}>
-                        <div className="px-4 py-2 text-xs font-sans font-medium text-brown hover:text-terracotta transition-colors">{opt.label}</div>
-                      </Link>
-                    ))}
-                    <button onClick={handleLogout} className="px-4 py-2 text-xs font-sans font-semibold text-red-500 hover:bg-red-50 transition-colors w-full text-left rounded-xl mt-1">
-                      Logout
-                    </button> */}
                   </div>
                 ) : (
-                  <Link href="/login" onClick={() => setMobileMenuOpen(false)}>
-                    <div className="flex items-center justify-center gap-2 w-full bg-terracotta hover:bg-terracotta-dark text-white px-4 py-2.5 rounded-full font-semibold text-xs sm:text-sm shadow-md transition-all">
-                      <User className="w-3.5 h-3.5" /> Sign In
-                    </div>
-                  </Link>
+                  <button onClick={() => {
+                    handleLoginClick(router);
+                    setMobileMenuOpen(false);
+                  }} className="flex items-center justify-center gap-2 w-full bg-terracotta hover:bg-terracotta-dark text-white px-4 py-2.5 rounded-full font-semibold text-xs sm:text-sm shadow-md transition-all">
+                    <User className="w-3.5 h-3.5" /> Sign In
+                  </button>
                 )}
               </div>
             </motion.div>

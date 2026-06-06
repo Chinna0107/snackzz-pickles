@@ -370,6 +370,11 @@ export default function AdminProductsPage() {
                 <h3 className="font-sans font-bold text-brown mb-3">Pricing</h3>
                 <div className="grid sm:grid-cols-3 gap-4">
                   <div>
+                    <label className="text-xs font-sans font-semibold text-brown-light/70 mb-1 block">Units</label>
+                    <input value={formData.price_unit} onChange={(e) => handleChange("price_unit", e.target.value)}
+                      className="w-full px-3 py-2 rounded-lg bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30" />
+                  </div>
+                  <div>
                     <label className="text-xs font-sans font-semibold text-brown-light/70 mb-1 block">Our Price</label>
                     <input type="number" value={formData.price} onChange={(e) => handleChange("price", Number(e.target.value))}
                       className="w-full px-3 py-2 rounded-lg bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30" />
@@ -379,11 +384,7 @@ export default function AdminProductsPage() {
                     <input type="number" value={formData.mrp || ""} onChange={(e) => handleChange("mrp", Number(e.target.value))}
                       className="w-full px-3 py-2 rounded-lg bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30" />
                   </div>
-                  <div>
-                    <label className="text-xs font-sans font-semibold text-brown-light/70 mb-1 block">Price Unit</label>
-                    <input value={formData.price_unit} onChange={(e) => handleChange("price_unit", e.target.value)}
-                      className="w-full px-3 py-2 rounded-lg bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30" />
-                  </div>
+                  
                 </div>
 
                 <div className="mt-4 flex items-center gap-2 bg-cream p-3 rounded-xl border border-terracotta/10">

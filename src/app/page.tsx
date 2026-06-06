@@ -487,24 +487,19 @@ function StickyNav({ onCategorySelect, searchQuery, onSearchChange }: { onCatego
                   <HomeIcon className="w-4 h-4" /> Home
                 </div>
               </Link>
-              <div className="px-4 pt-2 pb-1">
-                <p className="text-brown-light/40 text-[10px] font-sans uppercase tracking-widest mb-1">Products</p>
-                <Link href="/products" onClick={() => setMobileMenuOpen(false)}>
-                  <div className="flex items-center gap-2 px-3 py-2.5 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium text-sm cursor-pointer">
-                    🛍️ All Products
-                  </div>
-                </Link>
-                {categories.map((cat) => (
-                  <button key={cat.id} onClick={() => { setMobileMenuOpen(false); router.push(`/products?category=${cat.id}`); }} className="w-full flex items-center gap-2 px-3 py-2.5 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium text-sm text-left">
-                    <div className="relative w-8 h-8 rounded-md overflow-hidden flex-shrink-0 bg-cream mr-2"><Image src={cat.image} alt={cat.name} fill className="object-cover" sizes="32px" /></div> {cat.name} <span className="text-brown-light/40 text-[11px] font-sans">({cat.nameTelugu})</span>
-                  </button>
-                ))}
-              </div>
-              <Link href="/about">
+
+              <Link href="/products">
                 <div onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium cursor-pointer">
-                  About Us
+                  🛍️ All Products
                 </div>
               </Link>
+
+              <Link href="/about">
+                <div onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium cursor-pointer">
+                  📖 About Us
+                </div>
+              </Link>
+
               <Link href="/contact">
                 <div onClick={() => setMobileMenuOpen(false)} className="flex items-center gap-2 px-4 py-3 text-brown-light hover:text-terracotta hover:bg-terracotta/5 rounded-xl transition-colors font-medium cursor-pointer">
                   Contact Us

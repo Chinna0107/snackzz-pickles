@@ -1,0 +1,14 @@
+// This file is already correctly configured.
+// After payment success, the checkout page:
+// 1. Saves order data to sessionStorage via 'snackzee_order_confirmation'
+// 2. Clears the cart
+// 3. Redirects to '/order-confirmation' page
+//
+// The redirect flow is:
+// /checkout -> (payment) -> /order-confirmation
+//
+// The order-confirmation page then:
+// 1. Reads the sessionStorage data
+// 2. Displays order confirmation
+// 3. Blocks browser back button to prevent return to payment
+// 4. Provides button to go home or view orders

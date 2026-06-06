@@ -7,6 +7,7 @@ import Link from "next/link";
 import { motion } from "framer-motion";
 import { CheckCircle, Package, MapPin, CreditCard, Mail, Phone, Star, Home } from "lucide-react";
 import Header from "@/components/Header";
+import { useCart } from "@/context/CartContext";
 
 interface OrderDetails {
   orderId?: number;
@@ -27,6 +28,7 @@ interface OrderDetails {
 
 export default function OrderConfirmationPage() {
   const router = useRouter();
+  const { clearCart } = useCart();
   const [order, setOrder] = useState<OrderDetails | null>(null);
 
   useEffect(() => {
@@ -34,10 +36,11 @@ export default function OrderConfirmationPage() {
       const stored = sessionStorage.getItem("snackzee_order_confirmation");
       if (!stored) { router.replace("/"); return; }
       setOrder(JSON.parse(stored));
+      clearCart();
     } catch {
       router.replace("/");
     }
-  }, [router]);
+  }, [router, clearCart]);
 
   // Block browser back/forward — keep user on this page
   useEffect(() => {

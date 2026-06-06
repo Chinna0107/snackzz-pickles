@@ -18,6 +18,8 @@ export default function LoginPage() {
   const [loginStep, setLoginStep] = useState<1 | 2>(1);
   const [resetStep, setResetStep] = useState<1 | 2>(1);
   const [mode, setMode] = useState<"login" | "reset">("login");
+  const [redirectUrl, setRedirectUrl] = useState<string>("/");
+  const [isChecking, setIsChecking] = useState(true);
   
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -30,6 +32,33 @@ export default function LoginPage() {
 
   const loginBtnRef = useRef<HTMLDivElement>(null);
   const googleInitialized = useRef(false);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("snackzee_token");
+      if (token) {
+        router.push("/");
+        return;
+      }
+
+      const referrer = document.referrer;
+      const storedRedirectUrl = sessionStorage.getItem("login_redirect_url");
+      
+      if (storedRedirectUrl) {
+        setRedirectUrl(storedRedirectUrl);
+        sessionStorage.removeItem("login_redirect_url");
+      } else if (referrer && referrer.includes(window.location.hostname)) {
+        try {
+          const referrerUrl = new URL(referrer);
+          const pathname = referrerUrl.pathname + referrerUrl.search;
+          if (pathname !== "/login" && pathname !== "/register") {
+            setRedirectUrl(pathname);
+          }
+        } catch {}
+      }
+      setIsChecking(false);
+    }
+  }, [router]);
 
   const handleGoogleLoginSuccess = async (response: any) => {
     const idToken = response.credential;
@@ -48,7 +77,7 @@ export default function LoginPage() {
       localStorage.setItem("snackzee_token", data.token);
       localStorage.setItem("snackzee_user", JSON.stringify(data.user));
       toast({ title: "Welcome back! 🎉", description: `Logged in via Google as ${data.user.email || data.user.phone}` });
-      router.push(data.user.role === "admin" ? "/admin" : "/");
+      router.push(data.user.role === "admin" ? "/admin" : redirectUrl);
     } catch {
       toast({ title: "Network error", description: "Google Sign-In failed.", variant: "destructive" });
     } finally {
@@ -221,13 +250,21 @@ export default function LoginPage() {
         description: `Logged in as ${data.user.email || data.user.phone}`,
       });
 
-      router.push(data.user.role === "admin" ? "/admin" : "/");
+      router.push(data.user.role === "admin" ? "/admin" : redirectUrl);
     } catch {
       toast({ title: "Network error", description: "Could not reach the server.", variant: "destructive" });
     } finally {
       setLoading(false);
     }
   };
+
+  if (isChecking) {
+    return (
+      <div className="min-h-screen bg-cream flex items-center justify-center">
+        <div className="w-10 h-10 border-4 border-terracotta/20 border-t-terracotta rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-cream flex items-center justify-center px-4 py-12">

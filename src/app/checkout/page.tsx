@@ -59,6 +59,7 @@ export default function CheckoutPage() {
   const router = useRouter();
   const { toast } = useToast();
   const [step, setStep] = useState(1);
+  const [isProcessingPayment, setIsProcessingPayment] = useState(false);
 
   // Step 2 state
   const [appliedCoupon, setAppliedCoupon] = useState<{ code: string; pct?: number; discountAmount?: number; type?: 'percentage' | 'fixed' } | null>(null);
@@ -68,9 +69,18 @@ export default function CheckoutPage() {
   const [loyaltyTiers, setLoyaltyTiers] = useState<LoyaltyTier[]>(LOYALTY_TIERS);
   const [loyaltyLoading, setLoyaltyLoading] = useState(false);
   const [couponsOpen, setCouponsOpen] = useState(false);
+  const [availableCoupons, setAvailableCoupons] = useState<any[]>([]);
   const [address, setAddress] = useState({
     name: "", email: "", phone: "", line1: "", line2: "", city: "", state: "Telangana", customState: "", pincode: "",
   });
+
+  // Load available coupons on mount
+  useEffect(() => {
+    fetch(`${BACKEND_URL}/coupons`)
+      .then((r) => r.json())
+      .then((data) => setAvailableCoupons(data.coupons || []))
+      .catch(() => {});
+  }, []);
 
   // Load saved address from localStorage on mount, then try backend for logged-in users
   useEffect(() => {
@@ -264,9 +274,11 @@ export default function CheckoutPage() {
     });
 
   const handlePayment = async () => {
+    setIsProcessingPayment(true);
     const loaded = await loadRazorpay();
     if (!loaded) {
       toast({ title: "Payment Error", description: "Could not load payment gateway.", variant: "destructive" });
+      setIsProcessingPayment(false);
       return;
     }
 
@@ -347,7 +359,6 @@ export default function CheckoutPage() {
           localStorage.setItem("snackzee_address", JSON.stringify(addrToSave));
         } catch {}
 
-        clearCart();
         const confirmationData = {
           orderId: savedOrderId,
           paymentId: response.razorpay_payment_id,
@@ -365,7 +376,8 @@ export default function CheckoutPage() {
           },
         };
         try { sessionStorage.setItem("snackzee_order_confirmation", JSON.stringify(confirmationData)); } catch {}
-        router.push("/order-confirmation");
+        setIsProcessingPayment(false);
+        router.replace("/order-confirmation");
       },
       prefill: { name: address.name, email: address.email, contact: address.phone },
       theme: { color: "#C8401A" },
@@ -374,12 +386,12 @@ export default function CheckoutPage() {
     new window.Razorpay(options).open();
   };
 
-  // Redirect to cart if empty
+  // Redirect to cart if empty (but not during payment processing)
   useEffect(() => {
-    if (items.length === 0) {
+    if (items.length === 0 && !isProcessingPayment) {
       router.push("/cart");
     }
-  }, [items.length, router]);
+  }, [items.length, router, isProcessingPayment]);
 
   if (items.length === 0) {
     return null;
