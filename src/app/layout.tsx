@@ -83,7 +83,7 @@ export const metadata: Metadata = {
     canonical: "https://snakzee.com",
   },
   verification: {
-    google: "-_TathQN_9RE9b6qKYjx70TeZCfIrGGIBQwEzM344Yw",
+    google: "QBbxueHPe1FQTz0MUuAFdjhdukoPj-qqKHLAaGJJVhU",
   },
 };
 
