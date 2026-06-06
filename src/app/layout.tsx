@@ -121,7 +121,7 @@ export default function RootLayout({
     "contactPoint": [
       {
         "@type": "ContactPoint",
-        "telephone": "+91-88975-86142",
+        "telephone": "+91-93055-50051",
         "contactType": "customer service",
         "availableLanguage": ["English", "Telugu"]
       }

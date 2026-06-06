@@ -14,7 +14,7 @@ const CONTACT_METHODS = [
   {
     icon: <MessageCircle className="w-6 h-6" />,
     title: "WhatsApp",
-    value: "+91 88975 86142",
+    value: "+91 93055 50051",
     desc: "Fastest response — we reply within minutes!",
     href: getWhatsAppLink(),
     color: "bg-green-50 text-green-700 border-green-200",
@@ -44,8 +44,8 @@ const CONTACT_METHODS = [
   {
     icon: <MapPin className="w-6 h-6" />,
     title: "Location",
-    value: "Telangana, India",
-    desc: "We deliver across all of Telangana",
+    value: "Kurnool, Andhra Pradesh, India",
+    desc: "We deliver across the world.",
     href: undefined,
     color: "bg-terracotta/10 text-terracotta border-terracotta/20",
     btnColor: "",
@@ -55,7 +55,7 @@ const CONTACT_METHODS = [
 
 const FAQS_QUICK = [
   { q: "How do I place an order?", a: "Click any WhatsApp button — your message is pre-filled. Just hit send!" },
-  { q: "What are delivery charges?", a: "Free delivery on orders above ₹1,000 across Telangana." },
+  { q: "What are delivery charges?", a: "Free delivery on orders above ₹1,000 across Telangana and Andhra Pradesh." },
   { q: "How long does delivery take?", a: "2-3 business days. Every item is made fresh after you order." },
   { q: "Do you take bulk orders?", a: "Yes! WhatsApp us for custom bulk pricing for events & weddings." },
 ];

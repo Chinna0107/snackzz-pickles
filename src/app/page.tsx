@@ -583,7 +583,7 @@ function HeroSection() {
   const slides = banners.length > 0 ? banners : fallbackImages;
 
   return (
-    <section className="relative w-full px-4 sm:px-6 lg:px-8 h-[20vh] sm:h-[33vh] md:h-[50vh] lg:h-[48vh] xl:h-[50vh] overflow-hidden py-2 md:py-0">
+    <section className="relative w-full px-4 sm:px-6 lg:px-8 h-[20vh] sm:h-[30vh] md:h-[40vh] lg:h-[45vh] xl:h-[50vh] overflow-hidden py-2 md:py-0">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentBanner}
@@ -1247,17 +1247,17 @@ function ProductCard({
         <div onClick={(e) => e.stopPropagation()} className="space-y-2">
           <div className="grid grid-cols-[1fr_auto] gap-2">
             {hasVariants ? (
-              // Admin-defined quantity variants as a dropdown
+              // Admin-defined quantity variants as a dropdown - show only quantity
               <select
                 value={selectedOption}
                 onChange={(e) => setSelectedOption(e.target.value)}
                 className="min-w-0 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
                 aria-label="Select quantity"
               >
-                <option value="base">{product.priceUnit} — ₹{product.price}</option>
+                <option value="base">{product.priceUnit}</option>
                 {variants!.map((v, i) => (
                   <option key={`${product.id}-v-${i}-${v.quantity}`} value={`v-${i}`}>
-                    {v.quantity} — ₹{v.price}{v.mrp && v.mrp > v.price ? ` (MRP ₹${v.mrp})` : ""}
+                    {v.quantity}
                   </option>
                 ))}
               </select>
