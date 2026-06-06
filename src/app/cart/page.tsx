@@ -85,6 +85,27 @@ export default function CartPage() {
 
           {/* Summary */}
           <div className="space-y-4">
+            {/* Free Delivery Threshold */}
+            {total < 1000 && (
+              <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
+                <p className="font-sans text-sm text-green-700 font-semibold mb-2">🎉 Free Delivery Available!</p>
+                <p className="font-sans text-xs text-green-600 mb-3">Add ₹{999 - total} more to get free delivery</p>
+                <div className="w-full bg-green-200 rounded-full h-2">
+                  <div 
+                    className="bg-green-500 h-2 rounded-full transition-all duration-300" 
+                    style={{ width: `${(total / 999) * 100}%` }}
+                  />
+                </div>
+                <p className="font-sans text-xs text-green-600 mt-2">Progress: ₹{total} / ₹999</p>
+              </div>
+            )}
+            {total >= 1000 && (
+              <div className="bg-green-50 border border-green-200 rounded-2xl p-4">
+                <p className="font-sans text-sm text-green-700 font-semibold">✓ Free Delivery Unlocked! 🎊</p>
+                <p className="font-sans text-xs text-green-600 mt-1">Your order qualifies for free delivery</p>
+              </div>
+            )}
+
             {/* Order Summary */}
             <div className="bg-white rounded-2xl border border-terracotta/10 p-5">
               <h3 className="font-serif font-bold text-brown text-lg mb-4">Order Summary</h3>
