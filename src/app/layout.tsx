@@ -134,10 +134,54 @@ export default function RootLayout({
       "@type": "OfferCatalog",
       "name": "Snakzee Foods Menu",
       "itemListElement": [
-        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Hot Items & Snacks" } },
-        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Sweet Items" } },
-        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Podis & Powders" } },
-        { "@type": "Offer", "itemOffered": { "@type": "Product", "name": "Vadiyalu & Papads" } }
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Product",
+            "name": "Hot Items & Snacks",
+            "description": "Authentic homemade hot snacks and crispy items",
+            "image": "https://snakzee.com/logo-removebg-preview.png"
+          },
+          "price": "199",
+          "priceCurrency": "INR",
+          "availability": "https://schema.org/InStock"
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Product",
+            "name": "Sweet Items",
+            "description": "Traditional homemade sweets and desserts from Telangana",
+            "image": "https://snakzee.com/logo-removebg-preview.png"
+          },
+          "price": "249",
+          "priceCurrency": "INR",
+          "availability": "https://schema.org/InStock"
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Product",
+            "name": "Podis & Powders",
+            "description": "Authentic spice powders and flavor enhancers made fresh",
+            "image": "https://snakzee.com/logo-removebg-preview.png"
+          },
+          "price": "149",
+          "priceCurrency": "INR",
+          "availability": "https://schema.org/InStock"
+        },
+        {
+          "@type": "Offer",
+          "itemOffered": {
+            "@type": "Product",
+            "name": "Vadiyalu & Papads",
+            "description": "Sun-dried traditional vadiyalu and crispy papads",
+            "image": "https://snakzee.com/logo-removebg-preview.png"
+          },
+          "price": "299",
+          "priceCurrency": "INR",
+          "availability": "https://schema.org/InStock"
+        }
       ]
     }
   };
