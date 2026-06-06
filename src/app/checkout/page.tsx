@@ -73,6 +73,9 @@ export default function CheckoutPage() {
   const [address, setAddress] = useState({
     name: "", email: "", phone: "", line1: "", line2: "", city: "", state: "Telangana", customState: "", pincode: "",
   });
+  const [savedAddresses, setSavedAddresses] = useState<any[]>([]);
+  const [selectedAddressId, setSelectedAddressId] = useState<string | null>(null);
+  const [showNewAddressForm, setShowNewAddressForm] = useState(false);
 
   // Load available coupons on mount
   useEffect(() => {
@@ -82,54 +85,75 @@ export default function CheckoutPage() {
       .catch(() => {});
   }, []);
 
-  // Load saved address from localStorage on mount, then try backend for logged-in users
+  // Load saved addresses from backend
   useEffect(() => {
-    // 1. Pre-fill from localStorage user profile
-    try {
-      const stored = localStorage.getItem("snackzee_user");
-      if (stored) {
-        const user = JSON.parse(stored) as { name?: string; email?: string; phone?: string };
-        setAddress((prev) => ({
-          ...prev,
-          name: prev.name || user.name || "",
-          email: prev.email || user.email || "",
-          phone: prev.phone || user.phone || "",
-        }));
-      }
-    } catch {}
-
-    // 2. Load saved delivery address from localStorage
-    try {
-      const savedAddr = localStorage.getItem("snackzee_address");
-      if (savedAddr) {
-        const addr = JSON.parse(savedAddr);
-        setAddress((prev) => ({ ...prev, ...addr }));
-      }
-    } catch {}
-
-    // 3. If logged in, fetch last order address from backend and override
     const token = localStorage.getItem("snackzee_token");
-    if (!token) return;
-    fetch(`${BACKEND_URL}/orders/my`, {
+    if (!token) {
+      try {
+        const stored = localStorage.getItem("snackzee_user");
+        if (stored) {
+          const user = JSON.parse(stored) as { name?: string; email?: string; phone?: string };
+          setAddress((prev) => ({
+            ...prev,
+            name: prev.name || user.name || "",
+            email: prev.email || user.email || "",
+            phone: prev.phone || user.phone || "",
+          }));
+        }
+      } catch {}
+      setShowNewAddressForm(true);
+      return;
+    }
+
+    fetch(`${BACKEND_URL}/addresses`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((r) => r.json())
       .then((data) => {
-        const orders = data.orders || [];
-        if (orders.length === 0) return;
-        const lastAddr = orders[0].address;
-        if (!lastAddr) return;
-        setAddress((prev) => ({
-          name: lastAddr.name || prev.name || "",
-          email: lastAddr.email || prev.email || "",
-          phone: lastAddr.phone || prev.phone || "",
-          line1: lastAddr.line1 || prev.line1 || "",
-          line2: lastAddr.line2 || prev.line2 || "",
-          city: lastAddr.city || prev.city || "",
-          state: lastAddr.state || prev.state || "Telangana",
-          customState: prev.customState || "",
-          pincode: lastAddr.pincode || prev.pincode || "",
-        }));
+        const addresses = data.addresses || [];
+        setSavedAddresses(addresses);
+        const defaultAddr = addresses.find((a: any) => a.isDefault);
+        if (defaultAddr) {
+          setSelectedAddressId(defaultAddr.id);
+          // Also get user email from localStorage for rewards lookup
+          let userEmail = "";
+          try {
+            const stored = localStorage.getItem("snackzee_user");
+            if (stored) userEmail = (JSON.parse(stored) as { email?: string }).email || "";
+          } catch {}
+          setAddress({
+            name: defaultAddr.name || "",
+            email: userEmail,
+            phone: defaultAddr.phone || "",
+            line1: defaultAddr.line1 || "",
+            line2: defaultAddr.line2 || "",
+            city: defaultAddr.city || "",
+            state: defaultAddr.state || "Telangana",
+            customState: "",
+            pincode: defaultAddr.pincode || "",
+          });
+        } else if (addresses.length === 0) {
+          setShowNewAddressForm(true);
+        } else {
+          // Has addresses but none default — select first
+          setSelectedAddressId(addresses[0].id);
+          let userEmail = "";
+          try {
+            const stored = localStorage.getItem("snackzee_user");
+            if (stored) userEmail = (JSON.parse(stored) as { email?: string }).email || "";
+          } catch {}
+          setAddress({
+            name: addresses[0].name || "",
+            email: userEmail,
+            phone: addresses[0].phone || "",
+            line1: addresses[0].line1 || "",
+            line2: addresses[0].line2 || "",
+            city: addresses[0].city || "",
+            state: addresses[0].state || "Telangana",
+            customState: "",
+            pincode: addresses[0].pincode || "",
+          });
+        }
       })
       .catch(() => {});
   }, []);
@@ -254,7 +278,8 @@ export default function CheckoutPage() {
     }
   }, [address.pincode, afterDiscount]);
 
-  const isAddressValid = 
+  const isAddressValid =
+    (selectedAddressId !== null || showNewAddressForm) &&
     address.name.trim().length >= 2 &&
     address.email.trim().includes('@') &&
     address.phone.length === 10 &&
@@ -272,6 +297,27 @@ export default function CheckoutPage() {
       script.onerror = () => resolve(false);
       document.body.appendChild(script);
     });
+
+  const saveNewAddressToBackend = async () => {
+    const token = localStorage.getItem("snackzee_token");
+    if (!token || !showNewAddressForm) return;
+    try {
+      await fetch(`${BACKEND_URL}/addresses`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${token}` },
+        body: JSON.stringify({
+          name: address.name,
+          phone: address.phone,
+          line1: address.line1,
+          line2: address.line2,
+          city: address.city,
+          state: address.state === "Other" ? address.customState : address.state,
+          pincode: address.pincode,
+          isDefault: true,
+        }),
+      });
+    } catch {}
+  };
 
   const handlePayment = async () => {
     setIsProcessingPayment(true);
@@ -713,126 +759,248 @@ export default function CheckoutPage() {
 
               {/* Delivery Address */}
               <div className="bg-white rounded-2xl border border-terracotta/10 p-6">
-                <h2 className="font-serif text-xl font-bold text-brown mb-4 flex items-center gap-2">
-                  <MapPin className="w-5 h-5 text-terracotta" /> Delivery Address
-                </h2>
-                {/* Show saved address info if phone/email already filled */}
-                {(address.phone || address.email) && (
-                  <div className="mb-4 flex items-start gap-3 bg-green-50 border border-green-200 rounded-xl px-4 py-3">
-                    <CheckCircle2 className="w-4 h-4 text-green-600 flex-shrink-0 mt-0.5" />
-                    <div className="text-xs font-sans text-green-700">
-                      <p className="font-bold">Saved details loaded</p>
-                      {address.email && <p className="mt-0.5">{address.email}</p>}
-                      {address.phone && <p>{address.phone}</p>}
+                <div className="flex items-center justify-between mb-4">
+                  <h2 className="font-serif text-xl font-bold text-brown flex items-center gap-2">
+                    <MapPin className="w-5 h-5 text-terracotta" /> Delivery Address
+                  </h2>
+                  {savedAddresses.length > 0 && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (!showNewAddressForm) {
+                          // Pre-fill contact info for new address
+                          try {
+                            const stored = localStorage.getItem("snackzee_user");
+                            if (stored) {
+                              const user = JSON.parse(stored) as { name?: string; email?: string; phone?: string };
+                              setAddress({
+                                name: user.name || "",
+                                email: user.email || address.email || "",
+                                phone: user.phone || "",
+                                line1: "", line2: "", city: "", state: "Telangana", customState: "", pincode: "",
+                              });
+                            }
+                          } catch {}
+                          setSelectedAddressId(null);
+                        } else {
+                          // Cancel — restore the default/first saved address
+                          const defaultAddr = savedAddresses.find((a) => a.isDefault) || savedAddresses[0];
+                          if (defaultAddr) {
+                            setSelectedAddressId(defaultAddr.id);
+                            setAddress((prev) => ({
+                              name: defaultAddr.name || "",
+                              email: prev.email,
+                              phone: defaultAddr.phone || "",
+                              line1: defaultAddr.line1 || "",
+                              line2: defaultAddr.line2 || "",
+                              city: defaultAddr.city || "",
+                              state: defaultAddr.state || "Telangana",
+                              customState: "",
+                              pincode: defaultAddr.pincode || "",
+                            }));
+                          }
+                        }
+                        setShowNewAddressForm(!showNewAddressForm);
+                      }}
+                      className="text-terracotta hover:text-terracotta-dark font-sans font-semibold text-sm"
+                    >
+                      {showNewAddressForm ? "Cancel" : "+ Add New"}
+                    </button>
+                  )}
+                </div>
+
+                {/* Saved Addresses List */}
+                {savedAddresses.length > 0 && !showNewAddressForm && (
+                  <div className="space-y-3 mb-4">
+                    {savedAddresses.map((addr) => (
+                      <div
+                        key={addr.id}
+                        className={`border rounded-xl p-4 cursor-pointer transition-all ${
+                          selectedAddressId === addr.id
+                            ? "border-terracotta bg-terracotta/5 shadow-sm"
+                            : "border-terracotta/10 hover:border-terracotta/30"
+                        }`}
+                        onClick={() => {
+                          setSelectedAddressId(addr.id);
+                          setAddress({
+                            name: addr.name,
+                            email: address.email,
+                            phone: addr.phone,
+                            line1: addr.line1,
+                            line2: addr.line2 || "",
+                            city: addr.city,
+                            state: addr.state,
+                            customState: "",
+                            pincode: addr.pincode,
+                          });
+                        }}
+                      >
+                        <div className="flex items-start gap-3">
+                          <input
+                            type="radio"
+                            checked={selectedAddressId === addr.id}
+                            onChange={() => {}}
+                            className="mt-1"
+                          />
+                          <div className="flex-1">
+                            <div className="flex items-center gap-2 mb-1">
+                              <p className="font-serif font-bold text-brown">{addr.name}</p>
+                              {addr.isDefault && (
+                                <span className="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full font-sans font-semibold">
+                                  Default
+                                </span>
+                              )}
+                            </div>
+                            <p className="text-sm text-brown-light/60 font-sans">{addr.phone}</p>
+                            <p className="text-sm text-brown-light/70 font-sans mt-1">
+                              {addr.line1}{addr.line2 && `, ${addr.line2}`}
+                              <br />
+                              {addr.city}, {addr.state} - {addr.pincode}
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                {/* New Address Form */}
+                {showNewAddressForm && (
+                  <div className="mt-4">
+                    {savedAddresses.length > 0 && (
+                      <div className="flex items-center justify-between mb-4">
+                        <p className="text-sm font-semibold text-brown font-sans">New Address</p>
+                        <button
+                          type="button"
+                          onClick={() => setShowNewAddressForm(false)}
+                          className="text-xs text-brown-light/50 hover:text-brown font-sans"
+                        >
+                          Cancel
+                        </button>
+                      </div>
+                    )}
+                    {savedAddresses.length === 0 && (
+                      <p className="text-sm text-brown-light/60 font-sans mb-4">Please add your delivery address</p>
+                    )}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                      {[
+                        { key: "name", label: "Full Name", placeholder: "Your full name", col: 1, type: "text" },
+                        { key: "email", label: "Email Address", placeholder: "you@example.com", col: 1, type: "email" },
+                      ].map((field) => (
+                        <div key={field.key}>
+                          <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">{field.label}</label>
+                          <input
+                            type={field.type}
+                            value={address[field.key as keyof typeof address]}
+                            onChange={(e) => setAddress((p) => ({ ...p, [field.key]: e.target.value }))}
+                            placeholder={field.placeholder}
+                            className="w-full px-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30"
+                          />
+                        </div>
+                      ))}
+                      <div>
+                        <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">Phone Number</label>
+                        <input
+                          type="tel"
+                          inputMode="numeric"
+                          value={address.phone}
+                          onChange={(e) => setAddress((p) => ({ ...p, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }))}
+                          placeholder="10-digit mobile number"
+                          maxLength={10}
+                          className={`w-full px-4 py-3 rounded-xl bg-cream border text-brown font-sans text-sm focus:outline-none ${
+                            address.phone && address.phone.length !== 10
+                              ? "border-red-300 focus:border-red-400"
+                              : "border-terracotta/10 focus:border-terracotta/30"
+                          }`}
+                        />
+                        {address.phone && address.phone.length !== 10 && (
+                          <p className="text-red-500 text-[11px] font-sans mt-1">Must be exactly 10 digits</p>
+                        )}
+                      </div>
+                      {[
+                        { key: "line1", label: "Address Line 1", placeholder: "House/Flat No, Street", col: 2 },
+                        { key: "line2", label: "Address Line 2 (optional)", placeholder: "Landmark, Area", col: 2 },
+                        { key: "city", label: "City", placeholder: "Hyderabad", col: 1 },
+                      ].map((field) => (
+                        <div key={field.key} className={field.col === 2 ? "sm:col-span-2" : ""}>
+                          <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">{field.label}</label>
+                          <input
+                            value={address[field.key as keyof typeof address]}
+                            onChange={(e) => setAddress((p) => ({ ...p, [field.key]: e.target.value }))}
+                            placeholder={field.placeholder}
+                            className="w-full px-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30"
+                          />
+                        </div>
+                      ))}
+                      <div>
+                        <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">Pincode</label>
+                        <input
+                          inputMode="numeric"
+                          value={address.pincode}
+                          onChange={(e) => setAddress((p) => ({ ...p, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) }))}
+                          placeholder="6-digit pincode"
+                          maxLength={6}
+                          className={`w-full px-4 py-3 rounded-xl bg-cream border text-brown font-sans text-sm focus:outline-none ${
+                            address.pincode && address.pincode.length !== 6
+                              ? "border-red-300 focus:border-red-400"
+                              : "border-terracotta/10 focus:border-terracotta/30"
+                          }`}
+                        />
+                        {address.pincode.length === 6 && (
+                          <p className="text-xs font-sans mt-1 font-semibold">
+                            {isLoadingDeliveryFee ? (
+                              <span className="text-brown-light/40 animate-pulse">Calculating delivery fee...</span>
+                            ) : deliveryFee === 0 ? (
+                              <span className="text-green-600">🎉 FREE Delivery on this order!</span>
+                            ) : deliveryFee !== null ? (
+                              <span className="text-terracotta">Delivery fee: ₹{deliveryFee}</span>
+                            ) : null}
+                          </p>
+                        )}
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">State</label>
+                        <select value={address.state} onChange={(e) => setAddress((p) => ({ ...p, state: e.target.value, customState: "" }))}
+                          className="w-full px-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none">
+                          {["Telangana", "Andhra Pradesh", "Karnataka", "Tamil Nadu", "Maharashtra", "Other"].map((s) => (
+                            <option key={s}>{s}</option>
+                          ))}
+                        </select>
+                      </div>
+                      {address.state === "Other" && (
+                        <div>
+                          <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">Enter Your State</label>
+                          <input
+                            value={address.customState}
+                            onChange={(e) => setAddress((p) => ({ ...p, customState: e.target.value }))}
+                            placeholder="Your state"
+                            className="w-full px-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30"
+                          />
+                        </div>
+                      )}
                     </div>
                   </div>
                 )}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  {[
-                    { key: "name", label: "Full Name", placeholder: "Your full name", col: 1, type: "text" },
-                    { key: "email", label: "Email Address", placeholder: "you@example.com", col: 1, type: "email" },
-                  ].map((field) => (
-                    <div key={field.key}>
-                      <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">{field.label}</label>
-                      <input
-                        type={field.type}
-                        value={address[field.key as keyof typeof address]}
-                        onChange={(e) => setAddress((p) => ({ ...p, [field.key]: e.target.value }))}
-                        placeholder={field.placeholder}
-                        className="w-full px-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30"
-                      />
-                    </div>
-                  ))}
-                  {/* Phone with 10-digit validation */}
-                  <div>
-                    <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">Phone Number</label>
-                    <input
-                      type="tel"
-                      inputMode="numeric"
-                      value={address.phone}
-                      onChange={(e) => setAddress((p) => ({ ...p, phone: e.target.value.replace(/\D/g, "").slice(0, 10) }))}
-                      placeholder="10-digit mobile number"
-                      maxLength={10}
-                      className={`w-full px-4 py-3 rounded-xl bg-cream border text-brown font-sans text-sm focus:outline-none ${
-                        address.phone && address.phone.length !== 10
-                          ? "border-red-300 focus:border-red-400"
-                          : "border-terracotta/10 focus:border-terracotta/30"
-                      }`}
-                    />
-                    {address.phone && address.phone.length !== 10 && (
-                      <p className="text-red-500 text-[11px] font-sans mt-1">Must be exactly 10 digits</p>
-                    )}
-                  </div>
-                  {/* Address lines */}
-                  {[
-                    { key: "line1", label: "Address Line 1", placeholder: "House/Flat No, Street", col: 2 },
-                    { key: "line2", label: "Address Line 2 (optional)", placeholder: "Landmark, Area", col: 2 },
-                    { key: "city", label: "City", placeholder: "Hyderabad", col: 1 },
-                  ].map((field) => (
-                    <div key={field.key} className={field.col === 2 ? "sm:col-span-2" : ""}>
-                      <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">{field.label}</label>
-                      <input
-                        value={address[field.key as keyof typeof address]}
-                        onChange={(e) => setAddress((p) => ({ ...p, [field.key]: e.target.value }))}
-                        placeholder={field.placeholder}
-                        className="w-full px-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30"
-                      />
-                    </div>
-                  ))}
-                  <div>
-                    <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">Pincode</label>
-                    <input
-                      inputMode="numeric"
-                      value={address.pincode}
-                      onChange={(e) => setAddress((p) => ({ ...p, pincode: e.target.value.replace(/\D/g, "").slice(0, 6) }))}
-                      placeholder="6-digit pincode"
-                      maxLength={6}
-                      className={`w-full px-4 py-3 rounded-xl bg-cream border text-brown font-sans text-sm focus:outline-none ${
-                        address.pincode && address.pincode.length !== 6
-                          ? "border-red-300 focus:border-red-400"
-                          : "border-terracotta/10 focus:border-terracotta/30"
-                      }`}
-                    />
-                    {address.pincode.length === 6 && (
-                      <p className="text-xs font-sans mt-1 font-semibold">
-                        {isLoadingDeliveryFee ? (
-                          <span className="text-brown-light/40 animate-pulse">Calculating delivery fee...</span>
-                        ) : deliveryFee === 0 ? (
-                          <span className="text-green-600">🎉 FREE Delivery on this order!</span>
-                        ) : deliveryFee !== null ? (
-                          <span className="text-terracotta">Delivery fee: ₹{deliveryFee}</span>
-                        ) : null}
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">State</label>
-                    <select value={address.state} onChange={(e) => setAddress((p) => ({ ...p, state: e.target.value, customState: "" }))}
-                      className="w-full px-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none">
-                      {["Telangana", "Andhra Pradesh", "Karnataka", "Tamil Nadu", "Maharashtra", "Other"].map((s) => (
-                        <option key={s}>{s}</option>
-                      ))}
-                    </select>
-                  </div>
-                  {address.state === "Other" && (
-                    <div>
-                      <label className="block text-xs font-semibold text-brown-light/60 font-sans mb-1">Enter Your State</label>
-                      <input
-                        value={address.customState}
-                        onChange={(e) => setAddress((p) => ({ ...p, customState: e.target.value }))}
-                        placeholder="Your state"
-                        className="w-full px-4 py-3 rounded-xl bg-cream border border-terracotta/10 text-brown font-sans text-sm focus:outline-none focus:border-terracotta/30"
-                      />
-                    </div>
-                  )}
-                </div>
+
+                {/* Pincode delivery fee shown for selected saved address too */}
+                {!showNewAddressForm && selectedAddressId && address.pincode.length === 6 && (
+                  <p className="text-xs font-sans mt-3 font-semibold">
+                    {isLoadingDeliveryFee ? (
+                      <span className="text-brown-light/40 animate-pulse">Calculating delivery fee...</span>
+                    ) : deliveryFee === 0 ? (
+                      <span className="text-green-600">🎉 FREE Delivery on this order!</span>
+                    ) : deliveryFee !== null ? (
+                      <span className="text-terracotta">Delivery fee: ₹{deliveryFee}</span>
+                    ) : null}
+                  </p>
+                )}
               </div>
 
               <div className="flex gap-3">
                 <button onClick={() => setStep(1)} className="flex-1 border border-terracotta/20 text-terracotta py-4 rounded-full font-bold font-sans hover:bg-terracotta/5 transition-colors">
                   ← Back
                 </button>
-                <button onClick={() => setStep(3)} disabled={!isAddressValid}
+                <button onClick={async () => { await saveNewAddressToBackend(); setStep(3); }} disabled={!isAddressValid}
                   className="flex-[2] bg-terracotta hover:bg-terracotta-dark disabled:opacity-40 disabled:cursor-not-allowed text-white py-4 rounded-full font-bold font-sans transition-all hover:scale-[1.02] shadow-lg shadow-terracotta/20">
                   Continue to Payment →
                 </button>

@@ -164,10 +164,10 @@ export default function Footer() {
                 {/* <li>{scrollOrLink("faq", "FAQ")}</li> */}
                 <li><Link href="/contact" className="footer-link-hover text-white/80 hover:text-white transition-colors">Contact Us</Link></li>
                 <li className="pt-1">
-                  <a href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-whatsapp hover:bg-cream px-3 py-2 rounded-full font-bold shadow-md shadow-black/10 transition-all hover:scale-[1.02]">
+                  {/* <a href={getWhatsAppLink()} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-2 bg-white text-whatsapp hover:bg-cream px-3 py-2 rounded-full font-bold shadow-md shadow-black/10 transition-all hover:scale-[1.02]">
                     <WhatsAppIcon className="w-4.5 h-4.5" />
                     WhatsApp Support
-                  </a>
+                  </a> */}
                 </li>
                 
                 <li className="pt-2 border-t border-white/10 mt-2">
