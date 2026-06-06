@@ -3,7 +3,6 @@
 import { useEffect, useState } from "react";
 import { ShoppingBag, Users, TrendingUp, MessageCircle, Package, Clock } from "lucide-react";
 import { motion } from "framer-motion";
-import { products } from "@/lib/products";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 const WA_NUMBER = "919505550051";
@@ -20,6 +19,7 @@ interface Order {
 export default function AdminDashboard() {
   const [orders, setOrders] = useState<Order[]>([]);
   const [users, setUsers] = useState<{ id: number }[]>([]);
+  const [productsCount, setProductsCount] = useState(0);
 
   useEffect(() => {
     const token = localStorage.getItem("snackzee_token");
@@ -28,9 +28,11 @@ export default function AdminDashboard() {
     Promise.all([
       fetch(`${BACKEND_URL}/orders`, { headers: h }).then((r) => r.json()),
       fetch(`${BACKEND_URL}/admin/users`, { headers: h }).then((r) => r.json()),
-    ]).then(([od, ud]) => {
+      fetch(`${BACKEND_URL}/products`, { headers: h }).then((r) => r.json()),
+    ]).then(([od, ud, pd]) => {
       if (od.orders) setOrders(od.orders);
       if (ud.users) setUsers(ud.users);
+      if (pd.products) setProductsCount(pd.products.length);
     }).catch(() => {});
   }, []);
 
@@ -42,7 +44,7 @@ export default function AdminDashboard() {
     { label: "Total Revenue", value: `₹${revenue.toLocaleString()}`, icon: <TrendingUp className="w-6 h-6" />, color: "bg-green-100 text-green-600" },
     { label: "Customers", value: users.length, icon: <Users className="w-6 h-6" />, color: "bg-blue-100 text-blue-600" },
     { label: "Pending Orders", value: pending, icon: <Clock className="w-6 h-6" />, color: "bg-gold/10 text-gold" },
-    { label: "Products", value: products.length, icon: <Package className="w-6 h-6" />, color: "bg-purple-100 text-purple-600" },
+    { label: "Products", value: productsCount, icon: <Package className="w-6 h-6" />, color: "bg-purple-100 text-purple-600" },
   ];
 
   const notifyWhatsApp = (order: Order) => {
