@@ -1197,7 +1197,7 @@ function ProductCard({
           {product.name}
         </h3>
         <span className="text-brown-light/50 text-[13px] font-sans block mb-1">({product.nameEnglish})</span>
-        <p className="text-brown-light/60 text-sm leading-relaxed mb-2 line-clamp-2 font-sans">
+        <p className="text-brown-light/60 text-sm leading-relaxed mb-2 line-clamp-1 font-sans">
           {product.description}
         </p>
 
@@ -1334,8 +1334,7 @@ function FeaturedProducts({
             Our Heritage Collection
           </h2>
           <p className="text-brown-light/70 text-base sm:text-lg max-w-2xl mx-auto">
-            Every item is handmade with traditional recipes passed down through
-            generations. Fresh, authentic, and absolutely no preservatives.
+            Rooted in Telangana tradition — every item is stone-ground, sun-dried, or slow-cooked in small batches using recipes passed down through generations. No factories. No preservatives. Just honest, homemade goodness delivered fresh to your door.
           </p>
         </motion.div>
 
@@ -1424,11 +1423,8 @@ function FeaturedProducts({
               <Search className="w-7 h-7 text-terracotta/40" />
             </div>
             <h3 className="font-serif text-xl font-bold text-brown mb-2">No products found</h3>
-            <p className="text-brown-light/60 text-sm font-sans">
-              {activeCategory !== "all"
-                ? `No products available in "${categories.find(c => c.id === activeCategory)?.name || activeCategory}" yet.`
-                : "Try a different search term or category."}
-            </p>
+           
+           
             {(searchQuery || activeCategory !== "all" || activeTags.length > 0) && (
               <button
                 onClick={() => { onSearchChange(""); onCategoryChange("all"); setActiveTags([]); }}

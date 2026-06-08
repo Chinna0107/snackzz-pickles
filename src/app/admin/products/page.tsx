@@ -10,9 +10,9 @@ import { uploadToCloudinary } from "@/utils/uploadToCloudinary";
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
 const CATEGORIES = [
-  { id: "hot-items", name: "Hot Items" },
-  { id: "sweet-items", name: "Sweet Items" },
-  { id: "podis-and-powders", name: "Podis & Powders" },
+  { id: "hot-items", name: "Snacks" },
+  { id: "sweet-items", name: "Sweets" },
+  { id: "podis-and-powders", name: "Masalas & Powders" },
   { id: "pickles", name: "Pickles" },
   { id: "fryums", name: "Fryums" },
 ];

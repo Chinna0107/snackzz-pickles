@@ -118,7 +118,7 @@ export const SPICE_LABELS: Record<SpiceLevel, { label: string; color: string; em
 export const categories: CategoryInfo[] = [
   {
     id: "hot-items",
-    name: "Hot Items",
+    name: "Snacks",
     nameTelugu: "హాట్ మిక్స్",
     icon: "🍿",
     image: "/products/Hot_Items/Crispy_Murukulu.jpg",
@@ -136,7 +136,7 @@ export const categories: CategoryInfo[] = [
   },
   {
     id: "podis-and-powders",
-    name: "Podis & Powders",
+    name: "Masalas & Powders",
     nameTelugu: "మసాలాలు & పొడులు",
     icon: "🌶️",
     image: "/products/Podis_Powders/Idli_Podi.jpg",
@@ -1227,7 +1227,7 @@ export const PROCESS_STEPS = [
     step: 2,
     title: "Preparation (stone grinding, hand rolling)",
     description: "Ingredients are ground slowly on traditional stone mortars to retain natural oils, and rolled by hand using heritage methods.",
-    icon: "👩‍🍳",
+    icon: "👩🍳",
   },
   {
     step: 3,

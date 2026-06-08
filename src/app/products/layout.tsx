@@ -1,15 +1,30 @@
-import type { Metadata } from "next";
+import { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Products — Snackzee Foods",
-  description: "Browse all Snackzee Foods products — hot items, sweet items, podis & powders, vadiyalu & papads. 100% homemade, no preservatives, fresh Telangana snacks.",
+  title: "Shop Snakzee Products | Authentic Homemade Snacks, Sweets & Podis",
+  description: "Browse and buy authentic homemade Telangana & Andhra snacks, sweets, podis, vadiyalu & papads. 100% natural ingredients, no preservatives. Fast delivery across India.",
+  keywords: [
+    "snakzee products",
+    "buy homemade snacks online",
+    "Telangana snacks shop",
+    "authentic podis",
+    "vadiyalu online",
+    "homemade sweets",
+    "no preservatives snacks",
+    "order snacks online",
+  ],
   openGraph: {
-    title: "Shop Snackzee Foods — Authentic Telangana Snacks",
-    description: "Hot items, sweets, podis, vadiyalu & papads — all homemade with traditional Telangana recipes.",
-    images: [{ url: "/logo-removebg-preview.png", alt: "Snackzee Foods Products" }],
+    title: "Shop Snakzee | 100% Homemade Telangana Snacks",
+    description: "Discover our authentic collection of handcrafted snacks, sweets, podis & vadiyalu made fresh with traditional recipes.",
+    url: "https://snakzee.com/products",
+    type: "website",
   },
 };
 
-export default function ProductsLayout({ children }: { children: React.ReactNode }) {
-  return <>{children}</>;
+export default function ProductsLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
+  return children;
 }

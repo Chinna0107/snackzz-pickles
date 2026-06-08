@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { Metadata } from "next";
 import { motion } from "framer-motion";
 import { MessageCircle, Phone, Mail, MapPin, Clock, Send, Instagram, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -10,24 +9,6 @@ import { useToast } from "@/hooks/use-toast";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getWhatsAppLink } from "@/lib/products";
-
-export const metadata: Metadata = {
-  title: "Contact Snakzee Foods | WhatsApp, Phone & Email Support",
-  description: "Get in touch with Snakzee. Contact us via WhatsApp (+91 93055 50051), phone, or email for orders, queries, and feedback. Fast response within hours!",
-  keywords: [
-    "contact Snakzee",
-    "Snakzee WhatsApp",
-    "customer support",
-    "order inquiry",
-    "bulk orders",
-  ],
-  openGraph: {
-    title: "Contact Snakzee Foods | We're Here to Help",
-    description: "Reach us anytime via WhatsApp, phone, or contact form. Fast support & custom orders available.",
-    url: "https://snakzee.com/contact",
-    type: "website",
-  },
-};
 
 const CONTACT_METHODS = [
   { q: "How do I place an order?", a: "Click any WhatsApp button — your message is pre-filled. Just hit send!" },
@@ -138,7 +119,7 @@ export default function ContactPage() {
               <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="bg-white rounded-2xl border border-terracotta/10 p-6">
                 <h3 className="font-serif text-xl font-bold text-brown mb-4">Quick Answers</h3>
                 <div className="space-y-3">
-                  {FAQS_QUICK.map((faq, i) => (
+                  {CONTACT_METHODS.map((faq, i) => (
                     <div key={i} className="border-b border-terracotta/5 pb-3 last:border-0 last:pb-0">
                       <p className="font-sans font-semibold text-brown text-sm mb-1">{faq.q}</p>
                       <p className="text-brown-light/60 text-xs font-sans">{faq.a}</p>

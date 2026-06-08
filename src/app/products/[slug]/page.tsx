@@ -394,9 +394,9 @@ export default function ProductDetailPage() {
               <div className="bg-white rounded-xl border border-terracotta/10 p-4">
                 <h3 className="font-sans font-bold text-brown mb-3">Nutrition Facts (per 100g)</h3>
                 <div className="grid grid-cols-5 gap-3">
-                  {Object.entries(product.nutrition).map(([key, value]) => (
+                  {(["calories", "protein", "carbs", "fat", "fiber"] as const).map((key) => (
                     <div key={key} className="text-center">
-                      <p className="font-serif font-bold text-brown text-lg">{value}</p>
+                      <p className="font-serif font-bold text-brown text-lg">{product.nutrition[key as keyof typeof product.nutrition]}</p>
                       <p className="text-brown-light/50 text-xs font-sans capitalize">{key}</p>
                     </div>
                   ))}
@@ -458,7 +458,8 @@ export default function ProductDetailPage() {
                   </div>
                   <div className="p-3">
                     <p className="font-sans font-semibold text-brown text-sm truncate">{p.name_english}</p>
-                    <p className="font-sans font-bold text-terracotta mt-1">₹{p.price}</p>
+                    <p className="text-brown-light/50 text-[11px] font-sans mb-1 truncate">{p.name}</p>
+                    <p className="font-sans font-bold text-terracotta">₹{p.price}</p>
                   </div>
                 </Link>
               ))}

@@ -32,7 +32,12 @@ export default function AdminDashboard() {
     ]).then(([od, ud, pd]) => {
       if (od.orders) setOrders(od.orders);
       if (ud.users) setUsers(ud.users);
-      if (pd.products) setProductsCount(pd.products.length);
+     fetch(`${BACKEND_URL}/products`, { headers: h })
+  .then((r) => r.json())
+  .then((pd) => {
+    console.log(pd);
+    setProductsCount(pd.products?.length || 0);
+  });
     }).catch(() => {});
   }, []);
 

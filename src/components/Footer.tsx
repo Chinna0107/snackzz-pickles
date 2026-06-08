@@ -94,7 +94,7 @@ export default function Footer() {
             <div className={`${footerOpenSections.shop ? "block" : "hidden"} md:block mt-2 md:mt-0`}>
               <ul className="space-y-2.5 font-sans text-sm">
                 <li><Link href="/products" className="footer-link-hover text-white/80 hover:text-white transition-colors">All Products</Link></li>
-                <li><Link href="/products?category=snacks" className="footer-link-hover text-white/80 hover:text-white transition-colors">Snacks</Link></li>
+                <li><Link href="/products?category=hot-items" className="footer-link-hover text-white/80 hover:text-white transition-colors">Snacks</Link></li>
                 <li><Link href="/products?category=sweet-items" className="footer-link-hover text-white/80 hover:text-white transition-colors">Sweet Items</Link></li>
                 <li><Link href="/products?category=podis-and-powders" className="footer-link-hover text-white/80 hover:text-white transition-colors">Masalas & Powders</Link></li>
                 <li><Link href="/products?category=pickles" className="footer-link-hover text-white/80 hover:text-white transition-colors">Pickles</Link></li>
@@ -104,7 +104,7 @@ export default function Footer() {
               </ul>
             </div>
           </div>
-
+    
           {/* DISCOVER */}
           <div>
             <div className="md:hidden">

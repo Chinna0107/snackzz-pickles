@@ -2,7 +2,6 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
-import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -32,29 +31,6 @@ import {
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
-export const metadata: Metadata = {
-  title: "Shop Snakzee Products | Authentic Homemade Snacks, Sweets & Podis",
-  description: "Browse and buy authentic homemade Telangana & Andhra snacks, sweets, podis, vadiyalu & papads. 100% natural ingredients, no preservatives. Fast delivery across India.",
-  keywords: [
-    "snakzee products",
-    "buy homemade snacks online",
-    "Telangana snacks shop",
-    "authentic podis",
-    "vadiyalu online",
-    "homemade sweets",
-    "no preservatives snacks",
-    "order snacks online",
-  ],
-  openGraph: {
-    title: "Shop Snakzee | 100% Homemade Telangana Snacks",
-    description: "Discover our authentic collection of handcrafted snacks, sweets, podis & vadiyalu made fresh with traditional recipes.",
-    url: "https://snakzee.com/products",
-    type: "website",
-  },
-};
-
-const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
-
 function SpiceLevelBadge({ level }: { level: SpiceLevel }) {
   const spice = SPICE_LABELS[level] ?? SPICE_LABELS["none"];
   return (
@@ -76,30 +52,23 @@ function ProductCard({ product }: { product: ProductWithQuantities }) {
   const router = useRouter();
   const [isFav, setIsFav] = useState(false);
   
-  // Use admin-defined quantities if available, otherwise just the base unit
   const adminQuantities = product.availableQuantities || [];
   const gramOptions = [product.priceUnit, ...adminQuantities.filter(q => q !== product.priceUnit)];
   
-  // Set default selected gram to first available option
   const [selectedGram, setSelectedGram] = useState<string>(gramOptions[0]);
   const [quantity, setQuantity] = useState(1);
   
-  // Update selected gram if available options change
   useEffect(() => {
     if (gramOptions.length > 0 && !gramOptions.includes(selectedGram)) {
       setSelectedGram(gramOptions[0]);
     }
   }, [gramOptions, selectedGram]);
   
-  // Calculate price based on selected quantity
   const selectedPrice = (() => {
-    // If it's the base unit, return base price
     if (selectedGram === product.priceUnit) return product.price;
 
-    // Check if there's a matching quantity_price
     if (product.quantity_prices && product.quantity_prices.length > 0) {
       const match = product.quantity_prices.find(qp => {
-        // Normalize for comparison
         let qty = qp.quantity.trim().toLowerCase();
         qty = qty.replace(/\s*grms?\s*$/i, 'g').replace(/\s*gms?\s*$/i, 'g').replace(/\s*grams?\s*$/i, 'g');
         if (/^\d+$/.test(qty)) qty = `${qty}g`;
@@ -108,7 +77,6 @@ function ProductCard({ product }: { product: ProductWithQuantities }) {
       if (match) return match.price;
     }
     
-    // Last resort fallback (shouldn't really happen with our new logic)
     return product.price;
   })();
 
@@ -152,7 +120,7 @@ function ProductCard({ product }: { product: ProductWithQuantities }) {
     e.stopPropagation();
     const cartProduct = { ...product, price: selectedPrice, priceUnit: selectedGram };
     addItem(cartProduct, quantity);
-    toast({ title: "Added to cart! 🛒", description: `${quantity} × ${selectedGram} ${product.name} added.` });
+    toast({ title: "Added to cart! 🛒", description: `${quantity} × ${selectedGram} ${product.nameEnglish} added.` });
   };
 
   return (
@@ -168,7 +136,7 @@ function ProductCard({ product }: { product: ProductWithQuantities }) {
       <div className="relative aspect-square overflow-hidden bg-cream-dark">
         <Image
           src={product.image}
-          alt={product.name}
+          alt={product.nameEnglish}
           fill
           className="object-cover group-hover:scale-110 transition-transform duration-500"
           sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
@@ -198,11 +166,11 @@ function ProductCard({ product }: { product: ProductWithQuantities }) {
           </Badge>
           <SpiceLevelBadge level={product.spiceLevel} />
         </div>
-        <h3 className="font-serif text-xl font-bold text-brown mb-0.5 group-hover:text-terracotta transition-colors line-clamp-1">
-          {product.name}
+        <h3 className="font-serif text-lg font-bold text-brown mb-0.5 group-hover:text-terracotta transition-colors line-clamp-1">
+          {product.nameEnglish}
         </h3>
-        <p className="text-brown-light/50 text-[12px] font-sans mb-1">({product.nameEnglish})</p>
-        <p className="text-brown-light/60 text-sm leading-relaxed mb-3 line-clamp-2 font-sans">
+        <p className="text-brown-light/50 text-[12px] font-sans mb-1">{product.name}</p>
+        <p className="text-brown-light/60 text-sm mb-3 font-sans overflow-hidden text-ellipsis whitespace-nowrap">
           {product.description}
         </p>
         <div className="flex items-center gap-2 mb-3 text-brown-light/50 text-[11px] font-sans">
@@ -278,23 +246,18 @@ function ProductsContent() {
         const data = await res.json();
         if (data.products && Array.isArray(data.products)) {
           const mapped = data.products.map((p: any) => {
-            // Extract available quantities from quantity_prices array - normalize format
             let availableQuantities: string[] = [];
             if (Array.isArray(p.quantity_prices) && p.quantity_prices.length > 0) {
               const quantities = p.quantity_prices
                 .filter((qp: { quantity: string; price: number }) => qp.quantity && qp.price > 0)
                 .map((qp: { quantity: string }) => {
-                  // Normalize quantity format: "250grms" -> "250g", "100" -> "100g", "1kg" -> "1kg"
                   let qty = qp.quantity.trim().toLowerCase();
-                  // Replace various gram suffixes with 'g'
                   qty = qty.replace(/\s*grms?\s*$/i, 'g').replace(/\s*gms?\s*$/i, 'g').replace(/\s*grams?\s*$/i, 'g');
-                  // If it's just a number, add 'g' suffix
                   if (/^\d+$/.test(qty)) {
                     qty = `${qty}g`;
                   }
                   return qty;
                 });
-              // Remove duplicates
               availableQuantities = [...new Set(quantities)] as string[];
             }
             
@@ -304,7 +267,6 @@ function ProductsContent() {
               nameEnglish: p.name_english,
               category: (() => {
                 const cat = (p.category || 'hot-items').replace(/_/g, '-');
-                // normalize legacy/alternate category names
                 if (cat === 'snacks') return 'hot-items';
                 if (cat === 'sweets') return 'sweet-items';
                 if (cat === 'powders') return 'podis-powders';
@@ -371,7 +333,6 @@ function ProductsContent() {
     <div className="min-h-screen bg-cream">
       <Header />
       <div className="pt-20 sm:pt-24">
-        {/* Page Header */}
         <div className="bg-gradient-to-br from-brown via-brown-light to-terracotta-dark py-12 sm:py-16 relative overflow-hidden">
           <div className="absolute inset-0 opacity-10" style={{ backgroundImage: `url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23FFFFFF' fill-opacity='0.4'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/svg%3E")` }} />
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
@@ -392,7 +353,6 @@ function ProductsContent() {
         </div>
 
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          {/* Category Tabs — horizontally scrollable on mobile */}
           <div className="flex gap-2 sm:gap-3 mb-6 overflow-x-auto pb-1 scrollbar-hide -mx-1 px-1">
             <button
               onClick={() => handleCategoryChange("all")}
@@ -434,7 +394,6 @@ function ProductsContent() {
             ))}
           </div>
 
-          {/* Search + Sort */}
           <div className="flex flex-col sm:flex-row gap-3 mb-8">
             <div className="relative flex-1">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-brown-light/40" />
@@ -467,14 +426,12 @@ function ProductsContent() {
             </div>
           </div>
 
-          {/* Results count */}
           <p className="text-brown-light/50 text-sm font-sans mb-6">
             Showing {filtered.length} product{filtered.length !== 1 ? "s" : ""}
             {activeCategory !== "all" && ` in ${activeCatInfo?.name}`}
             {searchQuery && ` for "${searchQuery}"`}
           </p>
 
-          {/* Grid */}
           {filtered.length === 0 ? (
             <div className="text-center py-20">
               <div className="w-16 h-16 mx-auto bg-terracotta/10 rounded-full flex items-center justify-center mb-4">
@@ -496,7 +453,6 @@ function ProductsContent() {
             </div>
           )}
 
-          {/* WhatsApp CTA */}
           <div className="mt-16 bg-gradient-to-r from-terracotta to-terracotta-dark rounded-2xl p-8 text-center">
             <h3 className="font-serif text-2xl sm:text-3xl font-bold text-cream mb-3">Can't find what you're looking for?</h3>
             <p className="text-cream/70 font-sans mb-6">Message us on WhatsApp — we can make custom orders!</p>
