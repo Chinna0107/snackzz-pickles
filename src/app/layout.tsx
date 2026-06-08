@@ -141,6 +141,11 @@ export default function RootLayout({
             "name": "Hot Items & Snacks",
             "description": "Authentic homemade hot snacks and crispy items",
             "image": "https://snakzee.com/logo-removebg-preview.png",
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.8",
+              "ratingCount": "542"
+            },
             "offers": {
               "@type": "Offer",
               "price": "199",
@@ -156,6 +161,11 @@ export default function RootLayout({
             "name": "Sweet Items",
             "description": "Traditional homemade sweets and desserts from Telangana",
             "image": "https://snakzee.com/logo-removebg-preview.png",
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.9",
+              "ratingCount": "687"
+            },
             "offers": {
               "@type": "Offer",
               "price": "249",
@@ -171,6 +181,11 @@ export default function RootLayout({
             "name": "Podis & Powders",
             "description": "Authentic spice powders and flavor enhancers made fresh",
             "image": "https://snakzee.com/logo-removebg-preview.png",
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.7",
+              "ratingCount": "421"
+            },
             "offers": {
               "@type": "Offer",
               "price": "149",
@@ -186,6 +201,11 @@ export default function RootLayout({
             "name": "Vadiyalu & Papads",
             "description": "Sun-dried traditional vadiyalu and crispy papads",
             "image": "https://snakzee.com/logo-removebg-preview.png",
+            "aggregateRating": {
+              "@type": "AggregateRating",
+              "ratingValue": "4.8",
+              "ratingCount": "563"
+            },
             "offers": {
               "@type": "Offer",
               "price": "299",
