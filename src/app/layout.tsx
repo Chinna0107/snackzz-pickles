@@ -140,11 +140,14 @@ export default function RootLayout({
             "@type": "Product",
             "name": "Hot Items & Snacks",
             "description": "Authentic homemade hot snacks and crispy items",
-            "image": "https://snakzee.com/logo-removebg-preview.png"
-          },
-          "price": "199",
-          "priceCurrency": "INR",
-          "availability": "https://schema.org/InStock"
+            "image": "https://snakzee.com/logo-removebg-preview.png",
+            "offers": {
+              "@type": "Offer",
+              "price": "199",
+              "priceCurrency": "INR",
+              "availability": "https://schema.org/InStock"
+            }
+          }
         },
         {
           "@type": "Offer",
@@ -152,11 +155,14 @@ export default function RootLayout({
             "@type": "Product",
             "name": "Sweet Items",
             "description": "Traditional homemade sweets and desserts from Telangana",
-            "image": "https://snakzee.com/logo-removebg-preview.png"
-          },
-          "price": "249",
-          "priceCurrency": "INR",
-          "availability": "https://schema.org/InStock"
+            "image": "https://snakzee.com/logo-removebg-preview.png",
+            "offers": {
+              "@type": "Offer",
+              "price": "249",
+              "priceCurrency": "INR",
+              "availability": "https://schema.org/InStock"
+            }
+          }
         },
         {
           "@type": "Offer",
@@ -164,11 +170,14 @@ export default function RootLayout({
             "@type": "Product",
             "name": "Podis & Powders",
             "description": "Authentic spice powders and flavor enhancers made fresh",
-            "image": "https://snakzee.com/logo-removebg-preview.png"
-          },
-          "price": "149",
-          "priceCurrency": "INR",
-          "availability": "https://schema.org/InStock"
+            "image": "https://snakzee.com/logo-removebg-preview.png",
+            "offers": {
+              "@type": "Offer",
+              "price": "149",
+              "priceCurrency": "INR",
+              "availability": "https://schema.org/InStock"
+            }
+          }
         },
         {
           "@type": "Offer",
@@ -176,11 +185,14 @@ export default function RootLayout({
             "@type": "Product",
             "name": "Vadiyalu & Papads",
             "description": "Sun-dried traditional vadiyalu and crispy papads",
-            "image": "https://snakzee.com/logo-removebg-preview.png"
-          },
-          "price": "299",
-          "priceCurrency": "INR",
-          "availability": "https://schema.org/InStock"
+            "image": "https://snakzee.com/logo-removebg-preview.png",
+            "offers": {
+              "@type": "Offer",
+              "price": "299",
+              "priceCurrency": "INR",
+              "availability": "https://schema.org/InStock"
+            }
+          }
         }
       ]
     }
