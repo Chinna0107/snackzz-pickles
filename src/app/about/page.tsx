@@ -2,12 +2,25 @@
 
 import Image from "next/image";
 import Link from "next/link";
+import { Metadata } from "next";
 import { motion } from "framer-motion";
 import { Leaf, Home as HomeIcon, Users, Heart, Award, ChefHat, ArrowRight } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { PROCESS_STEPS, VIDEO_TESTIMONIALS, REVIEWS } from "@/lib/products";
+
+export const metadata: Metadata = {
+  title: "About Snakzee Foods — Our Story & Mission",
+  description: "Learn about Snakzee — from grandmother's kitchen to your home. Authentic homemade Telangana & Andhra snacks made with 3 generations of traditional recipes. 100% natural, no preservatives.",
+  keywords: ["about Snakzee", "our story", "homemade snacks", "Telangana recipes", "authentic food", "grandmother recipes"],
+  openGraph: {
+    title: "About Snakzee Foods — From Grandmother's Kitchen to Your Home",
+    description: "Discover the story of Snakzee — authentic homemade Telangana snacks made fresh with traditional recipes passed down through 3 generations.",
+    url: "https://snakzee.com/about",
+    type: "website",
+  },
+};
 
 const VALUES = [
   { icon: <HomeIcon className="w-6 h-6" />, title: "Made at Home", desc: "Every product is handcrafted in small batches using traditional kitchen methods — never in a factory." },

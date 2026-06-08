@@ -2,6 +2,7 @@
 
 import { useState, useEffect, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
@@ -28,6 +29,29 @@ import {
   type Product,
   type SpiceLevel,
 } from "@/lib/products";
+
+const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+
+export const metadata: Metadata = {
+  title: "Shop Snakzee Products | Authentic Homemade Snacks, Sweets & Podis",
+  description: "Browse and buy authentic homemade Telangana & Andhra snacks, sweets, podis, vadiyalu & papads. 100% natural ingredients, no preservatives. Fast delivery across India.",
+  keywords: [
+    "snakzee products",
+    "buy homemade snacks online",
+    "Telangana snacks shop",
+    "authentic podis",
+    "vadiyalu online",
+    "homemade sweets",
+    "no preservatives snacks",
+    "order snacks online",
+  ],
+  openGraph: {
+    title: "Shop Snakzee | 100% Homemade Telangana Snacks",
+    description: "Discover our authentic collection of handcrafted snacks, sweets, podis & vadiyalu made fresh with traditional recipes.",
+    url: "https://snakzee.com/products",
+    type: "website",
+  },
+};
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 

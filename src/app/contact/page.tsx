@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { Metadata } from "next";
 import { motion } from "framer-motion";
 import { MessageCircle, Phone, Mail, MapPin, Clock, Send, Instagram, CheckCircle2 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -10,50 +11,25 @@ import Header from "@/components/Header";
 import Footer from "@/components/Footer";
 import { getWhatsAppLink } from "@/lib/products";
 
-const CONTACT_METHODS = [
-  {
-    icon: <MessageCircle className="w-6 h-6" />,
-    title: "WhatsApp",
-    value: "+91 93055 50051",
-    desc: "Fastest response — we reply within minutes!",
-    href: getWhatsAppLink(),
-    color: "bg-green-50 text-green-700 border-green-200",
-    btnColor: "bg-[#25D366] hover:bg-[#1ebe5d] text-white",
-    btnLabel: "Chat on WhatsApp",
+export const metadata: Metadata = {
+  title: "Contact Snakzee Foods | WhatsApp, Phone & Email Support",
+  description: "Get in touch with Snakzee. Contact us via WhatsApp (+91 93055 50051), phone, or email for orders, queries, and feedback. Fast response within hours!",
+  keywords: [
+    "contact Snakzee",
+    "Snakzee WhatsApp",
+    "customer support",
+    "order inquiry",
+    "bulk orders",
+  ],
+  openGraph: {
+    title: "Contact Snakzee Foods | We're Here to Help",
+    description: "Reach us anytime via WhatsApp, phone, or contact form. Fast support & custom orders available.",
+    url: "https://snakzee.com/contact",
+    type: "website",
   },
-  {
-    icon: <Phone className="w-6 h-6" />,
-    title: "Phone",
-    value: "+91 93055 50051",
-    desc: "Call us Mon–Sat, 9 AM – 7 PM",
-    href: "tel:+919305550051",
-    color: "bg-blue-50 text-blue-700 border-blue-200",
-    btnColor: "bg-blue-600 hover:bg-blue-700 text-white",
-    btnLabel: "Call Now",
-  },
-  {
-    icon: <Instagram className="w-6 h-6" />,
-    title: "Instagram",
-    value: "@snak_zee",
-    desc: "Follow us for new products & behind-the-scenes",
-    href: "https://www.instagram.com/snak_zee",
-    color: "bg-pink-50 text-pink-700 border-pink-200",
-    btnColor: "bg-gradient-to-r from-purple-600 via-pink-500 to-orange-400 text-white",
-    btnLabel: "Follow Us",
-  },
-  {
-    icon: <MapPin className="w-6 h-6" />,
-    title: "Location",
-    value: "Kurnool, Andhra Pradesh, India",
-    desc: "We deliver across the world.",
-    href: undefined,
-    color: "bg-terracotta/10 text-terracotta border-terracotta/20",
-    btnColor: "",
-    btnLabel: "",
-  },
-];
+};
 
-const FAQS_QUICK = [
+const CONTACT_METHODS = [
   { q: "How do I place an order?", a: "Click any WhatsApp button — your message is pre-filled. Just hit send!" },
   { q: "What are delivery charges?", a: "Free delivery on orders above ₹1,000 across Telangana and Andhra Pradesh." },
   { q: "How long does delivery take?", a: "2-3 business days. Every item is made fresh after you order." },

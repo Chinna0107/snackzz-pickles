@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
+import { Metadata } from "next";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Mail, Lock, Eye, EyeOff, Phone, ShieldCheck, Edit2, KeyRound } from "lucide-react";
@@ -9,6 +10,12 @@ import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
+
+export const metadata: Metadata = {
+  title: "Sign In to Snakzee Foods | Login & Account Access",
+  description: "Sign in to your Snakzee account. Access your orders, wishlist, and account settings. Secure login with email/password or OTP verification.",
+  robots: { index: false },
+};
 
 export default function LoginPage() {
   const router = useRouter();
