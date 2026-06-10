@@ -46,6 +46,7 @@ interface ProductWithQuantities extends Product {
   quantity_prices?: { quantity: string; price: number; mrp?: number }[];
 }
 
+import Head from "next/head";
 function ProductCard({ product }: { product: ProductWithQuantities }) {
   const { addItem } = useCart();
   const { toast } = useToast();
@@ -124,6 +125,27 @@ function ProductCard({ product }: { product: ProductWithQuantities }) {
   };
 
   return (
+        <>
+          <Head>
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "Product",
+                  name: product.nameEnglish || product.name,
+                  image: product.image,
+                  description: product.description,
+                  offers: {
+                    "@type": "Offer",
+                    priceCurrency: "INR",
+                    price: product.price,
+                    availability: "https://schema.org/InStock"
+                  }
+                })
+              }}
+            />
+          </Head>
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -228,6 +250,7 @@ function ProductCard({ product }: { product: ProductWithQuantities }) {
         </button>
       </div>
     </motion.div>
+        </>
   );
 }
 
@@ -239,6 +262,23 @@ function ProductsContent() {
   const [searchQuery, setSearchQuery] = useState("");
   const [sortBy, setSortBy] = useState("default");
 
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@graph": products.map(p => ({
+      "@type": "Product",
+      "name": p.nameEnglish || p.name,
+      "image": p.image,
+      "description": p.description,
+      "offers": {
+        "@type": "Offer",
+        "priceCurrency": "INR",
+        "price": p.price,
+        "availability": "https://schema.org/InStock"
+      }
+    }))
+  };
+
+  // Fetch products from backend
   useEffect(() => {
     const fetchProducts = async () => {
       try {
