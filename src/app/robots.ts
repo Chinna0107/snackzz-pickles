@@ -5,8 +5,8 @@ export default function robots(): MetadataRoute.Robots {
     rules: [
       {
         userAgent: "*",
-        allow: "/",
-        disallow: ["/admin", "/dashboard", "/api", "/checkout"],
+        allow: ["/", "/_next/static/", "/_next/image"],
+        disallow: ["/admin", "/dashboard", "/api", "/checkout", "/cart"],
       },
     ],
     sitemap: "https://snakzee.com/sitemap.xml",
