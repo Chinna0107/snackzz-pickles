@@ -11,6 +11,49 @@ import Footer from "@/components/Footer";
 import { getWhatsAppLink } from "@/lib/products";
 
 const CONTACT_METHODS = [
+  {
+    icon: <MessageCircle className="w-6 h-6" />,
+    title: "WhatsApp",
+    value: "Chat instantly",
+    desc: "Message us on WhatsApp for quick support.",
+    href: getWhatsAppLink(),
+    btnLabel: "WhatsApp",
+    btnColor: "bg-[#25D366] hover:bg-[#1ebe5d] text-white",
+    color: "border-green-500/20",
+  },
+  {
+    icon: <Phone className="w-6 h-6" />,
+    title: "Phone",
+    value: "+91 93055 50051",
+    desc: "Call us for any queries.",
+    href: "tel:+919305550051",
+    btnLabel: "Call",
+    btnColor: "bg-terracotta hover:bg-terracotta-dark text-white",
+    color: "border-terracotta/20",
+  },
+  {
+    icon: <Mail className="w-6 h-6" />,
+    title: "Email",
+    value: "support@snakzee.com",
+    desc: "Send us an email.",
+    href: "mailto:support@snakzee.com",
+    btnLabel: "Email",
+    btnColor: "bg-terracotta hover:bg-terracotta-dark text-white",
+    color: "border-terracotta/20",
+  },
+  {
+    icon: <MapPin className="w-6 h-6" />,
+    title: "Address",
+    value: "Banjara Hills, Hyderabad",
+    desc: "Visit our office.",
+    href: "#",
+    btnLabel: "Map",
+    btnColor: "bg-terracotta hover:bg-terracotta-dark text-white",
+    color: "border-terracotta/20",
+  },
+];
+
+const CONTACT_FAQS = [
   { q: "How do I place an order?", a: "Click any WhatsApp button — your message is pre-filled. Just hit send!" },
   { q: "What are delivery charges?", a: "Free delivery on orders above ₹1,000 across Telangana and Andhra Pradesh." },
   { q: "How long does delivery take?", a: "2-3 business days. Every item is made fresh after you order." },
@@ -70,12 +113,54 @@ export default function ContactPage() {
 
             {/* Left: Contact Methods + Hours */}
             <div className="space-y-6">
+              {/* Contact Methods */}
               <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }}>
                 <h2 className="font-serif text-2xl sm:text-3xl font-bold text-brown mb-6">Reach Us Directly</h2>
                 <div className="space-y-4">
-                  {CONTACT_METHODS.map((method, i) => (
+                  {[
+                    {
+                      icon: <MessageCircle className="w-6 h-6" />,
+                      title: "WhatsApp",
+                      value: "Chat instantly",
+                      desc: "Message us on WhatsApp for quick support.",
+                      href: getWhatsAppLink(),
+                      btnLabel: "WhatsApp",
+                      btnColor: "bg-[#25D366] hover:bg-[#1ebe5d] text-white",
+                      color: "border-green-500/20",
+                    },
+                    {
+                      icon: <Phone className="w-6 h-6" />,
+                      title: "Phone",
+                      value: "+91 93055 50051",
+                      desc: "Call us for any queries.",
+                      href: "tel:+919305550051",
+                      btnLabel: "Call",
+                      btnColor: "bg-terracotta hover:bg-terracotta-dark text-white",
+                      color: "border-terracotta/20",
+                    },
+                    {
+                      icon: <Mail className="w-6 h-6" />,
+                      title: "Email",
+                      value: "support@snakzee.com",
+                      desc: "Send us an email.",
+                      href: "mailto:support@snakzee.com",
+                      btnLabel: "Email",
+                      btnColor: "bg-terracotta hover:bg-terracotta-dark text-white",
+                      color: "border-terracotta/20",
+                    },
+                    {
+                      icon: <MapPin className="w-6 h-6" />,
+                      title: "Address",
+                      value: "Banjara Hills, Hyderabad",
+                      desc: "Visit our office.",
+                      href: "#",
+                      btnLabel: "Map",
+                      btnColor: "bg-terracotta hover:bg-terracotta-dark text-white",
+                      color: "border-terracotta/20",
+                    },
+                  ].map((method, i) => (
                     <div key={i} className={`flex flex-col sm:flex-row sm:items-start gap-3 sm:gap-4 p-4 rounded-2xl border ${method.color} bg-white`}>
-                      <div className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center ${method.color}`}>
+                      <div className={`flex-shrink-0 w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center bg-brown/5 text-brown`}>
                         {method.icon}
                       </div>
                       <div className="flex-1 min-w-0">
@@ -119,7 +204,7 @@ export default function ContactPage() {
               <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} viewport={{ once: true }} transition={{ delay: 0.2 }} className="bg-white rounded-2xl border border-terracotta/10 p-6">
                 <h3 className="font-serif text-xl font-bold text-brown mb-4">Quick Answers</h3>
                 <div className="space-y-3">
-                  {CONTACT_METHODS.map((faq, i) => (
+                  {CONTACT_FAQS.map((faq, i) => (
                     <div key={i} className="border-b border-terracotta/5 pb-3 last:border-0 last:pb-0">
                       <p className="font-sans font-semibold text-brown text-sm mb-1">{faq.q}</p>
                       <p className="text-brown-light/60 text-xs font-sans">{faq.a}</p>

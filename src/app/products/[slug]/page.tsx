@@ -9,6 +9,7 @@ import { ShoppingCart, Heart, Share2, Clock, Users, Flame, ArrowLeft, Star, Plus
 import { useToast } from "@/hooks/use-toast";
 import { useCart } from "@/context/CartContext";
 import Header from "@/components/Header";
+import Head from "next/head";
 
 const BACKEND_URL = process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
@@ -182,7 +183,43 @@ export default function ProductDetailPage() {
   return (
     <div className="min-h-screen bg-cream">
       <Header />
-      {/* Header */}
+      <Head>
+        <title>{product ? `${product.name} - Snakzee` : "Snakzee"}</title>
+        {product && (
+          <>
+            <meta name="description" content={product.description || ""} />
+            <script
+              type="application/ld+json"
+              dangerouslySetInnerHTML={{
+                __html: JSON.stringify({
+                  "@context": "https://schema.org",
+                  "@type": "Product",
+                  name: product.name,
+                  image: allImages,
+                  description: product.description,
+                  sku: String(product.id),
+                  offers: {
+                    "@type": "Offer",
+                    url: typeof window !== "undefined" ? window.location.href : "",
+                    priceCurrency: "INR",
+                    price: currentPrice,
+                    availability: "https://schema.org/InStock",
+                  },
+                  ...(product.reviews && product.reviews.length > 0
+                    ? {
+                        aggregateRating: {
+                          "@type": "AggregateRating",
+                          ratingValue: (product.reviews.reduce((s, r) => s + r.rating, 0) / product.reviews.length).toFixed(1),
+                          reviewCount: product.reviews.length,
+                        },
+                      }
+                    : {}),
+                }),
+              }}
+            />
+          </>
+        )}
+      </Head>
       <div className="bg-white border-b border-terracotta/10 sticky top-[112px] sm:top-[128px] z-40 shadow-sm">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 py-3 flex items-center gap-4">
           <button onClick={() => router.back()} className="text-brown-light hover:text-brown transition-colors">
