@@ -191,7 +191,7 @@ function ProductCard({ product }: { product: ProductWithQuantities }) {
         <h3 className="font-serif text-lg font-bold text-brown mb-0.5 group-hover:text-terracotta transition-colors line-clamp-1">
           {product.name || product.name}
         </h3>
-        <p className="text-brown-light/50 text-[12px] font-sans mb-1">{product.nameEnglish || product.name}</p>
+        <p className="text-brown-light/50 text-[12px] font-sans mb-1 line-clamp-1">{product.nameEnglish || product.name}</p>
         <p className="text-brown-light/60 text-sm mb-3 font-sans overflow-hidden text-ellipsis whitespace-nowrap">
           {product.description}
         </p>
@@ -381,7 +381,8 @@ function ProductsContent() {
             </Badge>
             <h1 className="font-serif text-4xl sm:text-5xl lg:text-6xl font-bold text-cream mb-4">
               {activeCatInfo ? (
-                <>{activeCatInfo.icon} {activeCatInfo.name}</>
+                <> {activeCatInfo.name}</>
+                // {activeCatInfo.icon}
               ) : "Our Products"}
             </h1>
             <p className="text-cream/70 text-base sm:text-lg max-w-2xl mx-auto font-sans">

@@ -1193,10 +1193,10 @@ function ProductCard({
           </Badge>
           <SpiceLevelBadge level={product.spiceLevel} />
         </div>
-        <h3 className="font-serif text-xl sm:text-2xl font-bold text-brown mb-1 group-hover:text-terracotta transition-colors">
+        <h3 className="font-serif text-xl sm:text-2xl font-bold text-brown mb-1 group-hover:text-terracotta transition-colors line-clamp-1">
           {product.name}
         </h3>
-        <span className="text-brown-light/50 text-[13px] font-sans block mb-1">({product.nameEnglish})</span>
+        <span className="text-brown-light/50 text-[13px] font-sans block mb-1 line-clamp-1">({product.nameEnglish})</span>
         <p className="text-brown-light/60 text-sm leading-relaxed mb-2 line-clamp-1 font-sans">
           {product.description}
         </p>
