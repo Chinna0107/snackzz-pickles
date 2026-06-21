@@ -14,7 +14,7 @@ const CATEGORIES = [
   { id: "sweet-items", name: "Sweets" },
   { id: "podis-and-powders", name: "Masalas & Powders" },
   { id: "pickles", name: "Pickles" },
-  { id: "fryums", name: "Fryums" },
+  { id: "fryums", name: "Fryums and Papads" },
 ];
 
 interface Product {

@@ -7,7 +7,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Search, XCircle, ShoppingCart, Heart, Share2, Crown, BarChart3,
-  CalendarClock, UsersRound, MessageCircle, Filter, ChevronDown,
+  CalendarClock, UsersRound, MessageCircle, Filter, ChevronDown, Minus, Plus,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { useCart } from "@/context/CartContext";
@@ -182,12 +182,12 @@ function ProductCard({ product }: { product: ProductWithQuantities }) {
       </div>
 
       <div className="p-4">
-        <div className="flex items-center gap-2 mb-2 flex-wrap">
+        {/* <div className="flex items-center gap-2 mb-2 flex-wrap">
           <Badge variant="secondary" className="bg-terracotta/10 text-terracotta font-sans text-[10px] uppercase tracking-wider">
             {categories.find(c => c.id === product.category)?.name || product.category}
           </Badge>
           <SpiceLevelBadge level={product.spiceLevel} />
-        </div>
+        </div> */}
         <h3 className="font-serif text-lg font-bold text-brown mb-0.5 group-hover:text-terracotta transition-colors line-clamp-1">
           {product.name || product.name}
         </h3>
@@ -231,15 +231,15 @@ function ProductCard({ product }: { product: ProductWithQuantities }) {
               {product.priceUnit}
             </div>
           )}
-          <input
-            type="number"
-            min={1}
-            max={10}
-            value={quantity}
-            onChange={(e) => setQuantity(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
-            className="w-20 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-center text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
-            aria-label="Quantity"
-          />
+          <div className="flex items-center border border-terracotta/10 rounded-xl overflow-hidden bg-cream">
+            <button type="button" onClick={(e) => { e.stopPropagation(); setQuantity(q => Math.max(1, q - 1)); }} disabled={quantity <= 1} className="w-8 h-9 flex items-center justify-center text-brown hover:bg-terracotta/10 disabled:opacity-30 transition-colors flex-shrink-0" aria-label="Decrease">
+              <Minus className="w-3 h-3" />
+            </button>
+            <span className="w-7 text-center text-sm font-semibold text-brown select-none">{quantity}</span>
+            <button type="button" onClick={(e) => { e.stopPropagation(); setQuantity(q => Math.min(10, q + 1)); }} disabled={quantity >= 10} className="w-8 h-9 flex items-center justify-center text-brown hover:bg-terracotta/10 disabled:opacity-30 transition-colors flex-shrink-0" aria-label="Increase">
+              <Plus className="w-3 h-3" />
+            </button>
+          </div>
         </div>
         <button
           onClick={handleAddToCart}
@@ -459,7 +459,7 @@ function ProductsContent() {
                 className="pl-9 pr-8 py-3 rounded-xl bg-white border border-terracotta/10 text-brown text-sm font-sans focus:outline-none focus:border-terracotta/30 appearance-none cursor-pointer"
               >
                 <option value="default">Sort: Default</option>
-                <option value="popular">Most Popular</option>
+                {/* <option value="popular">Most Popular</option> */}
                 <option value="price-asc">Price: Low to High</option>
                 <option value="price-desc">Price: High to Low</option>
               </select>

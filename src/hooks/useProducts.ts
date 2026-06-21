@@ -81,7 +81,7 @@ async function fetchFromAPI(): Promise<MappedProduct[]> {
   const res = await fetch(`${BACKEND_URL}/products`);
   const data = await res.json();
   if (!data.products || !Array.isArray(data.products)) return [];
-  return data.products.map(mapProduct);
+  return data.products.map(mapProduct).sort((a: MappedProduct, b: MappedProduct) => Number(a.id) - Number(b.id));
 }
 
 // Call this on hover/focus of nav links to pre-warm cache

@@ -127,7 +127,7 @@ export const categories: CategoryInfo[] = [
   },
   {
     id: "sweet-items",
-    name: "Sweet Items",
+    name: "Sweets",
     nameTelugu: "స్వీట్ మిక్స్",
     icon: "🍬",
     image: "/products/Sweet_Items/Besan_Laddu.jpg",
@@ -154,7 +154,7 @@ export const categories: CategoryInfo[] = [
   },
   {
     id: "fryums",
-    name: "Fryums",
+    name: "Fryums and Papads",
     nameTelugu: "ఫ్రైయమ్స్",
     icon: "🍘",
     image: "/products/Fryums/Fryums.jpg",

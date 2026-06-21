@@ -626,10 +626,17 @@ function HeroSection() {
 
 // ─── Marquee Strip ───────────────────────────────────────────
 function MarqueeStrip() {
-  const items = Array(6).fill("For Telangana and Andhra Pradesh free delivery on order above ₹999");
-  return (
+  const items = Array(12).fill(
+  <span style={{ color: "#fff", fontWeight: "600" }}>
+    Free Delivery across Telangana &amp; Andhra Pradesh on orders above ₹999
+  </span>
+);
+    return (
     <div className="bg-terracotta py-2.5 sm:py-3 md:py-4 marquee-wrapper overflow-hidden">
-      <div className="animate-marquee whitespace-nowrap flex items-center">
+      <div
+        className="animate-marquee whitespace-nowrap flex items-center"
+        style={{ animationDuration: "18s" }}
+      >
         {items.map((item, i) => (
           <span
             key={i}
@@ -645,33 +652,45 @@ function MarqueeStrip() {
 }
 
 // ─── Category Grid ───────────────────────────────────────────
-// ─── Best Sellers Horizontal Scroll ──────────────────────────────────
+// ─── Best Sellers Auto-Scroll Slider ──────────────────────────────────
 function BestSellers({ products, onCategorySelect }: { products: Product[]; onCategorySelect: (id: string) => void }) {
-  const { addItem } = useCart();
-  const { toast } = useToast();
   const router = useRouter();
-  const scrollRef = useRef<HTMLDivElement>(null);
-  const [addedId, setAddedId] = useState<string | null>(null);
+  const trackRef = useRef<HTMLDivElement>(null);
+  const [isPaused, setIsPaused] = useState(false);
+  const offsetRef = useRef(0);
+  const rafRef = useRef<number>(0);
+  const CARD_WIDTH = 224; // w-56 = 14rem = 224px
+  const GAP = 16;
 
   const bestsellers = products
-  .filter(product => product.badge?.toLowerCase() === "bestseller")
-  .slice(0, 10);
+    .filter(product => product.badge?.toLowerCase() === "bestseller")
+    .slice(0, 30);
+
+  // Double the list for seamless infinite loop
+  const slides = [...bestsellers, ...bestsellers];
+
+  useEffect(() => {
+    if (bestsellers.length === 0) return;
+    const totalWidth = bestsellers.length * (CARD_WIDTH + GAP);
+
+    const animate = () => {
+      if (!isPaused) {
+        offsetRef.current += 1.5;
+        if (offsetRef.current >= totalWidth) offsetRef.current = 0;
+        if (trackRef.current) {
+          trackRef.current.style.transform = `translateX(-${offsetRef.current}px)`;
+        }
+      }
+      rafRef.current = requestAnimationFrame(animate);
+    };
+    rafRef.current = requestAnimationFrame(animate);
+    return () => cancelAnimationFrame(rafRef.current);
+  }, [isPaused, bestsellers.length]);
+
   if (bestsellers.length === 0) return null;
 
-  const handleAdd = (e: React.MouseEvent, product: Product) => {
-    e.stopPropagation();
-    addItem(product);
-    setAddedId(product.id);
-    toast({ title: "Added to cart! 🛒", description: product.nameEnglish });
-    setTimeout(() => setAddedId(null), 2000);
-  };
-
-  const scroll = (dir: "left" | "right") => {
-    if (scrollRef.current) scrollRef.current.scrollBy({ left: dir === "left" ? -300 : 300, behavior: "smooth" });
-  };
-
   return (
-    <section className="py-8 sm:py-10 md:py-14 bg-white border-y border-terracotta/10">
+    <section className="py-8 sm:py-10 md:py-14 bg-white border-y border-terracotta/10 overflow-hidden">
       <div className="max-w-7xl mx-auto px-3 sm:px-4 md:px-6 lg:px-8">
         <div className="flex items-center justify-between mb-4 sm:mb-6">
           <div>
@@ -681,35 +700,44 @@ function BestSellers({ products, onCategorySelect }: { products: Product[]; onCa
             </div>
             <p className="text-brown-light/50 text-xs sm:text-sm font-sans">Most loved by our customers</p>
           </div>
-          <div className="hidden sm:flex items-center gap-2">
-            <button onClick={() => scroll("left")}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-terracotta/20 flex items-center justify-center hover:bg-terracotta/10 transition-colors">
-              <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brown" />
-            </button>
-            <button onClick={() => scroll("right")}
-              className="w-8 h-8 sm:w-9 sm:h-9 rounded-full border border-terracotta/20 flex items-center justify-center hover:bg-terracotta/10 transition-colors">
-              <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-brown" />
-            </button>
-          </div>
         </div>
+      </div>
 
-        <div ref={scrollRef} className="flex gap-3 sm:gap-4 overflow-x-auto pb-2 sm:pb-3 scrollbar-hide snap-x snap-mandatory touch-scroll">
-          {bestsellers.map((product, index) => (
-            <div key={getProductRenderKey(product, index)}
+      {/* Full-width sliding track */}
+      <div
+        className="w-full overflow-hidden"
+        onMouseEnter={() => setIsPaused(true)}
+        onMouseLeave={() => setIsPaused(false)}
+        onTouchStart={() => setIsPaused(true)}
+        onTouchEnd={() => setIsPaused(false)}
+      >
+        <div
+          ref={trackRef}
+          className="flex gap-4 will-change-transform"
+          style={{ width: `${slides.length * (CARD_WIDTH + GAP)}px` }}
+        >
+          {slides.map((product, index) => (
+            <div
+              key={`${product.id}-${index}`}
               onClick={() => router.push(`/products/${(product as any).slug || product.id}`)}
-              className="flex-shrink-0 w-40 sm:w-48 md:w-56 bg-cream rounded-xl sm:rounded-2xl border border-terracotta/10 overflow-hidden cursor-pointer hover:shadow-lg hover:border-terracotta/20 transition-all snap-start group active:scale-95">
-              <div className="relative h-32 sm:h-40 md:h-48 overflow-hidden bg-cream-dark">
-                <Image src={product.image} alt={product.name} fill className="object-cover group-hover:scale-105 transition-transform duration-500" sizes="(max-width: 640px) 160px, 224px" />
-                <div className="absolute top-1.5 left-1.5 sm:top-2 sm:left-2 bg-gold text-brown text-[8px] sm:text-[9px] font-bold font-sans px-1.5 py-0.5 sm:px-2 rounded-full flex items-center gap-0.5 sm:gap-1">
-                  <Crown className="w-2 h-2 sm:w-2.5 sm:h-2.5 fill-current" /> Bestseller
+              className="flex-shrink-0 w-56 bg-cream rounded-2xl border border-terracotta/10 overflow-hidden cursor-pointer hover:shadow-lg hover:border-terracotta/20 transition-shadow group"
+            >
+              <div className="relative h-48 overflow-hidden bg-cream-dark">
+                <Image
+                  src={product.image}
+                  alt={product.name}
+                  fill
+                  className="object-cover group-hover:scale-105 transition-transform duration-500"
+                  sizes="224px"
+                />
+                <div className="absolute top-2 left-2 bg-gold text-brown text-[9px] font-bold font-sans px-2 py-0.5 rounded-full flex items-center gap-1">
+                  <Crown className="w-2.5 h-2.5 fill-current" /> Bestseller
                 </div>
               </div>
-              <div className="p-2.5 sm:p-3">
-                <p className="font-serif font-bold text-brown text-xs sm:text-sm leading-tight mb-0.5 line-clamp-1">{product.name}</p>
-                <p className="text-brown-light/50 text-[10px] sm:text-[11px] font-sans mb-1.5 sm:mb-2 line-clamp-1">{product.nameEnglish}</p>
-                <div className="flex items-center justify-between">
-  <span className="font-sans font-normal text-gold text-base sm:text-lg">₹{product.price}</span>
-</div>
+              <div className="p-3">
+                <p className="font-serif font-bold text-brown text-sm leading-tight mb-0.5 line-clamp-1">{product.name}</p>
+                <p className="text-brown-light/50 text-[11px] font-sans mb-2 line-clamp-1">{product.nameEnglish}</p>
+                <span className="font-sans font-normal text-gold text-lg">₹{product.price}</span>
               </div>
             </div>
           ))}
@@ -1185,13 +1213,13 @@ function ProductCard({
       {/* Content */}
       <div className="p-4 sm:p-5">
         <div className="flex items-center gap-2 mb-2 flex-wrap">
-          <Badge
+          {/* <Badge
             variant="secondary"
             className="bg-terracotta/10 text-terracotta font-sans text-[10px] uppercase tracking-wider"
           >
             {product.category}
-          </Badge>
-          <SpiceLevelBadge level={product.spiceLevel} />
+          </Badge> */}
+          {/* <SpiceLevelBadge level={product.spiceLevel} /> */}
         </div>
         <h3 className="font-serif text-xl sm:text-2xl font-bold text-brown mb-1 group-hover:text-terracotta transition-colors line-clamp-1">
           {product.name}
@@ -1207,10 +1235,10 @@ function ProductCard({
             <CalendarClock className="w-3 h-3" />
             {product.shelfLife}
           </span>
-          <span className="flex items-center gap-1">
+          {/* <span className="flex items-center gap-1">
             <UsersRound className="w-3 h-3" />
             {product.serves}
-          </span>
+          </span> */}
         </div>
 
         <div className="flex items-center justify-between gap-2 mb-3">
@@ -1267,12 +1295,15 @@ function ProductCard({
                 {product.priceUnit}
               </div>
             )}
-            <input
-              type="number" min={1} max={10} value={quantity}
-              onChange={(e) => setQuantity(Math.min(10, Math.max(1, Number(e.target.value) || 1)))}
-              className="w-16 rounded-xl border border-terracotta/10 bg-cream px-2 py-2 text-center text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
-              aria-label="Quantity"
-            />
+            <div className="flex items-center border border-terracotta/10 rounded-xl overflow-hidden bg-cream">
+              <button type="button" onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity <= 1} className="w-8 h-9 flex items-center justify-center text-brown hover:bg-terracotta/10 disabled:opacity-30 transition-colors flex-shrink-0" aria-label="Decrease">
+                <Minus className="w-3 h-3" />
+              </button>
+              <span className="w-7 text-center text-sm font-semibold text-brown select-none">{quantity}</span>
+              <button type="button" onClick={() => setQuantity(q => Math.min(10, q + 1))} disabled={quantity >= 10} className="w-8 h-9 flex items-center justify-center text-brown hover:bg-terracotta/10 disabled:opacity-30 transition-colors flex-shrink-0" aria-label="Increase">
+                <Plus className="w-3 h-3" />
+              </button>
+            </div>
           </div>
           <button
             onClick={handleAddToCart}

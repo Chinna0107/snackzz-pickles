@@ -145,21 +145,26 @@ export default function Header() {
           <div className="flex items-center justify-between h-16 sm:h-20">
 
             {/* Logo */}
-            <Link href="/">
-              <motion.div className="cursor-pointer" whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                <div className="relative h-9 sm:h-12 lg:h-14 w-[120px] sm:w-[160px] lg:w-[200px]">
-                  <Image
-                    src="/logo-removebg-preview.png"
-                    alt="Snakzee"
-                    fill
-                    className="object-contain object-left"
-                    priority
-                    loading="eager"
-                    sizes="180px"
-                  />
-                </div>
-              </motion.div>
-            </Link>
+            <Link href="/" scroll={true}>
+  <motion.div
+    className="cursor-pointer"
+    whileHover={{ scale: 1.02 }}
+    whileTap={{ scale: 0.98 }}
+    onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
+  >
+    <div className="relative h-9 sm:h-12 lg:h-14 w-[120px] sm:w-[160px] lg:w-[200px]">
+      <Image
+        src="/logo-removebg-preview.png"
+        alt="Snakzee"
+        fill
+        className="object-contain object-left"
+        priority
+        loading="eager"
+        sizes="180px"
+      />
+    </div>
+  </motion.div>
+</Link>
 
             {/* Desktop Navigation Links */}
             <div className="hidden lg:flex items-center gap-0.5 lg:gap-1.5">

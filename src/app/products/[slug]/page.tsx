@@ -494,8 +494,9 @@ export default function ProductDetailPage() {
                     )}
                   </div>
                   <div className="p-3">
-                    <p className="font-sans font-semibold text-brown text-sm truncate">{p.name_english}</p>
-                    <p className="text-brown-light/50 text-[11px] font-sans mb-1 truncate">{p.name}</p>
+                    <p className="font-sans font-semibold text-brown text-sm truncate">{p.name}</p>
+                    <p className="text-brown-light/50 text-[11px] font-sans mb-1 truncate">{p.name_english}</p>
+                    {/* <p className="font-sans font-semibold text-brown text-sm truncate">{p.name_english}</p> */}
                     <p className="font-sans font-bold text-terracotta">₹{p.price}</p>
                   </div>
                 </Link>
