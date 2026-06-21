@@ -189,9 +189,9 @@ function ProductCard({ product }: { product: ProductWithQuantities }) {
           <SpiceLevelBadge level={product.spiceLevel} />
         </div>
         <h3 className="font-serif text-lg font-bold text-brown mb-0.5 group-hover:text-terracotta transition-colors line-clamp-1">
-          {product.nameEnglish}
+          {product.name || product.name}
         </h3>
-        <p className="text-brown-light/50 text-[12px] font-sans mb-1">{product.name}</p>
+        <p className="text-brown-light/50 text-[12px] font-sans mb-1">{product.nameEnglish || product.name}</p>
         <p className="text-brown-light/60 text-sm mb-3 font-sans overflow-hidden text-ellipsis whitespace-nowrap">
           {product.description}
         </p>
