@@ -219,7 +219,7 @@ function ProductCard({ product }: { product: ProductWithQuantities }) {
             <select
               value={selectedGram}
               onChange={(e) => setSelectedGram(e.target.value)}
-              className="min-w-0 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+              className="min-w-0 rounded-xl border border-terracotta/10 bg-cream px-3 py-2.5 sm:py-2 text-base sm:text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
               aria-label="Select weight"
             >
               {gramOptions.map((option) => (
@@ -231,12 +231,12 @@ function ProductCard({ product }: { product: ProductWithQuantities }) {
               {product.priceUnit}
             </div>
           )}
-          <div className="flex items-center border border-terracotta/10 rounded-xl overflow-hidden bg-cream">
-            <button type="button" onClick={(e) => { e.stopPropagation(); setQuantity(q => Math.max(1, q - 1)); }} disabled={quantity <= 1} className="w-8 h-9 flex items-center justify-center text-brown hover:bg-terracotta/10 disabled:opacity-30 transition-colors flex-shrink-0" aria-label="Decrease">
+          <div className="flex items-center border border-terracotta/10 rounded-xl overflow-hidden bg-cream h-[38px] sm:h-[36px]">
+            <button type="button" onClick={(e) => { e.stopPropagation(); setQuantity(q => Math.max(1, q - 1)); }} disabled={quantity <= 1} className="w-6 sm:w-8 h-full flex items-center justify-center text-brown hover:bg-terracotta/10 disabled:opacity-30 transition-colors flex-shrink-0" aria-label="Decrease">
               <Minus className="w-3 h-3" />
             </button>
-            <span className="w-7 text-center text-sm font-semibold text-brown select-none">{quantity}</span>
-            <button type="button" onClick={(e) => { e.stopPropagation(); setQuantity(q => Math.min(10, q + 1)); }} disabled={quantity >= 10} className="w-8 h-9 flex items-center justify-center text-brown hover:bg-terracotta/10 disabled:opacity-30 transition-colors flex-shrink-0" aria-label="Increase">
+            <span className="w-5 sm:w-7 text-center text-sm font-semibold text-brown select-none">{quantity}</span>
+            <button type="button" onClick={(e) => { e.stopPropagation(); setQuantity(q => Math.min(10, q + 1)); }} disabled={quantity >= 10} className="w-6 sm:w-8 h-full flex items-center justify-center text-brown hover:bg-terracotta/10 disabled:opacity-30 transition-colors flex-shrink-0" aria-label="Increase">
               <Plus className="w-3 h-3" />
             </button>
           </div>

@@ -583,7 +583,7 @@ function HeroSection() {
   const slides = banners.length > 0 ? banners : fallbackImages;
 
   return (
-    <section className="relative w-full px-4 sm:px-6 lg:px-8 h-[20vh] sm:h-[30vh] md:h-[40vh] lg:h-[45vh] xl:h-[50vh] overflow-hidden py-2 md:py-0">
+    <section className="relative w-full px-4 sm:px-6 lg:px-8 h-[20vh] sm:h-[25vh] md:h-[30vh] lg:h-[35vh] xl:h-[40vh] overflow-hidden py-2 md:py-0">
       <AnimatePresence mode="wait">
         <motion.div
           key={currentBanner}
@@ -598,7 +598,7 @@ function HeroSection() {
               src={slides[currentBanner].url}
               alt={slides[currentBanner].label || "Snakzee Banner"}
               fill
-              className="object-contain md:object-cover"
+              className="object-fill w-full h-full"
               priority
               sizes="100vw"
             />
@@ -675,7 +675,7 @@ function BestSellers({ products, onCategorySelect }: { products: Product[]; onCa
 
     const animate = () => {
       if (!isPaused) {
-        offsetRef.current += 1.5;
+        offsetRef.current += 0.5;
         if (offsetRef.current >= totalWidth) offsetRef.current = 0;
         if (trackRef.current) {
           trackRef.current.style.transform = `translateX(-${offsetRef.current}px)`;
@@ -1279,7 +1279,7 @@ function ProductCard({
               <select
                 value={selectedOption}
                 onChange={(e) => setSelectedOption(e.target.value)}
-                className="min-w-0 rounded-xl border border-terracotta/10 bg-cream px-3 py-2 text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
+                className="min-w-0 rounded-xl border border-terracotta/10 bg-cream px-3 py-2.5 sm:py-2 text-base sm:text-sm font-semibold text-brown focus:outline-none focus:border-terracotta/30"
                 aria-label="Select quantity"
               >
                 <option value="base">{product.priceUnit}</option>
@@ -1295,12 +1295,12 @@ function ProductCard({
                 {product.priceUnit}
               </div>
             )}
-            <div className="flex items-center border border-terracotta/10 rounded-xl overflow-hidden bg-cream">
-              <button type="button" onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity <= 1} className="w-8 h-9 flex items-center justify-center text-brown hover:bg-terracotta/10 disabled:opacity-30 transition-colors flex-shrink-0" aria-label="Decrease">
+            <div className="flex items-center border border-terracotta/10 rounded-xl overflow-hidden bg-cream h-[38px] sm:h-[36px]">
+              <button type="button" onClick={() => setQuantity(q => Math.max(1, q - 1))} disabled={quantity <= 1} className="w-6 sm:w-8 h-full flex items-center justify-center text-brown hover:bg-terracotta/10 disabled:opacity-30 transition-colors flex-shrink-0" aria-label="Decrease">
                 <Minus className="w-3 h-3" />
               </button>
-              <span className="w-7 text-center text-sm font-semibold text-brown select-none">{quantity}</span>
-              <button type="button" onClick={() => setQuantity(q => Math.min(10, q + 1))} disabled={quantity >= 10} className="w-8 h-9 flex items-center justify-center text-brown hover:bg-terracotta/10 disabled:opacity-30 transition-colors flex-shrink-0" aria-label="Increase">
+              <span className="w-5 sm:w-7 text-center text-sm font-semibold text-brown select-none">{quantity}</span>
+              <button type="button" onClick={() => setQuantity(q => Math.min(10, q + 1))} disabled={quantity >= 10} className="w-6 sm:w-8 h-full flex items-center justify-center text-brown hover:bg-terracotta/10 disabled:opacity-30 transition-colors flex-shrink-0" aria-label="Increase">
                 <Plus className="w-3 h-3" />
               </button>
             </div>
@@ -2969,7 +2969,7 @@ function SocialProofNotification({ products }: { products: Product[] }) {
 
   return (
     <AnimatePresence>
-      {isVisible && notification && (
+      {/* {isVisible && notification && (
         <motion.div
           initial={{ x: -120, opacity: 0 }}
           animate={{ x: 0, opacity: 1 }}
@@ -2996,7 +2996,7 @@ function SocialProofNotification({ products }: { products: Product[] }) {
             <X className="w-3 h-3" />
           </button>
         </motion.div>
-      )}
+      )} */}
     </AnimatePresence>
   );
 }
